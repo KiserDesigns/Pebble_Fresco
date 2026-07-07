@@ -1,13 +1,6 @@
 // https://docs.google.com/spreadsheets/d/{SPREADSHEET_ID}/export?format=csv&id={SPREADSHEET_ID}&gid={SHEET_ID}
 // https://www.papaparse.com/
 
-// Import the Clay package
-var Clay = require('@rebble/clay');
-// Load our Clay configuration file
-var clayConfig = require('./config');
-// Initialize Clay
-var clay = new Clay(clayConfig);
-
 // Helper function for XMLHttpRequest
 var xhrRequest = function (url, type, callback) {
   var xhr = new XMLHttpRequest();
@@ -107,3 +100,10 @@ Pebble.addEventListener('appmessage',
     }
   }
 );
+
+Pebble.addEventListener('showConfiguration', function() {
+  var url = 'https://kiserdesigns.github.io/Pebble_Fresco/';
+
+  Pebble.openURL(url);
+});
+
