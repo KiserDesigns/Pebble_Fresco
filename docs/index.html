@@ -114,6 +114,11 @@ var xhrRequest = function (url, type, callback) {
     };
     var return_to = getQueryParam('return_to', 'pebblejs://close#');
 
+    // Get the platform from the URL:
+    var platform = getQueryParam('platform', 'unknown');
+    console.log(platform);
+    backgroundColor.value = platform;
+
     // Encode and send the data when the page closes
     
     
