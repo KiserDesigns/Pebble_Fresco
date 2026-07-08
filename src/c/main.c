@@ -19,6 +19,9 @@ static TextLayer *s_time_layer;
 static TextLayer *s_date_layer;
 static TextLayer *s_weather_layer;
 
+// Main Drawing Layer
+static Layer *s_canvas_layer;
+
 // Custom fonts
 static GFont s_time_font;
 static GFont s_date_font;
@@ -88,6 +91,8 @@ static void update_time() {
 
 static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
   update_time();
+  
+  layer_mark_dirty(s_canvas_layer);
 
   // Get weather update every 30 minutes
   if (tick_time->tm_min % 30 == 0) {
@@ -126,6 +131,11 @@ static void battery_update_proc(Layer *layer, GContext *ctx) {
   // Draw the filled bar inside the border
   graphics_context_set_fill_color(ctx, bar_color);
   graphics_fill_rect(ctx, GRect(2, 2, bar_width, bounds.size.h - 4), 1, GCornerNone);
+}
+
+static void canvas_update_proc(Layer *layer, GContext *ctx) {
+  graphics_context_set_fill_color(ctx, GColorWhite);
+  graphics_fill_rect(ctx, GRect(20, 20, 40, 40), 1, GCornerNone);
 }
 
 static void bluetooth_callback(bool connected) {
@@ -308,6 +318,10 @@ static void main_window_load(Window *window) {
   s_bt_icon_layer = bitmap_layer_create(GRect((bounds.size.w - 30) / 2, bt_y, 30, 30));
   bitmap_layer_set_bitmap(s_bt_icon_layer, s_bt_icon_bitmap);
   bitmap_layer_set_compositing_mode(s_bt_icon_layer, GCompOpSet);
+  
+  // Create Main Drawing layer
+  s_canvas_layer = layer_create(GRect(0,0,bounds.size.w,bounds.size.h));
+  layer_set_update_proc(s_canvas_layer, canvas_update_proc);
 
   // Add layers to the Window
   layer_add_child(s_window_layer, text_layer_get_layer(s_time_layer));
@@ -315,6 +329,7 @@ static void main_window_load(Window *window) {
   layer_add_child(s_window_layer, text_layer_get_layer(s_weather_layer));
   layer_add_child(s_window_layer, s_battery_layer);
   layer_add_child(s_window_layer, bitmap_layer_get_layer(s_bt_icon_layer));
+  layer_add_child(s_window_layer, s_canvas_layer);
 
   // Apply saved settings
   prv_update_display();
@@ -341,6 +356,7 @@ static void main_window_unload(Window *window) {
   layer_destroy(s_battery_layer);
   gbitmap_destroy(s_bt_icon_bitmap);
   bitmap_layer_destroy(s_bt_icon_layer);
+  layer_destroy(s_canvas_layer);
 }
 
 static void init() {

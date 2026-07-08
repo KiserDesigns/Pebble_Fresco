@@ -102,7 +102,7 @@ Pebble.addEventListener('appmessage',
 );
 
 Pebble.addEventListener('showConfiguration', function() {
-  var url = 'https://kiserdesigns.github.io/Pebble_Fresco/';
+  var url = 'https://kiserdesigns.github.io/Pebble_Fresco/' + '?platform=' + Pebble.getActiveWatchInfo().platform;
 
   Pebble.openURL(url);
 });
