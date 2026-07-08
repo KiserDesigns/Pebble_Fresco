@@ -41,10 +41,10 @@
 
     // Make a data object to be sent, coercing value types to integers
     var options = {
-      'BackgroundColor': parseInt(backgroundColor.value, 16),
-      'TextColor': parseInt(foregroundColor.value, 16),
-      'ShowDate': secondTickCheckbox.checked == 'true' ? 1 : 0,
-      'TemperatureUnit': animationsCheckbox.checked == 'true' ? 1 : 0
+      'background_color': parseInt(backgroundColor.value, 16),
+      'foreground_color': parseInt(foregroundColor.value, 16),
+      'second_tick_checkbox': secondTickCheckbox.checked == 'true' ? 1 : 0,
+      'animations_checkbox': animationsCheckbox.checked == 'true' ? 1 : 0
     };
 
     // Determine the correct return URL (emulator vs real watch)
