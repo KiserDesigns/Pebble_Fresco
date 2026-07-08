@@ -115,21 +115,23 @@ var xhrRequest = function (url, type, callback) {
     var return_to = getQueryParam('return_to', 'pebblejs://close#');
 
     // Encode and send the data when the page closes
-    //document.location = return_to + encodeURIComponent(JSON.stringify(options));
+    
     
     var url = return_to + encodeURIComponent(JSON.stringify(options));
 
-    fetch(url);
+    // fetch(url);
 
     const iframe = document.createElement("iframe");
     iframe.src = url;
     iframe.style.display;
     document.body.appendChild(iframe);
 
-    xhrRequest(url, 'GET',
-    function(responseText) {
-      console.log(responseText);
-    });
+    // xhrRequest(url, 'GET',
+    // function(responseText) {
+    //   console.log(responseText);
+    // });
+
+    window.location.replace = return_to + encodeURIComponent(JSON.stringify(options));
 
   });
 </script>
