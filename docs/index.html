@@ -18,7 +18,6 @@
 <input id='animations_checkbox' type='checkbox'>
   Temp in F
 </input>
-<input id='save_button' type='button' value='Save'>
 <input id='submit_button' type='button' value='Save & Exit'>
 
 
@@ -28,7 +27,33 @@
 
   // Get a handle to the button's HTML element
   var submitButton = document.getElementById('submit_button');
-  var saveButton = document.getElementById('save_button');
+  var backgroundColor = document.getElementById('background_color_input');
+
+  function getQueryParam(variable, defaultValue) {
+    var query = location.search.substring(1);
+    var vars = query.split('&');
+    for (var i = 0; i < vars.length; i++) {
+      var pair = vars[i].split('=');
+      if (pair[0] === variable) {
+        return decodeURIComponent(pair[1]);
+      }
+    }
+    return defaultValue || false;
+  };
+
+  var xhrRequest = function (url, type, callback) {
+    var xhr = new XMLHttpRequest();
+    xhr.onload = function () {
+      callback(this.responseText);
+    };
+    xhr.open(type, url);
+    xhr.send();
+  };
+
+  // Get the platform from the URL:
+  var platform = getQueryParam('platform', 'unknown');
+  console.log(platform);
+  backgroundColor.value = platform;
 
   // Add a 'click' listener
   submitButton.addEventListener('click', function() {
@@ -49,17 +74,6 @@
     console.log(parseInt(backgroundColor.value, 16), parseInt(foregroundColor.value, 16), secondTickCheckbox.checked ? 1 : 0, animationsCheckbox.checked ? 1 : 0);
 
     // Determine the correct return URL (emulator vs real watch)
-    function getQueryParam(variable, defaultValue) {
-      var query = location.search.substring(1);
-      var vars = query.split('&');
-      for (var i = 0; i < vars.length; i++) {
-        var pair = vars[i].split('=');
-        if (pair[0] === variable) {
-          return decodeURIComponent(pair[1]);
-        }
-      }
-      return defaultValue || false;
-    };
     var return_to = getQueryParam('return_to', 'pebblejs://close#');
 
     // Encode and send the data when the page closes
@@ -74,71 +88,7 @@
 
   });
 
-var xhrRequest = function (url, type, callback) {
-  var xhr = new XMLHttpRequest();
-  xhr.onload = function () {
-    callback(this.responseText);
-  };
-  xhr.open(type, url);
-  xhr.send();
-};
 
-  saveButton.addEventListener('click', function() {
-    // Get the config data from the UI elements
-    var backgroundColor = document.getElementById('background_color_input');
-    var foregroundColor = document.getElementById('foreground_color_input');
-    var secondTickCheckbox = document.getElementById('second_tick_checkbox');
-    var animationsCheckbox = document.getElementById('animations_checkbox');
-
-    // Make a data object to be sent, coercing value types to integers
-    var options = {
-      'background_color': parseInt(backgroundColor.value, 16),
-      'foreground_color': parseInt(foregroundColor.value, 16),
-      'second_tick_checkbox': secondTickCheckbox.checked ? 1 : 0,
-      'animations_checkbox': animationsCheckbox.checked ? 1 : 0
-    };
- 
-    console.log(parseInt(backgroundColor.value, 16), parseInt(foregroundColor.value, 16), secondTickCheckbox.checked ? 1 : 0, animationsCheckbox.checked ? 1 : 0);
-
-    // Determine the correct return URL (emulator vs real watch)
-    function getQueryParam(variable, defaultValue) {
-      var query = location.search.substring(1);
-      var vars = query.split('&');
-      for (var i = 0; i < vars.length; i++) {
-        var pair = vars[i].split('=');
-        if (pair[0] === variable) {
-          return decodeURIComponent(pair[1]);
-        }
-      }
-      return defaultValue || false;
-    };
-    var return_to = getQueryParam('return_to', 'pebblejs://close#');
-
-    // Get the platform from the URL:
-    var platform = getQueryParam('platform', 'unknown');
-    console.log(platform);
-    backgroundColor.value = platform;
-
-    // Encode and send the data when the page closes
-    
-    
-    var url = return_to + encodeURIComponent(JSON.stringify(options));
-
-    // fetch(url);
-
-    const iframe = document.createElement("iframe");
-    iframe.src = url;
-    iframe.style.display;
-    document.body.appendChild(iframe);
-
-    // xhrRequest(url, 'GET',
-    // function(responseText) {
-    //   console.log(responseText);
-    // });
-
-    window.location.replace = return_to + encodeURIComponent(JSON.stringify(options));
-
-  });
 </script>
 
 
