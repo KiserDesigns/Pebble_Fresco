@@ -40,11 +40,11 @@
     var options = {
       'background_color': parseInt(backgroundColor.value, 16),
       'foreground_color': parseInt(foregroundColor.value, 16),
-      'second_tick_checkbox': secondTickCheckbox.checked == 'true' ? 1 : 0,
-      'animations_checkbox': animationsCheckbox.checked == 'true' ? 1 : 0
+      'second_tick_checkbox': secondTickCheckbox.checked ? 1 : 0,
+      'animations_checkbox': animationsCheckbox.checked ? 1 : 0
     };
  
-    console.log(parseInt(backgroundColor.value, 16), parseInt(foregroundColor.value, 16), secondTickCheckbox.checked, animationsCheckbox.checked);
+    console.log(parseInt(backgroundColor.value, 16), parseInt(foregroundColor.value, 16), secondTickCheckbox.checked ? 1 : 0, animationsCheckbox.checked ? 1 : 0);
 
     // Determine the correct return URL (emulator vs real watch)
     function getQueryParam(variable, defaultValue) {
