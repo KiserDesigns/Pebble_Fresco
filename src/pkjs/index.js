@@ -107,3 +107,25 @@ Pebble.addEventListener('showConfiguration', function() {
   Pebble.openURL(url);
 });
 
+Pebble.addEventListener('webviewclosed', function(e) {
+  // Decode the user's preferences
+  var configData = JSON.parse(decodeURIComponent(e.response));
+  
+  // Send to the watchapp via AppMessage
+  var dict = {
+    'BackgroundColor': configData.background_color,
+    'TextColor': configData.foreground_color,
+    'ShowDate': configData.second_tick_checkbox,
+    'TemperatureUnit': configData.animations_checkbox
+  };
+  console.log(e.response);
+  console.log(decodeURIComponent(e.response));
+  
+  // Send to the watchapp
+  Pebble.sendAppMessage(dict, function() {
+    console.log('Config data sent successfully!');
+  }, function(e) {
+    console.log('Error sending config data!');
+  });
+  
+});

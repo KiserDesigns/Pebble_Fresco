@@ -1,18 +1,18 @@
 {
-    "author": "MakeAwesomeHappen",
+    "author": "KiserDesigns",
     "dependencies": {
         "@rebble/clay": "^1.0.8"
     },
     "keywords": [
         "pebble-app"
     ],
-    "name": "watchface-tutorial",
+    "name": "fresco",
     "pebble": {
         "capabilities": [
             "location",
             "configurable"
         ],
-        "displayName": "Tutorial Watchface",
+        "displayName": "Fresco",
         "enableMultiJS": true,
         "messageKeys": [
             "TEMPERATURE",
@@ -52,13 +52,13 @@
             "chalk",
             "diorite",
             "emery",
-            "flint",
-            "gabbro"
+            "gabbro",
+            "flint"
         ],
-        "uuid": "ab57ced9-9f60-4110-a4f3-472237741f9d",
+        "uuid": "c741bf8f-d454-466e-aee9-4533d141e4af",
         "watchapp": {
             "watchface": true
         }
     },
-    "version": "1.0.0"
+    "version": "0.0.1"
 }

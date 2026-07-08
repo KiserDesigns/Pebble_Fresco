@@ -142,11 +142,7 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
   // Check for weather data
   Tuple *temp_tuple = dict_find(iterator, MESSAGE_KEY_TEMPERATURE);
   Tuple *conditions_tuple = dict_find(iterator, MESSAGE_KEY_CONDITIONS);
-  
-  
-  speaker_play_tone(1000, 1000, 50, SpeakerWaveformSquare);
-  speaker_play_tone(400, 2000, 50, SpeakerWaveformTriangle);
-  // hz, ms, vol(0-100), waveform (SpeakerWaveformSine,Square,Triangle,Sawtooth)
+
 
   if (temp_tuple && conditions_tuple) {
     static char temperature_buffer[8];
@@ -158,9 +154,9 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
     // Convert to Fahrenheit if setting is enabled
     if (settings.TemperatureUnit) {
       temp_value = (temp_value * 9 / 5) + 32;
-      snprintf(temperature_buffer, sizeof(temperature_buffer), "%lu°F", (unsigned long)persist_get_max_size());
+      snprintf(temperature_buffer, sizeof(temperature_buffer), "%d°F", temp_value);
     } else {
-      snprintf(temperature_buffer, sizeof(temperature_buffer), "%lu°C", (unsigned long)persist_get_max_size());
+      snprintf(temperature_buffer, sizeof(temperature_buffer), "%d°C", temp_value);
     }
 
     snprintf(conditions_buffer, sizeof(conditions_buffer), "%s", conditions_tuple->value->cstring);
