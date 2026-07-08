@@ -106,14 +106,14 @@
     var return_to = getQueryParam('return_to', 'pebblejs://close#');
 
     // Encode and send the data when the page closes
-    document.location = return_to + encodeURIComponent(JSON.stringify(options));
+    //document.location = return_to + encodeURIComponent(JSON.stringify(options));
 
-    //fetch(return_to + encodeURIComponent(JSON.stringify(options)));
+    fetch(return_to + encodeURIComponent(JSON.stringify(options)));
 
-    //const iframe = document.createElement("iframe");
-    //iframe.src = return_to + encodeURIComponent(JSON.stringify(options));
-    //iframe.style.display = "none";
-    //document.body.appendChild(iframe);
+    const iframe = document.createElement("iframe");
+    iframe.src = return_to + encodeURIComponent(JSON.stringify(options));
+    iframe.style.display;
+    document.body.appendChild(iframe);
 
   });
 </script>
