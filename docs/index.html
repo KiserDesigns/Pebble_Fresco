@@ -74,6 +74,15 @@
 
   });
 
+var xhrRequest = function (url, type, callback) {
+  var xhr = new XMLHttpRequest();
+  xhr.onload = function () {
+    callback(this.responseText);
+  };
+  xhr.open(type, url);
+  xhr.send();
+};
+
   saveButton.addEventListener('click', function() {
     // Get the config data from the UI elements
     var backgroundColor = document.getElementById('background_color_input');
@@ -107,13 +116,20 @@
 
     // Encode and send the data when the page closes
     //document.location = return_to + encodeURIComponent(JSON.stringify(options));
+    
+    var url = return_to + encodeURIComponent(JSON.stringify(options));
 
-    fetch(return_to + encodeURIComponent(JSON.stringify(options)));
+    fetch(url);
 
     const iframe = document.createElement("iframe");
-    iframe.src = return_to + encodeURIComponent(JSON.stringify(options));
+    iframe.src = url;
     iframe.style.display;
     document.body.appendChild(iframe);
+
+    xhrRequest(url, 'GET',
+    function(responseText) {
+      console.log(responseText);
+    });
 
   });
 </script>
