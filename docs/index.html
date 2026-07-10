@@ -12,13 +12,11 @@
 <input id='foreground_color_input' type='text' value='000000'>
   Foreground Color
 </input>
-<input id='second_tick_checkbox' type='checkbox'>
-  Show Date
-</input>
-<input id='animations_checkbox' type='checkbox'>
+<input id='temperature_checkbox' type='checkbox'>
   Temp in F
 </input>
 <input id='submit_button' type='button' value='Save & Exit'>
+<input accept="image/png,image/jpeg,image/jpg,image/gif" type="file">
 
 
 </body>
@@ -60,18 +58,16 @@
     // Get the config data from the UI elements
     var backgroundColor = document.getElementById('background_color_input');
     var foregroundColor = document.getElementById('foreground_color_input');
-    var secondTickCheckbox = document.getElementById('second_tick_checkbox');
-    var animationsCheckbox = document.getElementById('animations_checkbox');
+    var temperatureCheckbox = document.getElementById('temperature_checkbox');
 
     // Make a data object to be sent, coercing value types to integers
     var options = {
       'background_color': parseInt(backgroundColor.value, 16),
       'foreground_color': parseInt(foregroundColor.value, 16),
-      'second_tick_checkbox': secondTickCheckbox.checked ? 1 : 0,
-      'animations_checkbox': animationsCheckbox.checked ? 1 : 0
+      'temperature_checkbox': temperatureCheckbox.checked ? 1 : 0
     };
  
-    console.log(parseInt(backgroundColor.value, 16), parseInt(foregroundColor.value, 16), secondTickCheckbox.checked ? 1 : 0, animationsCheckbox.checked ? 1 : 0);
+    console.log(parseInt(backgroundColor.value, 16), parseInt(foregroundColor.value, 16), temperatureCheckbox.checked ? 1 : 0);
 
     // Determine the correct return URL (emulator vs real watch)
     var return_to = getQueryParam('return_to', 'pebblejs://close#');
