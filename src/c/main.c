@@ -1,6 +1,7 @@
 #include <pebble.h>
 #include "src/c/three_words.h"
 #include "src/c/layerinfo.h"
+#include "src/c/format.h"
 
 // Persistent storage key
 #define SETTINGS_KEY 1
@@ -28,6 +29,7 @@ static int s_battery_level;
 static bool s_bt_connected;
 static char temperature_buffer[8];
 static char conditions_buffer[32];
+static bool s_js_ready;
 
 // Root layer (will do all drawing here)
 static Layer *s_window_layer;
@@ -43,22 +45,23 @@ static void prv_default_settings() {
   layers[0].Radius = PBL_IF_RECT_ELSE(8,24);
   layers[0].Rect = GRect(PBL_IF_RECT_ELSE(2,10),PBL_DISPLAY_HEIGHT-PBL_IF_RECT_ELSE(50,PBL_DISPLAY_HEIGHT/2),PBL_DISPLAY_WIDTH-PBL_IF_RECT_ELSE(4,20),48);
   layers[0].DynamicMask = 0;
-  layers[0].BackgroundColor = GColorClear;
-  layers[0].ForegroundColor = settings.ForegroundColor;
+  layers[0].BackgroundColor = GColorBlack;
+  layers[0].ForegroundColor = GColorWhite;
   layers[0].Type = TYPE_TEXT;
   layers[0].FontSettings = build_font_settings(clock_is_24h_style()?20:18, PBL_IF_RECT_ELSE(GTextAlignmentRight,GTextAlignmentCenter), GTextOverflowModeWordWrap);
-  strcpy(layers[0].Content, clock_is_24h_style()?" %H:%M ":" %I:%M %p ");
+  strcpy(layers[0].Content, clock_is_24h_style()?" %H:%M ":" %o:%M %p ");
   
   layers[1].LayerSettings = LAYER_ENABLED;
   layers[1].ContentSettings = 0;
   layers[1].Radius = 0;
   layers[1].Rect = GRect(PBL_IF_RECT_ELSE(10,25),PBL_DISPLAY_HEIGHT-PBL_IF_RECT_ELSE(50,PBL_DISPLAY_HEIGHT/2)-(PBL_DISPLAY_WIDTH < 200 ? 80 : 55),PBL_DISPLAY_WIDTH-PBL_IF_RECT_ELSE(20,50),50);
   layers[1].DynamicMask = 0;
-  layers[1].BackgroundColor = GColorClear;
-  layers[1].ForegroundColor = settings.ForegroundColor;
+  layers[1].BackgroundColor = GColorBlack;
+  layers[1].ForegroundColor = GColorWhite;
   layers[1].Type = TYPE_TEXT;
   layers[1].FontSettings = build_font_settings(6, PBL_IF_RECT_ELSE(GTextAlignmentLeft,GTextAlignmentCenter), GTextOverflowModeWordWrap);
   strcpy(layers[1].Content, "Select a Watchface in Fresco Settings");
+  //strcpy(layers[1].Content, "%J %K%n%L %P");
   
   for (int i=2; i<NUM_LAYERS; i++) {
     //disable the rest
@@ -98,7 +101,7 @@ static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
   layer_mark_dirty(s_window_layer);
 
   // Get weather update every 30 minutes
-  if (tick_time->tm_min % 30 == 0) {
+  if ((tick_time->tm_min % 30 == 0)&& (s_js_ready==true)) {
     DictionaryIterator *iter;
     app_message_outbox_begin(&iter);
     dict_write_uint8(iter, MESSAGE_KEY_REQUEST_WEATHER, 1);
@@ -146,6 +149,12 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
   // Check for weather data
   Tuple *temp_tuple = dict_find(iterator, MESSAGE_KEY_TEMPERATURE);
   Tuple *conditions_tuple = dict_find(iterator, MESSAGE_KEY_CONDITIONS);
+  
+  Tuple *ready_tuple = dict_find(iterator, MESSAGE_KEY_JSReady);
+  if(ready_tuple) {
+    // PebbleKit JS is ready! Safe to send messages
+    s_js_ready = true;
+  }
 
 
   if (temp_tuple && conditions_tuple) {
@@ -165,12 +174,12 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
   }
 
   // Check for Clay settings data
-  Tuple *bg_color_t = dict_find(iterator, MESSAGE_KEY_BackgroundColor);
+  Tuple *bg_color_t = dict_find(iterator, MESSAGE_KEY_MainBGColor);
   if (bg_color_t) {
     settings.BackgroundColor = GColorFromHEX(bg_color_t->value->int32);
   }
 
-  Tuple *text_color_t = dict_find(iterator, MESSAGE_KEY_TextColor);
+  Tuple *text_color_t = dict_find(iterator, MESSAGE_KEY_MainFGColor);
   if (text_color_t) {
     settings.ForegroundColor = GColorFromHEX(text_color_t->value->int32);
   }

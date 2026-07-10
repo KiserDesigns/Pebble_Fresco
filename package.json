@@ -18,10 +18,10 @@
             "TEMPERATURE",
             "CONDITIONS",
             "REQUEST_WEATHER",
-            "BackgroundColor",
-            "TextColor",
+            "MainBGColor",
+            "MainFGColor",
             "TemperatureUnit",
-            "ShowDate"
+            "JSReady"
         ],
         "projectType": "native",
         "resources": {
@@ -42,5 +42,5 @@
             "watchface": true
         }
     },
-    "version": "0.0.3"
+    "version": "0.0.4"
 }

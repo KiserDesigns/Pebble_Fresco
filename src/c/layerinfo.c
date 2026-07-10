@@ -1,5 +1,6 @@
 #include <pebble.h>
 #include "layerinfo.h"
+#include "src/c/format.h"
 
 GFont font(uint8_t fontsettings){
   switch (fontsettings&0x1F) { //5 bits = 32 possible fonts
@@ -118,10 +119,12 @@ void draw_layer(GContext * ctx, LayerInfo * layer){
   if (layer->Type == TYPE_TEXT){
     graphics_context_set_text_color(ctx, layer->ForegroundColor);
     static char text[100];
+    static char text2[100];
     //add date/time where specified
     time_t temp = time(NULL);
     struct tm *tick_time = localtime(&temp);
-    strftime(text, sizeof(text), layer->Content, tick_time);
+    formattimewords(text2, sizeof(text2), layer->Content, temp);
+    strftime(text, sizeof(text), text2, tick_time);
     //draw it
     graphics_draw_text(ctx, text, font(layer->FontSettings), layer->Rect, overflow(layer->FontSettings), alignment(layer->FontSettings), (GTextAttributes *)0);
   }

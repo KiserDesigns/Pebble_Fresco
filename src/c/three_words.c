@@ -9,13 +9,13 @@ void get_first_word(char* buffer, int length, time_t time){
   
   int index = -1;
   
-  if (min == 5 || (min >= 10 && min <= 13) || min == 20){
+  if (min == 5 || (min >= 10 && min <= 13)){
     index = min;
   } else if (min == 30) {
     index = 0;
   } else if (min == 15 || min == 45) {
     index = 14;
-  } else if (min == 40) {
+  } else if (min == 40 || min == 20) {
     index = 15;
   } else if (min == 50) {
     index = 10;

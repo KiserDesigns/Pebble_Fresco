@@ -87,6 +87,9 @@ Pebble.addEventListener('ready',
 
     // Get the initial weather
     getWeather();
+    
+    // tell watch it's ready
+    Pebble.sendAppMessage({'JSReady': 1});
   }
 );
 
@@ -113,10 +116,9 @@ Pebble.addEventListener('webviewclosed', function(e) {
   
   // Send to the watchapp via AppMessage
   var dict = {
-    'BackgroundColor': configData.background_color,
-    'TextColor': configData.foreground_color,
-    'ShowDate': configData.second_tick_checkbox,
-    'TemperatureUnit': configData.animations_checkbox
+    'MainBGColor': configData.background_color,
+    'MainFGColor': configData.foreground_color,
+    'TemperatureUnit': configData.temperature_checkbox
   };
   console.log(e.response);
   console.log(decodeURIComponent(e.response));
