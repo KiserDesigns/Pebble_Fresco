@@ -12,13 +12,13 @@
 #define DYNAMIC_LEFT  0x02
 #define DYNAMIC_RIGHT 0x01
 
-#define LAYER_ENABLED 0x01
-#define DRAW_OUTLINE  0x02
+#define LAYER_ENABLED 0x00000001
+#define DRAW_OUTLINE  0x00000002
 #define DITHER_MASK   (0x04 | 0x08)
-#define DITHER_NONE   0x00
-#define DITHER_LR     0x04
-#define DITHER_UD     0x08
-#define DITHER_MIX    (0x04 | 0x08)
+#define DITHER_LR     0x00000004
+#define DITHER_UD     0x00000008
+#define DITHER_MIX    (DITHER_LR | DITHER_UD)
+#define INVERTER      0x00000010
 
 typedef struct LayerInfo {
   GRect Rect; //8

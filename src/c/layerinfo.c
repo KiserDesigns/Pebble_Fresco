@@ -140,6 +140,38 @@ bool prv_in_rect(int w, int h, uint16_t radius, uint16_t x, uint16_t y){
   return false;
 }
 
+static bool byte_get_bit(uint8_t *byte, uint8_t bit) {
+  return ((*byte) >> bit) & 1;
+}
+
+static void byte_set_bit(uint8_t *byte, uint8_t bit, uint8_t value) {
+  *byte ^= (-value ^ *byte) & (1 << bit);
+}
+
+static void set_pixel_color(GBitmapDataRowInfo info, GPoint point, GColor color) {
+#if defined(PBL_COLOR)
+  // Write the pixel's byte color
+  memset(&info.data[point.x], color.argb, 1);
+#elif defined(PBL_BW)
+  // Find the correct byte, then set the appropriate bit
+  uint8_t byte = point.x / 8;
+  uint8_t bit = point.x % 8; 
+  byte_set_bit(&info.data[byte], bit, gcolor_equal(color, GColorWhite) ? 1 : 0);
+#endif
+}
+
+static GColor get_pixel_color(GBitmapDataRowInfo info, GPoint point) {
+#if defined(PBL_COLOR)
+  // Read the single byte color pixel
+  return (GColor){ .argb = info.data[point.x] };
+#elif defined(PBL_BW)
+  // Read the single bit of the correct byte
+  uint8_t byte = point.x / 8;
+  uint8_t bit = point.x % 8; 
+  return byte_get_bit(&info.data[byte], bit) ? GColorWhite : GColorBlack;
+#endif
+}
+
 void draw_layer(GContext * ctx, LayerInfo * layer){
   if (layer->Type == TYPE_RECT || layer->Type == TYPE_TEXT){
     if (!gcolor_equal(layer->BackgroundColor, GColorClear)){
@@ -190,17 +222,44 @@ void draw_layer(GContext * ctx, LayerInfo * layer){
       graphics_context_set_stroke_color(ctx, layer->ForegroundColor);
       graphics_draw_round_rect(ctx, layer->Rect, layer->Radius);
     }
+    if (layer->Type == TYPE_TEXT){
+      graphics_context_set_text_color(ctx, layer->ForegroundColor);
+      static char text[100];
+      static char text2[100];
+      //add date/time where specified
+      time_t temp = time(NULL);
+      struct tm *tick_time = localtime(&temp);
+      formattimewords(text2, sizeof(text2), layer->Content, temp);
+      strftime(text, sizeof(text), text2, tick_time);
+      //draw it
+      graphics_draw_text(ctx, text, font(layer->FontSettings), layer->Rect, overflow(layer->FontSettings), alignment(layer->FontSettings), (GTextAttributes *)0);
+    }
+    if (layer->LayerSettings&INVERTER){
+      GBitmap *fb = graphics_capture_frame_buffer(ctx);
+      // Iterate over all rows
+      int i = layer->Rect.origin.x;
+      int j = layer->Rect.origin.y;
+      int w = layer->Rect.size.w;
+      int h = layer->Rect.size.h;
+      for(int y = j; y < j+h-1; y++) {
+        // Get this row's range and data
+        if (y>=0 && y<PBL_DISPLAY_HEIGHT) {
+          GBitmapDataRowInfo info = gbitmap_get_data_row_info(fb, y);
+          // Iterate over all visible columns
+          for(int x = i; x <= i+w-1; x++) {
+            // Manipulate the pixel at x,y...
+            const GColor random_color = (GColor){ .argb = rand() % 255 };
+            GColor pixel_color = get_pixel_color(info, GPoint(x, y)); 
+            pixel_color.argb ^= 0xFF;
+            if(x >= info.min_x && x <= info.max_x && \
+               prv_in_rect(w, h, layer->Radius, x-i, y-j)){
+              set_pixel_color(info, GPoint(x, y), pixel_color);
+            }
+          }
+        }
+      }
+      graphics_release_frame_buffer(ctx, fb);
+    }
   }
-  if (layer->Type == TYPE_TEXT){
-    graphics_context_set_text_color(ctx, layer->ForegroundColor);
-    static char text[100];
-    static char text2[100];
-    //add date/time where specified
-    time_t temp = time(NULL);
-    struct tm *tick_time = localtime(&temp);
-    formattimewords(text2, sizeof(text2), layer->Content, temp);
-    strftime(text, sizeof(text), text2, tick_time);
-    //draw it
-    graphics_draw_text(ctx, text, font(layer->FontSettings), layer->Rect, overflow(layer->FontSettings), alignment(layer->FontSettings), (GTextAttributes *)0);
-  }
+
 }
