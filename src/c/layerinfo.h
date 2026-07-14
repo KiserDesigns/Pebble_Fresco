@@ -1,12 +1,11 @@
 #pragma once
 #include <pebble.h>
 
-#define TYPE_TEXT    1
+#define TYPE_TEXT    1 //done
 #define TYPE_IMAGE   2 
 #define TYPE_DYNAMIC 3
 #define TYPE_ANALOG  5
-#define TYPE_RECT    6
-#define TYPE_CIRCLE  7
+#define TYPE_RECT    6 //done
 
 #define DYNAMIC_UP    0x08
 #define DYMANIC_DOWN  0x04
@@ -15,19 +14,24 @@
 
 #define LAYER_ENABLED 0x01
 #define DRAW_OUTLINE  0x02
+#define DITHER_MASK   (0x04 | 0x08)
+#define DITHER_NONE   0x00
+#define DITHER_LR     0x04
+#define DITHER_UD     0x08
+#define DITHER_MIX    (0x04 | 0x08)
 
 typedef struct LayerInfo {
-  uint32_t LayerSettings;
-  uint32_t ContentSettings;
-  uint16_t Radius;
-  GRect Rect;
-  uint8_t DynamicMask;
-  GColor BackgroundColor;
-  GColor ForegroundColor;
-  uint8_t Type;
-  uint8_t FontSettings;
-  char Content[41];
-} LayerInfo; //should be 62 bytes, padded to 64, plus a 12-byte header for persistent storage is 76 bytes
+  GRect Rect; //8
+  uint32_t LayerSettings; //4
+  uint32_t ContentSettings; //4
+  uint16_t Radius; //2
+  uint8_t DynamicMask; //1
+  GColor BackgroundColor; //1
+  GColor ForegroundColor; //1
+  uint8_t Type; //1
+  uint8_t FontSettings; //1
+  char Content[41]; //41
+} LayerInfo; //should be 64 bytes, padded to 64, plus a 12-byte header for persistent storage is 76 bytes
 
 void draw_layer(GContext * ctx, LayerInfo * layer);
 

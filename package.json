@@ -21,7 +21,20 @@
             "MainBGColor",
             "MainFGColor",
             "TemperatureUnit",
-            "JSReady"
+            "JSReady",
+            "LayerSettings",
+            "ContextSettings",
+            "Radius",
+            "X",
+            "Y",
+            "W",
+            "H",
+            "BGColor",
+            "FGColor",
+            "Type",
+            "Font",
+            "Dynamic",
+            "Content"
         ],
         "projectType": "native",
         "resources": {
@@ -42,5 +55,5 @@
             "watchface": true
         }
     },
-    "version": "0.0.4"
+    "version": "0.0.5"
 }

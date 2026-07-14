@@ -49,7 +49,7 @@ static void prv_default_settings() {
   layers[0].ForegroundColor = GColorWhite;
   layers[0].Type = TYPE_TEXT;
   layers[0].FontSettings = build_font_settings(clock_is_24h_style()?20:18, PBL_IF_RECT_ELSE(GTextAlignmentRight,GTextAlignmentCenter), GTextOverflowModeWordWrap);
-  strcpy(layers[0].Content, clock_is_24h_style()?" %H:%M ":" %o:%M %p ");
+  strcpy(layers[0].Content, clock_is_24h_style()?" %Q:%M ":" %Q:%M %p ");
   
   layers[1].LayerSettings = LAYER_ENABLED;
   layers[1].ContentSettings = 0;
@@ -61,9 +61,20 @@ static void prv_default_settings() {
   layers[1].Type = TYPE_TEXT;
   layers[1].FontSettings = build_font_settings(6, PBL_IF_RECT_ELSE(GTextAlignmentLeft,GTextAlignmentCenter), GTextOverflowModeWordWrap);
   strcpy(layers[1].Content, "Select a Watchface in Fresco Settings");
-  //strcpy(layers[1].Content, "%J %K%n%L %P");
+  //strcpy(layers[1].Content, "%J %K %L");
   
-  for (int i=2; i<NUM_LAYERS; i++) {
+  layers[2].LayerSettings = LAYER_ENABLED | DRAW_OUTLINE | DITHER_UD;
+  layers[2].ContentSettings = 0;
+  layers[2].Radius = 9999;
+  layers[2].Rect = GRect(0,0,PBL_DISPLAY_WIDTH,20);
+  layers[2].DynamicMask = 0;
+  layers[2].BackgroundColor = GColorWhite;
+  layers[2].ForegroundColor = GColorBlack;
+  layers[2].Type = TYPE_RECT;
+  layers[2].FontSettings = 0;
+  strcpy(layers[2].Content, "");
+  
+  for (int i=3; i<NUM_LAYERS; i++) {
     //disable the rest
     layers[i].LayerSettings&=!LAYER_ENABLED;
   }

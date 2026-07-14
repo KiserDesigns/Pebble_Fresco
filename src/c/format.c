@@ -54,8 +54,36 @@ int formattimewords(char* buffer, int length, const char *format, time_t time) {
                 *str++ = *s++;
             }
             break;
+        case 'q':
+            snprintf(s, sizeof(wordbuffer), "%s", clock_is_24h_style()?"%H":"%I");
+            // printed++;
+            while(*s) {
+                *str++ = *s++;
+            }
+            break;
+        case 'Q':
+            snprintf(s, sizeof(wordbuffer), clock_is_24h_style()?"%02d":"%d", clock_is_24h_style()?localtime(&time)->tm_hour%24:(localtime(&time)->tm_hour+11)%12+1);
+            // printed++;
+            while(*s) {
+                *str++ = *s++;
+            }
+            break;
         case 'f':
             snprintf(s, sizeof(wordbuffer), "%d", battery_state_service_peek().charge_percent);
+            // printed++;
+            while(*s) {
+                *str++ = *s++;
+            }
+            break;
+        case 'u':
+            snprintf(s, sizeof(wordbuffer), "%ld", (long int)health_service_peek_current_value(HealthMetricHeartRateBPM));
+            // printed++;
+            while(*s) {
+                *str++ = *s++;
+            }
+            break;
+        case 'v':
+            snprintf(s, sizeof(wordbuffer), "%ld", (long int)health_service_sum_today(HealthMetricStepCount));
             // printed++;
             while(*s) {
                 *str++ = *s++;

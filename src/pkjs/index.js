@@ -1,5 +1,7 @@
-// https://docs.google.com/spreadsheets/d/{SPREADSHEET_ID}/export?format=csv&id={SPREADSHEET_ID}&gid={SHEET_ID}
+// https://docs.google.com/spreadsheets/d/{SPREADSHEET_ID}/export?format=csv&gid={SHEET_ID}
 // https://www.papaparse.com/
+
+const Keys = require('message_keys');
 
 // Helper function for XMLHttpRequest
 var xhrRequest = function (url, type, callback) {
@@ -118,7 +120,20 @@ Pebble.addEventListener('webviewclosed', function(e) {
   var dict = {
     'MainBGColor': configData.background_color,
     'MainFGColor': configData.foreground_color,
-    'TemperatureUnit': configData.temperature_checkbox
+    'TemperatureUnit': configData.temperature_checkbox,
+    'BGColor' : 0,
+    'FGColor' : 0,
+    'LayerSettings' : 0,
+    'ContentSettings' : 0,
+    'Radius' : 0,
+    'X' : 0,
+    'Y' : 0,
+    'W' : 0,
+    'H' : 0,
+    'Type' : 0,
+    'Font' : 0,
+    'Dynamic' : 0,
+    'Content' : 0
   };
   console.log(e.response);
   console.log(decodeURIComponent(e.response));
@@ -128,6 +143,8 @@ Pebble.addEventListener('webviewclosed', function(e) {
     console.log('Config data sent successfully!');
   }, function(e) {
     console.log('Error sending config data!');
-  });
+  });     
+  
+  console.log('BGColor Key: ' + Keys['BGColor']);
   
 });
