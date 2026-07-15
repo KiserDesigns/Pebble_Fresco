@@ -156,7 +156,7 @@ static void set_pixel_color(GBitmapDataRowInfo info, GPoint point, GColor color)
   // Find the correct byte, then set the appropriate bit
   uint8_t byte = point.x / 8;
   uint8_t bit = point.x % 8; 
-  byte_set_bit(&info.data[byte], bit, gcolor_equal(color, GColorWhite) ? 1 : 0);
+  byte_set_bit(&info.data[byte], bit, gcolor_equal(color,GColorWhite) ? 1 : 0);
 #endif
 }
 
@@ -241,16 +241,20 @@ void draw_layer(GContext * ctx, LayerInfo * layer){
       int j = layer->Rect.origin.y;
       int w = layer->Rect.size.w;
       int h = layer->Rect.size.h;
-      for(int y = j; y < j+h-1; y++) {
+      for(int y = j; y < j+h; y++) {
         // Get this row's range and data
         if (y>=0 && y<PBL_DISPLAY_HEIGHT) {
           GBitmapDataRowInfo info = gbitmap_get_data_row_info(fb, y);
           // Iterate over all visible columns
-          for(int x = i; x <= i+w-1; x++) {
+          for(int x = i; x < i+w; x++) {
             // Manipulate the pixel at x,y...
-            const GColor random_color = (GColor){ .argb = rand() % 255 };
+            //const GColor random_color = (GColor){ .argb = rand() % 255 };
             GColor pixel_color = get_pixel_color(info, GPoint(x, y)); 
-            pixel_color.argb ^= 0xFF;
+            //#if defined(PBL_COLOR)
+            pixel_color.argb ^= 0x3F;
+            //#elif defined(PBL_BW)
+            //pixel_color.argb ^= 0x01;
+            //#endif
             if(x >= info.min_x && x <= info.max_x && \
                prv_in_rect(w, h, layer->Radius, x-i, y-j)){
               set_pixel_color(info, GPoint(x, y), pixel_color);

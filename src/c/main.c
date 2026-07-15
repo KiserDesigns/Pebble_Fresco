@@ -69,18 +69,18 @@ static void prv_default_settings() {
   layers[2].Rect = GRect(0,0,PBL_DISPLAY_WIDTH,20);
   layers[2].DynamicMask = 0;
   layers[2].BackgroundColor = GColorWhite;
-  layers[2].ForegroundColor = GColorRed;
+  layers[2].ForegroundColor = GColorBlack;
   layers[2].Type = TYPE_RECT;
   layers[2].FontSettings = 0;
   strcpy(layers[2].Content, "");
   
-  layers[3].LayerSettings = LAYER_ENABLED | INVERTER;
+  layers[3].LayerSettings = LAYER_ENABLED | DITHER_UD | INVERTER;
   layers[3].ContentSettings = 0;
-  layers[3].Radius = 20;
-  layers[3].Rect = GRect(90,7,PBL_DISPLAY_WIDTH-20,60);
+  layers[3].Radius = 0;
+  layers[3].Rect = GRect(0,0,PBL_DISPLAY_WIDTH,PBL_DISPLAY_HEIGHT);
   layers[3].DynamicMask = 0;
-  layers[3].BackgroundColor = GColorClear;
-  layers[3].ForegroundColor = GColorBlack;
+  layers[3].BackgroundColor = GColorBlack;
+  layers[3].ForegroundColor = GColorWhite;
   layers[3].Type = TYPE_RECT;
   layers[3].FontSettings = 0;
   strcpy(layers[2].Content, "");
