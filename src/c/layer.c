@@ -260,5 +260,8 @@ void draw_layer(GContext * ctx, LayerInfo * layer, time_t time){
   if (layer->Type == TYPE_ANALOG){
     draw_analog(ctx, layer, localtime(&time));
   }
+  if (layer->Type == TYPE_IMAGE){
+    draw_image(ctx, layer);
+  }
 }
 

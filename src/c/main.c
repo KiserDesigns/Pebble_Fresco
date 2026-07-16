@@ -10,8 +10,8 @@
 
 // Max number of layers
 #define NUM_LAYERS 25
-
 #define LAYER_KEY_ITERATION 1
+
 
 // Define our settings struct
 typedef struct PageSettings {
@@ -76,7 +76,7 @@ static void prv_default_settings() {
   layers[2].FontSettings = 0;
   strcpy(layers[2].Content, "");
   
-  layers[3].LayerSettings = LAYER_ENABLED | DRAW_MIN | DRAW_HOUR | DRAW_SEC | DRAW_MAJOR_TICK | DRAW_MINOR_TICK;
+  layers[3].LayerSettings = DRAW_MIN | DRAW_HOUR | DRAW_SEC | DRAW_MAJOR_TICK | DRAW_MINOR_TICK; // | LAYER_ENABLED;
   layers[3].ContentSettings = build_tick_settings(PBL_DISPLAY_WIDTH/2 - 10,PBL_IF_COLOR_ELSE(GColorBlue,GColorWhite),0,5,GColorWhite,0,1);
   layers[3].Radius = (1<<12) | (2<<6) | 3;
   layers[3].Rect = GRect(PBL_DISPLAY_WIDTH/2,PBL_DISPLAY_HEIGHT/2,PBL_DISPLAY_WIDTH/2 - 25,PBL_DISPLAY_WIDTH/2 - 40);
@@ -85,9 +85,29 @@ static void prv_default_settings() {
   layers[3].ForegroundColor = GColorWhite;
   layers[3].Type = TYPE_ANALOG;
   layers[3].FontSettings = PBL_IF_COLOR_ELSE(GColorMagenta,GColorWhite).argb;
-  strcpy(layers[2].Content, "");
+  strcpy(layers[3].Content, "");
   
-  for (int i=4; i<NUM_LAYERS; i++) {
+  layers[4].LayerSettings = LAYER_ENABLED | MODE_COLOR;
+  layers[4].ContentSettings = 0;
+  layers[4].Radius = (1 << 8) | 1;
+  layers[4].Rect = GRect(5,20,4,4);
+  layers[4].DynamicMask = 0;
+  layers[4].BackgroundColor = GColorClear;
+  layers[4].ForegroundColor = GColorClear;
+  layers[4].Type = TYPE_IMAGE;
+  layers[4].FontSettings = 4;
+  layers[4].Content[0] = GColorWhite.argb;
+  layers[4].Content[1] = GColorMagenta.argb;
+  layers[4].Content[2] = GColorBlue.argb;
+  layers[4].Content[3] = GColorYellow.argb;
+  
+  const uint8_t image_block[] = {( 0 <<4)| 1 ,( 2 <<4)| 3 ,\
+                             ( 3 <<4)| 2 ,( 1 <<4)| 0 ,\
+                             ( 0 <<4)| 0 ,( 1 <<4)| 1 ,\
+                             ( 2 <<4)| 2 ,( 3 <<4)| 3 };
+  persist_write_data(IMAGE_BLOCK_KEY_ITERATION*NUM_IMAGE_BLOCKS+1,image_block, sizeof(ImageBlock));
+  
+  for (int i=5; i<NUM_LAYERS; i++) {
     //disable the rest
     layers[i].LayerSettings&=!LAYER_ENABLED;
   }
@@ -101,6 +121,10 @@ static void prv_save_settings() {
 // Save a single layer to persistent storage
 static void prv_save_layer(int i){
   persist_write_data(LAYER_KEY_ITERATION*NUM_LAYERS+i,&layers[i], sizeof(LayerInfo));
+}
+
+static void prv_save_image_block(int i, ImageBlock * image_block){
+  persist_write_data(IMAGE_BLOCK_KEY_ITERATION*NUM_IMAGE_BLOCKS+i,image_block, sizeof(ImageBlock));
 }
 
 // Read settings and layers from persistent storage
