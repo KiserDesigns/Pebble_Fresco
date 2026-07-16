@@ -3,6 +3,7 @@
 #include "src/c/layerinfo.h"
 #include "src/c/format.h"
 #include "src/c/layer.h"
+#include "src/c/analog.h"
 
 // Persistent storage key
 #define SETTINGS_KEY 1
@@ -75,15 +76,15 @@ static void prv_default_settings() {
   layers[2].FontSettings = 0;
   strcpy(layers[2].Content, "");
   
-  layers[3].LayerSettings = LAYER_ENABLED | DRAW_MIN | DRAW_HOUR | DRAW_SEC;
-  layers[3].ContentSettings = 0;
-  layers[3].Radius = (128<<8) | 200;
-  layers[3].Rect = GRect(PBL_IF_RECT_ELSE(PBL_DISPLAY_WIDTH-PBL_DISPLAY_HEIGHT/4,0),PBL_IF_RECT_ELSE(20,3*PBL_DISPLAY_HEIGHT/4),PBL_IF_RECT_ELSE(PBL_DISPLAY_HEIGHT/4,PBL_DISPLAY_WIDTH),PBL_DISPLAY_HEIGHT/4);
-  layers[3].DynamicMask = (3<<4) | (5<<0);
-  layers[3].BackgroundColor = GColorRed;
+  layers[3].LayerSettings = LAYER_ENABLED | DRAW_MIN | DRAW_HOUR | DRAW_SEC | DRAW_MAJOR_TICK | DRAW_MINOR_TICK;
+  layers[3].ContentSettings = build_tick_settings(PBL_DISPLAY_WIDTH/2 - 10,PBL_IF_COLOR_ELSE(GColorBlue,GColorWhite),0,5,GColorWhite,0,1);
+  layers[3].Radius = (1<<12) | (2<<6) | 3;
+  layers[3].Rect = GRect(PBL_DISPLAY_WIDTH/2,PBL_DISPLAY_HEIGHT/2,PBL_DISPLAY_WIDTH/2 - 25,PBL_DISPLAY_WIDTH/2 - 40);
+  layers[3].DynamicMask = PBL_DISPLAY_WIDTH/2 - 15;
+  layers[3].BackgroundColor = PBL_IF_COLOR_ELSE(GColorRed,GColorWhite);
   layers[3].ForegroundColor = GColorWhite;
   layers[3].Type = TYPE_ANALOG;
-  layers[3].FontSettings = GColorMagentaARGB8;
+  layers[3].FontSettings = PBL_IF_COLOR_ELSE(GColorMagenta,GColorWhite).argb;
   strcpy(layers[2].Content, "");
   
   for (int i=4; i<NUM_LAYERS; i++) {

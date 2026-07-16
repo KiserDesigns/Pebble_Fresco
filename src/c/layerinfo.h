@@ -16,6 +16,7 @@
 
 // LayerSettings Bits
 #define LAYER_ENABLED 0x00000001
+
 #define DRAW_OUTLINE  0x00000002
 #define DITHER_MASK   (0x04 | 0x08)
 #define DITHER_LR     0x00000004
@@ -23,9 +24,11 @@
 #define DITHER_MIX    (DITHER_LR | DITHER_UD)
 #define INVERTER      0x00000010
 
-#define DRAW_HOUR 0x00000002
-#define DRAW_MIN  0x00000004
-#define DRAW_SEC  0x00000008
+#define DRAW_HOUR  0x00000002
+#define DRAW_MIN   0x00000004
+#define DRAW_SEC   0x00000008
+#define DRAW_MAJOR_TICK 0x010
+#define DRAW_MINOR_TICK 0x020
 
 typedef struct LayerInfo {
   GRect Rect; //8

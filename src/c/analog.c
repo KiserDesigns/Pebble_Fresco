@@ -3,54 +3,91 @@
 
 /**
 typedef struct LayerInfo {
-  GRect Rect; // bounds of the analog clock
+  GRect Rect; // origin is center of clock. size.w is length of minute hand. size.h is length of hour hand
   uint32_t LayerSettings; //4
-  uint32_t ContentSettings; //4
-  uint16_t Radius; // High byte, relative length of hour hand (0-255). Low byte, length of minute hand. Second hand length is min(Rect.size.w/h)
-  uint8_t DynamicMask; //high 4 bits, minute thickness. low 4, hour hand thickness
+  uint32_t ContentSettings; //8 bits tick radius. Major Tick: 6b color, 3b length, 3b thickness. Minor Tick 6-3-3
+  uint16_t Radius; //high 4 bits, thickness of second hand. middle 6 bits, minute hand thickness. Low 6, hour thickness
+  uint8_t DynamicMask; //length of second hand
   GColor BackgroundColor; //Hour Color
   GColor ForegroundColor; //Minute Color
   uint8_t Type; //1
   uint8_t FontSettings; //.argb of Seconds Color
-  char Content[41]; //first 20 bytes: 10 points [x1,y1,x2,y2,...] for hour hand filled vector. second 20 bytes for minute hand
-} LayerInfo;
+  char Content[41]; //first 20 bytes: points for hour hand filled vector. second 20 bytes for minute hand.
+} LayerInfo;        //first byte of the 20 determines (bit 1 is 0 for filled or 1 for stroke) (bit 2 set if fill, bit 2 set if stroke and next 6 bits are color info)
+                    //then the lower 6 bits are color info if bit 2 is set, and size (stroke width) info is bit 2 is not set.
+                    //next byte (and subsequent) are 3 bits for "x" [1,7] -> [-3,3] and 5 bits for "y" [0-30] -> [-5,25], assuming hand pointing up and pos y is upwards
+                    //if the byte 0xFF occurs, then another string of bytes can describe another stroke or fill path.
 **/
 
+// x' = x*cos(t) - y*sin(t)
+// y' = x*sin(t) + y*cos(t)
+
+uint32_t build_tick_settings(uint8_t radius, GColor major_color, uint8_t major_length, uint8_t major_thickness,\
+                           GColor minor_color, uint8_t minor_length, uint8_t minor_thickness){
+  return ((radius&0x0FF)<<24) | ((major_color.argb&0x03F)<<18) | ((major_length&0x07)<<15) | ((major_thickness&0x07)<<12)\
+                              | ((minor_color.argb&0x03F)<<6) | ((minor_length&0x07)<<3) | ((minor_thickness&0x07)<<0);
+}
 
 void draw_analog(GContext * ctx, LayerInfo * layer, struct tm * localtime){
-  int diameter = (layer->Rect.size.h>layer->Rect.size.w?layer->Rect.size.w:layer->Rect.size.h);
-  GPoint center = grect_center_point(&(layer->Rect));
-  
+  GPoint center = layer->Rect.origin;
+  if (layer->LayerSettings&(DRAW_MINOR_TICK|DRAW_MAJOR_TICK)){
+    uint8_t diameter = ((layer->ContentSettings)>>24)&0x0FF;
+    GColor maj_color = (GColor8){.argb=(((layer->ContentSettings)>>18)&0x03F)|0xC0};
+    uint8_t maj_dia = diameter - (2*(((layer->ContentSettings)>>15)&0x07));
+    uint8_t maj_thick = 1+ (2*(((layer->ContentSettings)>>12)&0x07));
+    GColor min_color = (GColor8){.argb=(((layer->ContentSettings)>>6)&0x03F)|0xC0};
+    uint8_t min_dia = diameter - (2*(((layer->ContentSettings)>>3)&0x07));
+    uint8_t min_thick = 1+ (2*(((layer->ContentSettings)>>0)&0x07));
+    GRect rect = GRect(center.x-diameter,center.y-diameter,2*diameter+1,2*diameter+1); 
+    GRect maj_rect = GRect(center.x-maj_dia,center.y-maj_dia,2*maj_dia+1,2*maj_dia+1);
+    GRect min_rect = GRect(center.x-min_dia,center.y-min_dia,2*min_dia+1,2*min_dia+1);
+    for (int angle = 0; angle < 359; angle = angle + 6){
+      GPoint outer = gpoint_from_polar(rect, GOvalScaleModeFitCircle, DEG_TO_TRIGANGLE(angle));
+      GPoint major = gpoint_from_polar(maj_rect, GOvalScaleModeFitCircle, DEG_TO_TRIGANGLE(angle));
+      GPoint minor = gpoint_from_polar(min_rect, GOvalScaleModeFitCircle, DEG_TO_TRIGANGLE(angle));
+      if (layer->LayerSettings&DRAW_MAJOR_TICK && (angle%10)==0){
+        graphics_context_set_stroke_color(ctx, maj_color);
+        graphics_context_set_stroke_width(ctx, maj_thick);
+        graphics_draw_line(ctx, outer, major);
+      } else if (layer->LayerSettings&DRAW_MINOR_TICK){
+        graphics_context_set_stroke_color(ctx, min_color);
+        graphics_context_set_stroke_width(ctx, min_thick);
+        graphics_draw_line(ctx, outer, minor);
+      }
+    }
+  }
   if (layer->LayerSettings&DRAW_HOUR){
-    uint8_t hr_diameter = diameter * ((layer->Radius>>8)&0x0FF) / 255;
-    GRect hr_rect = GRect(0,0,hr_diameter,hr_diameter);
-    grect_align(&hr_rect, &(layer->Rect), GAlignCenter, false);
-    int hr_angle = DEG_TO_TRIGANGLE((localtime->tm_hour%12)*60 + (localtime->tm_min))/2;
-    GPoint hr_point = gpoint_from_polar(hr_rect, GOvalScaleModeFitCircle, hr_angle);
+    uint16_t diameter = layer->Rect.size.h;
+    GRect rect = GRect(center.x-diameter,center.y-diameter,2*diameter+1,2*diameter+1);
+    int angle = DEG_TO_TRIGANGLE((localtime->tm_hour%12)*60 + (localtime->tm_min))/2;
+    GPoint point = gpoint_from_polar(rect, GOvalScaleModeFitCircle, angle);
     graphics_context_set_stroke_color(ctx, layer->BackgroundColor);
-    graphics_context_set_stroke_width(ctx, 1+2*(layer->DynamicMask&0x0F));
-    graphics_draw_line(ctx, center, hr_point);
+    graphics_context_set_stroke_width(ctx, 1+2*(layer->Radius&0x03F));
+    
+    graphics_draw_line(ctx, center, point);
   }
   if (layer->LayerSettings&DRAW_MIN){
-    uint8_t min_diameter = diameter * ((layer->Radius)&0x0FF) / 255;
-    GRect min_rect = GRect(0,0,min_diameter,min_diameter);
-    grect_align(&min_rect, &(layer->Rect), GAlignCenter, false);
-    int min_angle;
+    uint16_t diameter = layer->Rect.size.w;
+    GRect rect = GRect(center.x-diameter,center.y-diameter,2*diameter+1,2*diameter+1);
+    int angle;
     if (layer->LayerSettings&DRAW_SEC){
-      min_angle = DEG_TO_TRIGANGLE(localtime->tm_min*6 + localtime->tm_sec/10);
+      angle = DEG_TO_TRIGANGLE(localtime->tm_min*6 + localtime->tm_sec/10);
     } else {
-      min_angle = DEG_TO_TRIGANGLE(localtime->tm_min*6);
+      angle = DEG_TO_TRIGANGLE(localtime->tm_min*6);
     }
-    GPoint min_point = gpoint_from_polar(min_rect, GOvalScaleModeFitCircle, min_angle);
+    GPoint point = gpoint_from_polar(rect, GOvalScaleModeFitCircle, angle);
     graphics_context_set_stroke_color(ctx, layer->ForegroundColor);
-    graphics_context_set_stroke_width(ctx, 1+2*((layer->DynamicMask>>4)&0x0F));
-    graphics_draw_line(ctx, center, min_point);
+    graphics_context_set_stroke_width(ctx, 1+2*((layer->Radius>>6)&0x03F));
+    
+    graphics_draw_line(ctx, center, point);
   }
   if (layer->LayerSettings&DRAW_SEC){
-    int sec_angle = DEG_TO_TRIGANGLE(localtime->tm_sec*6);
-    GPoint sec_point = gpoint_from_polar(layer->Rect, GOvalScaleModeFitCircle, sec_angle);
-    graphics_context_set_stroke_color(ctx, (GColor8){.argb=layer->FontSettings});
-    graphics_context_set_stroke_width(ctx, 3); // ***************************** NEED TO ENCODE WIDTH
-    graphics_draw_line(ctx, center, sec_point);
+    uint16_t diameter = layer->DynamicMask;
+    GRect rect = GRect(center.x-diameter,center.y-diameter,2*diameter+1,2*diameter+1);
+    int angle = DEG_TO_TRIGANGLE(localtime->tm_sec*6);
+    GPoint point = gpoint_from_polar(rect, GOvalScaleModeFitCircle, angle);
+    graphics_context_set_stroke_color(ctx, (GColor8){.argb=((layer->FontSettings)&0x3F)|0xC0});
+    graphics_context_set_stroke_width(ctx, 1+2*((layer->Radius>>12)&0x0F)); // ***************************** NEED TO ENCODE WIDTH
+    graphics_draw_line(ctx, center, point);
   }
 }
