@@ -1,7 +1,5 @@
 #include <pebble.h>
-#include "layerinfo.h"
-#include "src/c/format.h"
-#include "src/c/images.h"
+#include "layer.h"
 
 GFont font(uint8_t fontsettings){
   switch (fontsettings&0x1F) { //5 bits = 32 possible fonts
@@ -172,7 +170,7 @@ static GColor get_pixel_color(GBitmapDataRowInfo info, GPoint point) {
 #endif
 }
 
-void draw_layer(GContext * ctx, LayerInfo * layer){
+void draw_layer(GContext * ctx, LayerInfo * layer, time_t time){
   if (layer->Type == TYPE_RECT || layer->Type == TYPE_TEXT){
     if (!gcolor_equal(layer->BackgroundColor, GColorClear)){
       //if the background color is not clear, draw a background
@@ -206,7 +204,7 @@ void draw_layer(GContext * ctx, LayerInfo * layer){
               if ((layer->LayerSettings&DITHER_MASK) == DITHER_LR){
                 threshold = (x * 64) / (w-1);
               } else {
-                threshold = (y * 64) / (h-1);
+                  threshold = (y * 64) / (h-1);
               }
               int bayer = bayer8x8[x%8][y%8];
               if (threshold > bayer){
@@ -227,9 +225,8 @@ void draw_layer(GContext * ctx, LayerInfo * layer){
       static char text[100];
       static char text2[100];
       //add date/time where specified
-      time_t temp = time(NULL);
-      struct tm *tick_time = localtime(&temp);
-      formattimewords(text2, sizeof(text2), layer->Content, temp);
+      struct tm *tick_time = localtime(&time);
+      formattimewords(text2, sizeof(text2), layer->Content, time);
       strftime(text, sizeof(text), text2, tick_time);
       //draw it
       graphics_draw_text(ctx, text, font(layer->FontSettings), layer->Rect, overflow(layer->FontSettings), alignment(layer->FontSettings), (GTextAttributes *)0);
@@ -248,13 +245,8 @@ void draw_layer(GContext * ctx, LayerInfo * layer){
           // Iterate over all visible columns
           for(int x = i; x < i+w; x++) {
             // Manipulate the pixel at x,y...
-            //const GColor random_color = (GColor){ .argb = rand() % 255 };
             GColor pixel_color = get_pixel_color(info, GPoint(x, y)); 
-            //#if defined(PBL_COLOR)
             pixel_color.argb ^= 0x3F;
-            //#elif defined(PBL_BW)
-            //pixel_color.argb ^= 0x01;
-            //#endif
             if(x >= info.min_x && x <= info.max_x && \
                prv_in_rect(w, h, layer->Radius, x-i, y-j)){
               set_pixel_color(info, GPoint(x, y), pixel_color);
@@ -265,5 +257,8 @@ void draw_layer(GContext * ctx, LayerInfo * layer){
       graphics_release_frame_buffer(ctx, fb);
     }
   }
-
+  if (layer->Type == TYPE_ANALOG){
+    draw_analog(ctx, layer, localtime(&time));
+  }
 }
+

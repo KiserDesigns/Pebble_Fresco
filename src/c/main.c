@@ -2,6 +2,7 @@
 #include "src/c/three_words.h"
 #include "src/c/layerinfo.h"
 #include "src/c/format.h"
+#include "src/c/layer.h"
 
 // Persistent storage key
 #define SETTINGS_KEY 1
@@ -74,15 +75,15 @@ static void prv_default_settings() {
   layers[2].FontSettings = 0;
   strcpy(layers[2].Content, "");
   
-  layers[3].LayerSettings = LAYER_ENABLED | DITHER_UD | INVERTER;
+  layers[3].LayerSettings = LAYER_ENABLED | DRAW_MIN | DRAW_HOUR | DRAW_SEC;
   layers[3].ContentSettings = 0;
-  layers[3].Radius = 0;
-  layers[3].Rect = GRect(0,0,PBL_DISPLAY_WIDTH,PBL_DISPLAY_HEIGHT);
-  layers[3].DynamicMask = 0;
-  layers[3].BackgroundColor = GColorBlack;
+  layers[3].Radius = (128<<8) | 200;
+  layers[3].Rect = GRect(PBL_IF_RECT_ELSE(PBL_DISPLAY_WIDTH-PBL_DISPLAY_HEIGHT/4,0),PBL_IF_RECT_ELSE(20,3*PBL_DISPLAY_HEIGHT/4),PBL_IF_RECT_ELSE(PBL_DISPLAY_HEIGHT/4,PBL_DISPLAY_WIDTH),PBL_DISPLAY_HEIGHT/4);
+  layers[3].DynamicMask = (3<<4) | (5<<0);
+  layers[3].BackgroundColor = GColorRed;
   layers[3].ForegroundColor = GColorWhite;
-  layers[3].Type = TYPE_RECT;
-  layers[3].FontSettings = 0;
+  layers[3].Type = TYPE_ANALOG;
+  layers[3].FontSettings = GColorMagentaARGB8;
   strcpy(layers[2].Content, "");
   
   for (int i=4; i<NUM_LAYERS; i++) {
@@ -160,7 +161,7 @@ static void canvas_update_proc(Layer *layer, GContext *ctx) {
   
   for (int i=0; i<NUM_LAYERS; i++){
     if (layers[i].LayerSettings&LAYER_ENABLED){
-      draw_layer(ctx, &layers[i]); 
+      draw_layer(ctx, &layers[i], temp); 
     }
   }       
 }
@@ -272,7 +273,7 @@ static void init() {
   });
   window_stack_push(s_main_window, true);
 
-  tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
+  tick_timer_service_subscribe(SECOND_UNIT, tick_handler);
 
   battery_state_service_subscribe(battery_callback);
   battery_callback(battery_state_service_peek());
