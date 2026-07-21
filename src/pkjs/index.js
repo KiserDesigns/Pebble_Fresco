@@ -1,5 +1,7 @@
 // https://docs.google.com/spreadsheets/d/{SPREADSHEET_ID}/export?format=csv&gid={SHEET_ID}
 // https://www.papaparse.com/
+// https://jsfiddle.net/noahkiser95/h5qrj7tc/270/
+// https://virtual-graph-paper.com/index.html?edit=201155e1c240
 
 const Keys = require('message_keys');
 
