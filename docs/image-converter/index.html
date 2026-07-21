@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html>
+
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Image to Pebble</title>
+
+  <style>
+    * {
+  //border: 1px solid red;
+  font-size: min(2vh, 3.2vw);
+}
+
+canvas {
+  //aspect-ratio : 1 / 1;
+    padding: 0;
+    margin: auto;
+    display: block;
+    //width: 800px;
+    //height: 600px;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    image-rendering: optimizeSpeed;             /* Older versions of FF          */
+    image-rendering: -moz-crisp-edges;          /* FF 6.0+                       */
+    image-rendering: -webkit-optimize-contrast; /* Safari                        */
+    image-rendering: -o-crisp-edges;            /* OS X & Windows Opera (12.02+) */
+    image-rendering: pixelated;                 /* Awesome future-browsers       */
+    -ms-interpolation-mode: nearest-neighbor;   /* IE                            */
+}
+
+input {
+  //height: 4vh;
+  min-width: 10px;
+  margin-left: 0.2em;
+  margin-right: 0.2em;
+}
+
+input[type="number"] {
+  font-size: min(3vh, 4.8vw);
+}
+
+input[type="file"] {
+  font-size: min(3vh, 4.8vw);
+}
+
+input[type="range"] {
+  width: 90%;
+  margin-left: 0.2em;
+  margin-right: 0.2em;
+  aspect-ratio: 10 / 1;
+}
+
+button {
+  font-size: min(3vh, 4.8vw);
+  margin: 0.2em;
+}
+
+select {
+  font-size: min(3vh, 4.8vw);
+  margin: 0.2em;
+}
+
+.checkbox-grid {
+  width:100%;
+}
+
+.checkbox {
+  all: unset;
+}
+.checkboxd {
+  all: unset;
+}
+
+.lbl-checkbox {
+  display: block;
+  padding: 50%;
+  //box-sizing: border-box;
+}
+
+input[type="checkbox"]:checked + label {
+   //background: blue !important;
+}
+
+table, th, td {
+  border-collapse: collapse;
+  padding: 0px;
+}
+
+td {
+  border: 2px solid black;
+}
+
+input[type="radio"],
+input[type="checkbox"] {
+    position: absolute;
+    left: -999em;
+}
+
+
+input[type="checkbox"] + label {
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    //border: 2px solid black;
+}
+
+.checkbox:checked + label::after {
+   content: '';
+   position: absolute;
+   width: 40%;
+   height: 18%;
+   top: 25%;
+   left: 25%;
+   border: min(0.6vh, 1vw) solid white;
+   border-top: none;
+   border-right: none;
+   transform: rotate(-55deg);
+   //padding:3px;
+   //background-color: black;
+}
+
+.checkboxd:checked + label::after {
+   content: '';
+   position: absolute;
+   width: 40%;
+   height: 18%;
+   top: 25%;
+   left: 25%;
+   border: min(0.6vh, 1vw) solid black;
+   border-top: none;
+   border-right: none;
+   transform: rotate(-55deg);
+   //padding:3px;
+   //background-color: black;
+}
+
+
+  </style>
+
+  
+</head>
+<body>
+  <div style="height:90vh;display: flex;flex-direction: column; /* or row */max-width:60vh;">
+
+  <div style="display:flex;margin-bottom:0.0em;">
+    <div style="width:50%;aspect-ratio : 1 / 1;position:relative;background-color:gray;">
+      <canvas id="image_input" /></canvas>
+    </div>
+    <div style="width:50%;aspect-ratio : 1 / 1;position:relative;background-color:gray;">
+      <canvas id="image_output" ></canvas>
+    </div>
+  </div>
+  <div style="flex-grow: 1;">
+    <label for="image_upload">Upload an Image:</label>
+    <input type="file" name="image_upload" id="image_upload" accept="image/*">
+    <br>
+    <div style="display:flex;align-items: center;margin-top: 0.4em;">
+      <label for="input_width" style="">Width:</label>
+      <input type="number" name="input_width" id="input_width" value="100" style="flex:1;" min="1">
+      <label for="input_height" style="">Height:</label>
+      <input type="number" name="input_height" id="input_height" value="100" style="flex:1;" min="1">
+    </div>
+    <div style="display:flex;margin-top:0.5em;">
+      <div style="display:flex;width:50%;align-items: top;">
+        <div style="flex:1;display:flex;flex-direction: column;">
+          <div>
+            Brightness: <span id="valueBrightness">0</span>
+            <div>
+              <label>
+                <input id="rangeBrightness" type="range" min="-255" max="255" value="0" step="15"/>
+              </label>
+            </div>
+          </div>
+          <div>
+            Contrast: <span id="valueContrast">0</span>
+            <div>
+              <label>
+                <input id="rangeContrast" type="range" min="-255" max="255" value="0" step="15"/>
+              </label>
+            </div>
+          </div>
+          <div>
+            Saturation: <span id="valueSaturation">0</span>
+            <div>
+              <label>
+                <input id="rangeSaturation" type="range" min="-255" max="255" value="0" step="15"/>
+              </label>
+            </div>
+          </div>
+          <div style="display:flex;align-items: center;">
+            <label for="max_colors">Max Colors:</label>
+            <select name="max_colors" id="max_colors" style="flex:1;">
+              <option value="2">2</option>
+              <option value="4" selected>4</option>
+              <option value="16">16</option>
+              <option value="64">64</option>
+            </select>
+          </div>
+          <div>
+            <button id="find_colors">Find Colors</button>
+          </div>
+          <div style="text-align:right;margin-right:0.2em">
+            Color count: <span id="colors_used">10/16</span>
+          </div>
+          <div style="display:flex;align-items: center;">
+            <label for="dithering">Dithering:</label>
+            <select name="dithering" id="dithering" value="16" style="flex:1;">
+              <option value="floyd">Floyd</option>
+              <option value="none">None</option>
+            </select>
+          </div>
+          <div style="flex:1;">
+          </div>
+          <div>
+            <button id="download">Download</button>
+          </div>
+        </div>
+      </div>
+      <div style="width:50%;">
+        <table class="checkbox-grid" id="checkbox_grid"></table>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+  <script>
+    const image_input = document.getElementById('image_input');
+const ctx_in = image_input.getContext('2d');
+const image_output = document.getElementById('image_output');
+const ctx_out = image_output.getContext('2d');
+
+image_input.width = 260;
+image_input.height = 260;
+image_input.style.width = "90%";
+
+image_output.width = 260;
+image_output.height = 260;
+image_output.style.width = "90%";
+
+fileElem = document.getElementById("image_upload");
+fileElem.addEventListener("change", handleFiles);
+
+const input_width = document.getElementById("input_width");
+const input_height = document.getElementById("input_height");
+
+input_width.addEventListener("input", function(e) {
+  input_height.value = Math.max(1,Math.round(input_width.value*img.naturalHeight/img.naturalWidth));
+  update();
+} );
+
+input_height.addEventListener("input", function(e) {
+  input_width.value = Math.max(1,Math.round(input_height.value*img.naturalWidth/img.naturalHeight));
+  update();
+} );
+
+
+var img = new Image();
+
+const colors = [
+  ["000","555","aaa","fff"],
+  ["500","550","050","055","005","505"],
+  ["a00","aa0","0a0","0aa","00a","a0a"],
+  ["a55","aa5","5a5","5aa","55a","a5a"],
+  ["f00","ff0","0f0","0ff","00f","f0f"],
+  ["f55","ff5","5f5","5ff","55f","f5f"],
+  ["faa","ffa","afa","aff","aaf","faf"],
+  ["fa5","af5","5fa","5af","a5f","f5a"],
+  ["fa0","5f0","0fa","05f","a0f","f05"],
+  ["f50","af0","0f5","0af","50f","f0a"],
+  ["a50","5a0","0a5","05a","50a","a05"]
+];
+
+function handleFiles() {
+    if ( this.files && this.files[0] ) {
+        var FR= new FileReader();
+        FR.onload = function(e) {
+           
+           img.src = e.target.result;
+           img.onload = function() {
+            var naturalHeight = img.naturalHeight;
+            var naturalWidth = img.naturalWidth;
+            var width = 100;
+            var height = 100;
+            console.log(naturalWidth, naturalHeight);
+            if (naturalWidth>naturalHeight){
+                height = Math.round(100*naturalHeight/naturalWidth);
+            } else {
+                width = Math.round(100*naturalWidth/naturalHeight);
+            }
+            input_height.value = height;
+            input_width.value = width;
+            document.getElementById("rangeBrightness").value = 0;
+            document.getElementById("rangeContrast").value = 0;
+            document.getElementById("rangeSaturation").value = 0;
+            updateSliders();
+            findColors();
+            update();
+
+           };
+        };       
+        FR.readAsDataURL( this.files[0] );
+        
+    }
+}
+
+function createColorChecks() {
+  const tbl = document.getElementById("checkbox_grid");
+  for (let i = 0; i < colors.length; i++) {
+    const tr = tbl.insertRow()
+    for (let j = 0; j < colors[i].length; j++) {
+      const td = tr.insertCell();
+      let color = colors[i][j];
+      //td.appendChild(document.createTextNode(colors[i][j]));
+      if (isLight(color)) {
+        td.innerHTML = '<input class="checkboxd" type="checkbox" id="' + color +'"/><label class="lbl-checkbox" for="' + color + '" style="background: #' + color + ';""></label>';
+      } else {
+        td.innerHTML = '<input class="checkbox" type="checkbox" id="' + color +'"/><label class="lbl-checkbox" for="' + color + '" style="background: #' + color + ';""></label>';
+      }
+      td.style.backgroundColor = '#' + color;
+      document.getElementById(color).addEventListener("input", countChecks);
+    }
+  }
+  document.getElementById('000').checked = true;
+  document.getElementById('555').checked = true;
+  document.getElementById('aaa').checked = true;
+  document.getElementById('fff').checked = true;
+ 
+};
+
+function isLight(color) {
+  let r = ((color.charAt(0) == '5') ? 1 : 0) + ((color.charAt(0) == 'a') ? 2 : 0) + ((color.charAt(0) == 'f') ? 3 : 0);
+  let g = ((color.charAt(1) == '5') ? 1 : 0) + ((color.charAt(1) == 'a') ? 2 : 0) + ((color.charAt(1) == 'f') ? 3 : 0);
+  let b = ((color.charAt(2) == '5') ? 1 : 0) + ((color.charAt(2) == 'a') ? 2 : 0) + ((color.charAt(2) == 'f') ? 3 : 0);
+
+
+  if ((2*r)+(3*g)+(1*b) >= 9){
+    return true;
+  } else {
+    return false;
+  }
+}
+
+createColorChecks();
+
+function countChecks() {
+  const output = document.getElementById("colors_used");
+  let max_colors = document.getElementById("max_colors").value;
+  let count = 0;
+  for (let i = 0; i < colors.length; i++) {
+    for (let j = 0; j < colors[i].length; j++) {
+      let box = document.getElementById(colors[i][j]);
+      if (box.checked == true){
+        count = count + 1;
+      }
+    }
+  }
+  output.innerHTML = count + "/" + max_colors;
+  if (count > max_colors){
+    output.style = "color:red";
+  } else {
+    output.style = "color:green"
+  }
+  update();
+}
+document.getElementById("max_colors").addEventListener("input", function(e) {
+  findColors();
+  countChecks()
+  });
+
+document.getElementById("dithering").addEventListener("input", update);
+
+document.getElementById("find_colors").addEventListener("click", findColors);
+
+document.getElementById("rangeBrightness").addEventListener("input", updateSliders);
+document.getElementById("rangeContrast").addEventListener("input", updateSliders);
+document.getElementById("rangeSaturation").addEventListener("input", updateSliders);
+
+function updateSliders(e) {
+  document.getElementById('valueSaturation').innerHTML = (document.getElementById("rangeSaturation").value);
+  document.getElementById('valueContrast').innerHTML = (document.getElementById("rangeContrast").value);
+  document.getElementById('valueBrightness').innerHTML = (document.getElementById("rangeBrightness").value);
+  update();
+}
+
+countChecks();
+
+function findColors(e) {
+  let color_count = new Array(64).fill(0);
+  let width = input_width.value;
+  let height = input_height.value;
+  //image_output.width = Math.max(width,height);
+  //image_output.height = Math.max(width,height);
+  let inputData = ctx_in.getImageData(0, 0, width, height);
+  const data = inputData.data;
+
+  for (let i = 0; i < colors.length; i++) {
+    for (let j = 0; j < colors[i].length; j++) {
+      let box = document.getElementById(colors[i][j]);
+      box.checked = false;
+    }
+  }
+
+  let dr, dg, db = 0;
+
+  for (let i = 0; i < data.length; i+=4) {
+    let r, g, b;
+    let noise = 30;
+    r = data[i] + (2*noise*Math.random() - noise);
+    g = data[i+1] + (2*noise*Math.random() - noise);
+    b = data[i+2] + (2*noise*Math.random() - noise);
+
+    chosen_color = closestColor([r,g,b], all=true);
+
+    color_index = 16*Math.floor(chosen_color[0]/64) + 4*Math.floor(chosen_color[1]/64) + Math.floor(chosen_color[2]/64);
+    color_count[color_index] += 1;
+    
+  }
+  for (let i = 0; i<parseInt(document.getElementById("max_colors").value); i++){
+    mode_index = indexOfMax(color_count);
+    if (color_count[mode_index] > 0){
+      r = "05af"[((mode_index>>4) & 0x03)];
+      g = "05af"[((mode_index>>2) & 0x03)];
+      b = "05af"[(mode_index & 0x03)];
+      document.getElementById(r+g+b).checked = true;
+      color_count[mode_index] = -1;
+    }
+  }
+  countChecks();
+}
+
+function indexOfMax(arr) {
+    if (arr.length === 0) {
+        return -1;
+    }
+
+    var max = arr[0];
+    var maxIndex = 0;
+    for (var i = 1; i < arr.length; i++) {
+        if (arr[i] > max) {
+            maxIndex = i;
+            max = arr[i];
+        }
+    }
+    return maxIndex;
+}
+
+var render_timer = false;
+
+function update(e) {
+  let width = input_width.value;
+  let height = input_height.value;
+  let brightness = parseInt(document.getElementById("rangeBrightness").value);
+  let contrast = parseInt(document.getElementById("rangeContrast").value)/255;
+  let saturation = parseInt(document.getElementById("rangeSaturation").value);
+  let sat_max = (saturation < 0) ? 255 : 128;
+  image_input.width = width;//Math.max(input_width.value, input_height.value);
+  image_input.height = height;
+  image_input.style.width = Math.floor(90/Math.max(1,height/width))+"%";
+  ctx_in.drawImage(img, 0, 0, input_width.value, input_height.value);
+  
+  let inputData = ctx_in.getImageData(0, 0, width, height);
+
+  const data = inputData.data;
+  
+  for(let i=0; i<data.length; i+=4){
+    data[i] = Math.max(0,Math.min(255,data[i]+brightness)); // red
+    data[i + 1] = Math.max(0,Math.min(255,data[i+1]+brightness)); // green
+    data[i + 2] = Math.max(0,Math.min(255,data[i+2]+brightness)); // blue
+  }
+  let avgGray = 0;
+  for (let i = 0; i < data.length; i+=4) {
+    let r = data[i];
+    let g = data[i + 1];
+    let b = data[i + 2];
+    avgGray += (r * 0.2126 + g * 0.7152 + b * 0.0722);
+  }
+  avgGray = avgGray/(data.length/4);
+  
+  for (let i = 0; i < data.length; i+=4) {
+    data[i] = Math.max(0,Math.min(255,data[i]+(data[i]-avgGray)*contrast));
+    data[i+1] = Math.max(0,Math.min(255,data[i + 1]+(data[i + 1]-avgGray)*contrast));
+    data[i+2] = Math.max(0,Math.min(255,data[i + 2]+(data[i + 2]-avgGray)*contrast));
+  }
+
+  for (let i = 0; i < data.length; i+=4) {
+      let r = data[i];
+      let g = data[i+1];
+      let b = data[i+2];
+      let gray = (r * 0.2126 + g * 0.7152 + b * 0.0722);
+      
+      r += (r - gray) * saturation / sat_max;
+      g += (g - gray) * saturation / sat_max;
+      b += (b - gray) * saturation / sat_max;
+      
+      if (r > 255) r = 255;
+      else if (r < 0) r = 0;
+      if (g > 255) g = 255;
+      else if (g < 0) g = 0;
+      if (b > 255) b = 255;
+      else if (b < 0) b = 0;
+
+      data[i] = r;
+      data[i+1] = g;
+      data[i+2] = b;
+  }
+  ctx_in.putImageData(inputData, 0, 0);
+  if (render_timer){
+    clearTimeout(render_timer);
+  }
+  render_timer = setTimeout(render, 500);
+}
+
+function render(){
+  clearTimeout(render_timer);
+  let width = input_width.value;
+  let height = input_height.value;
+  image_output.width = width;
+  image_output.height = height;//Math.max(width,height);
+  image_output.style.width = Math.floor(90/Math.max(1,height/width))+"%";
+  let inputData = ctx_in.getImageData(0, 0, width, height);
+  let outputData = ctx_in.getImageData(0, 0, width, height);
+  const data = inputData.data;
+  const out = outputData.data;
+  let dither = document.getElementById("dithering").value;
+
+  for (let i = 0; i < data.length; i+=4) {
+    let r, g, b;
+    r = data[i];
+    g = data[i+1];
+    b = data[i+2];
+
+    chosen_color = closestColor([r,g,b]);
+
+    out[i] = chosen_color[0];
+    out[i+1] = chosen_color[1];
+    out[i+2] = chosen_color[2];
+    out[i+3] = 255;
+
+//TODO Diffuse in Linear space, not RGB. This currently looks kinda bad.
+    if (dither == 'floyd'){
+      let dr = r - chosen_color[0];
+      let dg = g - chosen_color[1];
+      let db = b - chosen_color[2];
+      data[i+4] += 7*dr/16;
+      data[i+5] += 7*dg/16;
+      data[i+6] += 7*db/16;
+
+      data[4*width+i-4] += 1*dr/16;
+      data[4*width+i-3] += 1*dg/16;
+      data[4*width+i-2] += 1*db/16;
+
+      data[4*width+i+0] += 5*dr/16;
+      data[4*width+i+1] += 5*dg/16;
+      data[4*width+i+2] += 5*db/16;
+
+      data[4*width+i+4] += 3*dr/16;
+      data[4*width+i+5] += 3*dg/16;
+      data[4*width+i+6] += 3*db/16;
+    }
+
+  }
+  ctx_out.putImageData(outputData, 0, 0);
+}
+
+document.getElementById("download").addEventListener("click", function(e){
+  var link = document.createElement('a');
+  link.download = 'image-to-pebble.png';
+  link.href = document.getElementById('image_output').toDataURL()
+  link.click();
+});
+
+//closestColor([255,0,0]);
+
+function closestColor(color, all=false){
+  let min_error = 999999;
+  let closest = [0,0,0];
+  for (let i = 0; i < colors.length; i++) {
+    for (let j = 0; j < colors[i].length; j++) {
+      let box = document.getElementById(colors[i][j]);
+      if (box.checked == true || all){
+        r = parseInt(box.id[0] + box.id[0], 16);
+        g = parseInt(box.id[1] + box.id[1], 16);
+        b = parseInt(box.id[2] + box.id[2], 16);
+        //let error = deltaE([r,g,b],color);
+        let error = Math.abs(r-color[0])+Math.abs(g-color[1])+Math.abs(b-color[2]);
+        if (error < min_error){
+          min_error = error;
+          closest = [r,g,b];
+        }
+      }
+    }
+  }
+  return(closest);
+}
+
+function deltaE(rgbA, rgbB) {
+  let labA = rgb2lab(rgbA);
+  let labB = rgb2lab(rgbB);
+  let deltaL = labA[0] - labB[0];
+  let deltaA = labA[1] - labB[1];
+  let deltaB = labA[2] - labB[2];
+  let c1 = Math.sqrt(labA[1] * labA[1] + labA[2] * labA[2]);
+  let c2 = Math.sqrt(labB[1] * labB[1] + labB[2] * labB[2]);
+  let deltaC = c1 - c2;
+  let deltaH = deltaA * deltaA + deltaB * deltaB - deltaC * deltaC;
+  deltaH = deltaH < 0 ? 0 : Math.sqrt(deltaH);
+  let sc = 1.0 + 0.045 * c1;
+  let sh = 1.0 + 0.015 * c1;
+  let deltaLKlsl = deltaL / (1.0);
+  let deltaCkcsc = deltaC / (sc);
+  let deltaHkhsh = deltaH / (sh);
+  let i = deltaLKlsl * deltaLKlsl + deltaCkcsc * deltaCkcsc + deltaHkhsh * deltaHkhsh;
+  return i < 0 ? 0 : Math.sqrt(i);
+}
+
+function rgb2lab(rgb){
+  let r = rgb[0] / 255, g = rgb[1] / 255, b = rgb[2] / 255, x, y, z;
+  r = (r > 0.04045) ? Math.pow((r + 0.055) / 1.055, 2.4) : r / 12.92;
+  g = (g > 0.04045) ? Math.pow((g + 0.055) / 1.055, 2.4) : g / 12.92;
+  b = (b > 0.04045) ? Math.pow((b + 0.055) / 1.055, 2.4) : b / 12.92;
+  x = (r * 0.4124 + g * 0.3576 + b * 0.1805) / 0.95047;
+  y = (r * 0.2126 + g * 0.7152 + b * 0.0722) / 1.00000;
+  z = (r * 0.0193 + g * 0.1192 + b * 0.9505) / 1.08883;
+  x = (x > 0.008856) ? Math.pow(x, 1/3) : (7.787 * x) + 16/116;
+  y = (y > 0.008856) ? Math.pow(y, 1/3) : (7.787 * y) + 16/116;
+  z = (z > 0.008856) ? Math.pow(z, 1/3) : (7.787 * z) + 16/116;
+  return [(116 * y) - 16, 500 * (x - y), 200 * (y - z)]
+}
+
+  </script>
+</body>
+</html>
