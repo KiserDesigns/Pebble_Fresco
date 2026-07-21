@@ -76,7 +76,7 @@ static void prv_default_settings() {
   layers[2].FontSettings = 0;
   strcpy(layers[2].Content, "");
   
-  layers[3].LayerSettings = DRAW_MIN | DRAW_HOUR | DRAW_SEC | DRAW_MAJOR_TICK | DRAW_MINOR_TICK; // | LAYER_ENABLED;
+  layers[3].LayerSettings = DRAW_MIN | DRAW_HOUR | DRAW_SEC | DRAW_MAJOR_TICK | DRAW_MINOR_TICK| LAYER_ENABLED;
   layers[3].ContentSettings = build_tick_settings(PBL_DISPLAY_WIDTH/2 - 10,PBL_IF_COLOR_ELSE(GColorBlue,GColorWhite),0,5,GColorWhite,0,1);
   layers[3].Radius = (1<<12) | (2<<6) | 3;
   layers[3].Rect = GRect(PBL_DISPLAY_WIDTH/2,PBL_DISPLAY_HEIGHT/2,PBL_DISPLAY_WIDTH/2 - 25,PBL_DISPLAY_WIDTH/2 - 40);
@@ -106,6 +106,19 @@ static void prv_default_settings() {
                              ( 0 <<4)| 0 ,( 1 <<4)| 1 ,\
                              ( 2 <<4)| 2 ,( 3 <<4)| 3 };
   persist_write_data(IMAGE_BLOCK_KEY_ITERATION*NUM_IMAGE_BLOCKS+1,image_block, sizeof(ImageBlock));
+  
+  /**
+  layers[5].LayerSettings = LAYER_ENABLED | DITHER_LR;
+  layers[5].ContentSettings = 0;
+  layers[5].Radius = 30;
+  layers[5].Rect = GRect(0,20,PBL_DISPLAY_WIDTH,PBL_DISPLAY_HEIGHT-20);
+  layers[5].DynamicMask = 0;
+  layers[5].BackgroundColor = GColorWhite;
+  layers[5].ForegroundColor = GColorClear;
+  layers[5].Type = TYPE_RECT;
+  layers[5].FontSettings = 0;
+  strcpy(layers[5].Content, "");
+  **/
   
   for (int i=5; i<NUM_LAYERS; i++) {
     //disable the rest

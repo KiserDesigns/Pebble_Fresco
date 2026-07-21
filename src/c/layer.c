@@ -172,7 +172,7 @@ static GColor get_pixel_color(GBitmapDataRowInfo info, GPoint point) {
 
 void draw_layer(GContext * ctx, LayerInfo * layer, time_t time){
   if (layer->Type == TYPE_RECT || layer->Type == TYPE_TEXT){
-    if (!gcolor_equal(layer->BackgroundColor, GColorClear)){
+    if (!gcolor_equal(layer->BackgroundColor, GColorClear) && !(layer->LayerSettings&DITHER_MASK)){
       //if the background color is not clear, draw a background
       graphics_context_set_fill_color(ctx, layer->BackgroundColor);
       graphics_fill_rect(ctx, layer->Rect, layer->Radius, GCornersAll);
@@ -188,15 +188,21 @@ void draw_layer(GContext * ctx, LayerInfo * layer, time_t time){
         {15, 47, 7,  39, 13, 45, 5,  37},
         {63, 31, 55, 23, 61, 29, 53, 21}
       };
-      graphics_context_set_stroke_color(ctx, layer->ForegroundColor);
       
       int w = layer->Rect.size.w;
       int h = layer->Rect.size.h;
       for(int x = 0; x<w; x++){
         for(int y = 0; y<h; y++){
           if (prv_in_rect(w, h, layer->Radius, (uint16_t)x, (uint16_t)y)){
+            GColor stroke_color;
             if ((layer->LayerSettings&DITHER_MASK) == DITHER_MIX){
               if ((x+y)%2){
+                stroke_color = layer->ForegroundColor;
+              } else {
+                stroke_color = layer->BackgroundColor;
+              }
+              if (!gcolor_equal(stroke_color, GColorClear)){
+                graphics_context_set_stroke_color(ctx, stroke_color);
                 graphics_draw_pixel(ctx, GPoint(layer->Rect.origin.x + x, layer->Rect.origin.y + y));
               }
             } else {
@@ -208,6 +214,12 @@ void draw_layer(GContext * ctx, LayerInfo * layer, time_t time){
               }
               int bayer = bayer8x8[x%8][y%8];
               if (threshold > bayer){
+                stroke_color = layer->ForegroundColor;
+              } else {
+                stroke_color = layer->BackgroundColor;
+              }
+              if (!gcolor_equal(stroke_color, GColorClear)){
+                graphics_context_set_stroke_color(ctx, stroke_color);
                 graphics_draw_pixel(ctx, GPoint(layer->Rect.origin.x + x, layer->Rect.origin.y + y));
               }
             }
