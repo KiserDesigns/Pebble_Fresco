@@ -1,20 +1,21 @@
 #pragma once
+#include <pebble.h>
+#include "src/c/layerinfo.h"
+
+
+
+// Max number of image blocks
+#define NUM_IMAGE_BLOCKS 8
+#define IMAGE_BLOCK_KEY_ITERATION 1
+
+#define COLOR_MODE_MASK 0x02
+#define MODE_COLOR 0x02
 
 //image data:
-/**
 
-typedef struct LayerInfo {
-  GRect Rect; // bounds of the image
-  uint32_t LayerSettings; //4-byte hash to request from phone for full-res data
-  uint32_t ContentSettings; //4
-  uint16_t Radius; //2
-  uint8_t DynamicMask; //1
-  GColor BackgroundColor; //1
-  GColor ForegroundColor; //1
-  uint8_t Type; //1
-  uint8_t FontSettings; //1
-  char Content[41]; //first 16 are the colors that each nibble represent
-} LayerInfo;
+typedef struct ImageBlock {
+  uint8_t pixels[256]; // pixel data. For b/w, each bit is a pixel, high on left and low on right, wrapping.
+                       // for color, each nibble represents a selection from the 16-color pallete in gcolor_pallete[16];
+} ImageBlock;
 
-**/
-
+void draw_image(GContext * ctx, LayerInfo * layer);
