@@ -8,8 +8,11 @@
 #define NUM_IMAGE_BLOCKS 8
 #define IMAGE_BLOCK_KEY_ITERATION 1
 
-#define COLOR_MODE_MASK 0x02
-#define MODE_COLOR 0x02
+#define BIT_DEPTH_MASK 0x06
+#define BIT_DEPTH_1 0x00
+#define BIT_DEPTH_2 0x02
+#define BIT_DEPTH_4 0x04
+#define BIT_DEPTH_8 0x06
 
 //image data:
 

@@ -7,7 +7,7 @@ typedef struct LayerInfo {
   GRect Rect; // bounds of the image
   uint32_t LayerSettings; //
   uint32_t ContentSettings; //4-byte hash to request from phone for full-res data
-  uint16_t Radius; //High byte: index of starting "block". Low byte: Number of "blocks" to complete data
+  uint16_t Radius; //Starting byte. /256 to get block offset, and %256 to get starting byte within block
   uint8_t DynamicMask; //1
   GColor BackgroundColor; //Color of 0's in a 1-bpp image
   GColor ForegroundColor; //Color of 1's in a 1-bpp image
@@ -20,19 +20,22 @@ typedef struct LayerInfo {
 
 void draw_image(GContext * ctx, LayerInfo * layer){
   ImageBlock data;
-  int start_block = (layer->Radius>>8)&0x0FF;
-  uint8_t block = 0;
-  uint8_t byte = 0;
+  uint8_t block = layer->Radius/256;
+  uint8_t byte = layer->Radius%256;
   uint8_t bit = 0;
-  bool is_color = (layer->LayerSettings&COLOR_MODE_MASK)==MODE_COLOR;
+  bool bit_depth = (layer->LayerSettings&BIT_DEPTH_MASK);
   int w = layer->Rect.size.w;
   int h = layer->Rect.size.h;
   GColor color;
   int scale = layer->FontSettings!=0?layer->FontSettings:1;
+  
+  if (byte!=0){
+    persist_read_data(IMAGE_BLOCK_KEY_ITERATION*NUM_IMAGE_BLOCKS+block,&data, sizeof(ImageBlock));
+  }
   for(int y = 0; y<h; y++){
     for(int x = 0; x<w; x++){
       if (byte==0){
-        persist_read_data(IMAGE_BLOCK_KEY_ITERATION*NUM_IMAGE_BLOCKS+start_block+block,&data, sizeof(ImageBlock));
+        persist_read_data(IMAGE_BLOCK_KEY_ITERATION*NUM_IMAGE_BLOCKS+block,&data, sizeof(ImageBlock));
         block = block+1;
       }
       if (is_color) {

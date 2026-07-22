@@ -107,7 +107,7 @@ static void prv_default_settings() {
                              ( 2 <<4)| 2 ,( 3 <<4)| 3 };
   persist_write_data(IMAGE_BLOCK_KEY_ITERATION*NUM_IMAGE_BLOCKS+1,image_block, sizeof(ImageBlock));
   
-  /**
+  /** **/
   layers[5].LayerSettings = LAYER_ENABLED | DITHER_LR;
   layers[5].ContentSettings = 0;
   layers[5].Radius = 30;
@@ -118,9 +118,9 @@ static void prv_default_settings() {
   layers[5].Type = TYPE_RECT;
   layers[5].FontSettings = 0;
   strcpy(layers[5].Content, "");
-  **/
+  /** **/
   
-  for (int i=5; i<NUM_LAYERS; i++) {
+  for (int i=6; i<NUM_LAYERS; i++) {
     //disable the rest
     layers[i].LayerSettings&=!LAYER_ENABLED;
   }
