@@ -1,91 +1,256 @@
+<!DOCTYPE html>
+<html>
+
 <html>
 <head>
-<title>Fresco Settings</title>
-</head>
-<body style="background-color: lightblue;">
-<h1>Settings Page WIP</h1>
-<p>This is just a check to see if the page loads</p>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fresco Settings</title>
 
-<input id='background_color_input' type='text' value='000001'>
-  Background Color
-</input>
-<input id='foreground_color_input' type='text' value='000000'>
-  Foreground Color
-</input>
-<input id='temperature_checkbox' type='checkbox'>
-  Temp in F
-</input>
-<input id='submit_button' type='button' value='Save & Exit'>
-<input accept="image/png,image/jpeg,image/jpg,image/gif" type="file">
+  <style>
+    html, body {
+  background-color: lightblue;
+  height: 100vh; /* Use vh as a fallback for browsers that do not support Custom Properties */
+  height: calc(var(--vh, 1vh) * 100);
+  margin: 0;
+  padding: 0;
+} 
 
+*:not(body, html) {
 
-</body>
-<script>
+ border: solid 0px red;
+ box-sizing: border-box;
+
+}
+
+.center {
+  align-items: center;justify-content: center;
+}
+.pad {
+  padding: 1vh;
+}
+.grow {
+  flex-grow: 1;
+}
+.flex {
+  display: flex;
+}
+  </style>
+
   
+</head>
+<body>
+  <div style="display:flex;flex-direction:column;height:100%;margin:0;">
+  <div class="flex">
+    <div class="center pad">
+      <input id='submit_button' type='button' value='Save'>
+    </div>
+    <div class="center pad grow flex">
+      Platform:&nbsp
+      <select id="platform">
+        <option value="aplite">Classic Pebble</option>
+        <option value="basalt">Pebble Time</option>
+        <option value="chalk">Time Round</option>
+        <option value="diorite">Pebble 2</option>
+        <option value="emery" selected>Pebble Time 2</option>
+        <option value="flint">Pebble 2 Duo</option>
+        <option value="gabbro">Pebble Round 2</option>
+      </select>
+    </div>
+    <div class="center pad">
+      <input id='exit_button' type='button' value='Exit'>
+    </div>
+  </div>
+  <div class="flex">
+    <div class="pad" style="background-color:#808080;">
+      <div id="canvas_container" style="position: relative;">
+        <canvas id="preview" style="position: absolute; top: 0; left: 0;"></canvas>
+        <canvas id="mask" style="position: absolute; top: 0; left: 0;"></canvas>
+      </div>
+    </div>
+    <div class="grow">
+    </div>
+  </div>
+  <div class="pad grow">
+    <input id='background_color_input' type='color' value='#000000'>
+      Background Color
+    </input>
+    <input id='temperature_checkbox' type='checkbox'>
+      Temp in F
+    </input>
+  </div>
+</div>
 
-  // Get a handle to the button's HTML element
-  var submitButton = document.getElementById('submit_button');
-  var backgroundColor = document.getElementById('background_color_input');
 
-  function getQueryParam(variable, defaultValue) {
-    var query = location.search.substring(1);
-    var vars = query.split('&');
-    for (var i = 0; i < vars.length; i++) {
-      var pair = vars[i].split('=');
-      if (pair[0] === variable) {
-        return decodeURIComponent(pair[1]);
-      }
+  <script>
+    // Get a handle to the button's HTML element
+const submitButton = document.getElementById('submit_button');
+const platform_element = document.getElementById('platform');
+const preview = document.getElementById('preview');
+const ctx = preview.getContext("2d");
+const mask = document.getElementById('mask');
+const mask_ctx = mask.getContext("2d");
+const canvas_container = document.getElementById('canvas_container');
+
+const background_color = document.getElementById('background_color_input');
+background_color.addEventListener('input', setBgColor);
+
+var platform;
+var plat_w;
+var plat_h;
+//init. May need to guard this until page/js completely loaded
+getPlatform();
+setBgColor();
+
+function setBgColor(){
+  background_color.value = quantizeColor(background_color.value);
+  preview.style.backgroundColor = background_color.value;
+}
+
+function quantizeColor(color){
+  r = parseInt(color[1]+color[2],16);
+  g = parseInt(color[3]+color[4],16);
+  b = parseInt(color[5]+color[6],16);
+  r = "05AF"[Math.floor(r/64)];
+  g = "05AF"[Math.floor(g/64)];
+  b = "05AF"[Math.floor(b/64)];
+  return "#"+r+r+g+g+b+b;
+}
+
+function sizePreview(scale=1){
+preview.width = plat_w;
+preview.height = plat_h;
+preview.style.width = (plat_w*scale) + "px";
+preview.style.height = (plat_h*scale) + "px";
+
+mask.width = plat_w;
+mask.height = plat_h;
+mask.style.width = (plat_w*scale) + "px";
+mask.style.height = (plat_h*scale) + "px";
+
+canvas_container.style.width = (plat_w*scale) + "px";
+canvas_container.style.height = (plat_h*scale) + "px";
+
+if (platform == "chalk" || platform == "gabbro"){
+
+mask_ctx.rect(0, 0, plat_w, plat_h);
+mask_ctx.fillStyle = "#808080B0";
+mask_ctx.fill();
+mask_ctx.globalCompositeOperation = 'destination-out'
+mask_ctx.beginPath();
+mask_ctx.fillStyle = "#FFFFFFFF";
+mask_ctx.arc(plat_w/2, plat_w/2, plat_w/2+0.5, 0, 2 * Math.PI);
+mask_ctx.fill();
+} else {
+mask_ctx.rect(0, 0, plat_w, plat_h);
+mask_ctx.fillStyle = "#FFFFFF00";
+mask_ctx.fill();
+}
+}
+
+function getQueryParam(variable, defaultValue) {
+  var query = location.search.substring(1);
+  var vars = query.split('&');
+  for (var i = 0; i < vars.length; i++) {
+    var pair = vars[i].split('=');
+    if (pair[0] === variable) {
+      return decodeURIComponent(pair[1]);
     }
-    return defaultValue || false;
-  };
+  }
+  return defaultValue || false;
+};
 
-  var xhrRequest = function (url, type, callback) {
-    var xhr = new XMLHttpRequest();
-    xhr.onload = function () {
-      callback(this.responseText);
-    };
-    xhr.open(type, url);
-    xhr.send();
+var xhrRequest = function (url, type, callback) {
+  var xhr = new XMLHttpRequest();
+  xhr.onload = function () {
+    callback(this.responseText);
   };
+  xhr.open(type, url);
+  xhr.send();
+};
 
+function getPlatform() {
   // Get the platform from the URL:
-  var platform = getQueryParam('platform', 'unknown');
-  console.log(platform);
-  backgroundColor.value = platform;
+  platform = getQueryParam('platform', 'none');
+  if (platform != 'none'){
+    platform_element.value = platform;
+    platform_element.disabled = true;
+  } else {
+    platform = platform_element.value;
+  }
+  switch (platform) {
+    case "chalk":
+      plat_w = 180;
+      plat_h = 180;
+    break;
+    case "emery":
+      plat_w = 200;
+      plat_h = 228;
+    break;
+    case "gabbro":
+      plat_w = 260;
+      plat_h = 260;
+    break;
+    case "aplite":
+    case "basalt":
+    case "diorite":
+    case "flint":
+    default:
+      plat_w = 144;
+      plat_h = 168;
+    break;
+  }
+  console.log(platform, plat_w, plat_h);
+  sizePreview();
+}
 
-  // Add a 'click' listener
-  submitButton.addEventListener('click', function() {
-    // Get the config data from the UI elements
-    var backgroundColor = document.getElementById('background_color_input');
-    var foregroundColor = document.getElementById('foreground_color_input');
-    var temperatureCheckbox = document.getElementById('temperature_checkbox');
+platform_element.addEventListener("input", getPlatform);
+// Add a 'click' listener
+submitButton.addEventListener('click', function() {
+  // Get the config data from the UI elements
+  var background_color = document.getElementById('background_color_input');
+  var temperatureCheckbox = document.getElementById('temperature_checkbox');
 
-    // Make a data object to be sent, coercing value types to integers
-    var options = {
-      'background_color': parseInt(backgroundColor.value, 16),
-      'foreground_color': parseInt(foregroundColor.value, 16),
-      'temperature_checkbox': temperatureCheckbox.checked ? 1 : 0
-    };
- 
-    console.log(parseInt(backgroundColor.value, 16), parseInt(foregroundColor.value, 16), temperatureCheckbox.checked ? 1 : 0);
+  // Make a data object to be sent, coercing value types to integers
+  var options = {
+    'background_color': parseInt(background_color.value.substr(1, 6), 16),
+    'temperature_checkbox': temperatureCheckbox.checked ? 1 : 0
+  };
 
-    // Determine the correct return URL (emulator vs real watch)
-    var return_to = getQueryParam('return_to', 'pebblejs://close#');
+  console.log(parseInt(background_color.value.substr(1, 6), 16), temperatureCheckbox.checked ? 1 : 0);
 
-    // Encode and send the data when the page closes
-    document.location = return_to + encodeURIComponent(JSON.stringify(options));
+  // Determine the correct return URL (emulator vs real watch)
+  var return_to = getQueryParam('return_to', 'pebblejs://close#');
 
-    //fetch(return_to + encodeURIComponent(JSON.stringify(options)));
+  // Encode and send the data when the page closes
+  document.location = return_to + encodeURIComponent(JSON.stringify(options));
 
-    //const iframe = document.createElement("iframe");
-    //iframe.src = return_to + encodeURIComponent(JSON.stringify(options));
-    //iframe.style.display = "none";
-    //document.body.appendChild(iframe);
+  //fetch(return_to + encodeURIComponent(JSON.stringify(options)));
 
-  });
+  //const iframe = document.createElement("iframe");
+  //iframe.src = return_to + encodeURIComponent(JSON.stringify(options));
+  //iframe.style.display = "none";
+  //document.body.appendChild(iframe);
+});
 
 
-</script>
+//-------------------------------------
+//   Manage changing viewport heights.
+//   We-work when testing on Mobile.
 
+// First we get the viewport height and we multiple it by 1% to get a value for a vh unit
+let vh = window.innerHeight * 0.01;
+// Then we set the value in the --vh custom property to the root of the document
+document.documentElement.style.setProperty('--vh', `${vh}px`);
 
+// We listen to the resize event
+window.addEventListener('resize', () => {
+  // We execute the same script as before
+  let vh = window.innerHeight * 0.01;
+  document.documentElement.style.setProperty('--vh', `${vh}px`);
+  //console.log(vh);
+});
+
+  </script>
+</body>
 </html>
