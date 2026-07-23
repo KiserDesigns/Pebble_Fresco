@@ -94,7 +94,7 @@ body {
         <canvas id="mask" style="position: absolute; top: 0; left: 0;"></canvas>
       </div>
     </div>
-    <div class="grow scroller" id="layer_container" style="">
+    <div class="grow scroller" id="layer_container">
       <div class="layer flex">
         <div class="flex center square"><button class="handle">&#8645;</button></div>
         <div class="flex center grow">
@@ -135,6 +135,7 @@ body {
     <input id='temperature_checkbox' type='checkbox'>
       Temp in F
     </input>
+    <input type="number" value="0"><button onclick="return this.value += 1;">^</button><button onclick="return this.parentNode.value -= 1;">v</button>Position</input>
   </div>
 </div>
 <script src="./Sortable.min.js"></script>
