@@ -3,7 +3,7 @@
 
 <html>
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Fresco Settings</title>
 
@@ -48,7 +48,7 @@ body {
   aspect-ratio:1/1;
   height:100%;
 }
-.close {
+.action {
   height:80%;
   aspect-ratio:1/1;
   background-color: lightgray;
@@ -87,7 +87,7 @@ body {
       <input id='exit_button' type='button' value='Exit'>
     </div>
   </div>
-  <div class="flex" style="">
+  <div class="flex">
     <div class="pad" style="background-color:#808080;">
       <div id="canvas_container" style="position: relative;">
         <canvas id="preview" style="position: absolute; top: 0; left: 0;"></canvas>
@@ -97,31 +97,34 @@ body {
     <div class="grow scroller" id="layer_container" style="">
       <div class="layer flex">
         <div class="flex center square"><button class="handle">&#8645;</button></div>
-        <div class="grow">
-          This is Layer 0
+        <div class="flex center grow">
+          This is Layer A
         </div>
-        <div class="flex center square"><button class="close" onclick="return this.parentNode.parentNode.remove();">&#128939;</button></div>
       </div>
       <div class="layer flex">
         <div class="flex center square"><button class="handle">&#8645;</button></div>
-        <div class="grow">
-          This is Layer 1
+        <div class="flex center grow">
+          This is Layer B
         </div>
-        <div class="flex center square"><button class="close" onclick="return this.parentNode.parentNode.remove();">&#128939;</button></div>
       </div>
       <div class="layer flex">
         <div class="flex center square"><button class="handle">&#8645;</button></div>
-        <div class="grow">
-          This is Layer 2
+        <div class="flex center grow">
+          This is Layer C
         </div>
-        <div class="flex center square"><button class="close" onclick="return this.parentNode.parentNode.remove();">&#128939;</button></div>
       </div>
       <div class="layer flex">
         <div class="flex center square"><button class="handle">&#8645;</button></div>
-        <div class="grow">
-          This is Layer 3
+        <div class="flex center grow">
+          This is Layer D
         </div>
-        <div class="flex center square"><button class="close" onclick="return this.parentNode.parentNode.remove();">&#128939;</button></div>
+      </div>
+      <div class="layer flex" style="background:none;">
+        <div class="flex center square"><button class="action">&#9547;</button></div>
+        <div class="flex center">
+          Add Layer
+        </div>
+        <div class="grow"></div>
       </div>
     </div>
   </div>
