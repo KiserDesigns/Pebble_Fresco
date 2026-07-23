@@ -8,23 +8,23 @@
   <title>Fresco Settings</title>
 
   <style>
-    html, body {
+    html,
+body {
   background-color: lightblue;
   height: 100vh; /* Use vh as a fallback for browsers that do not support Custom Properties */
   height: calc(var(--vh, 1vh) * 100);
   margin: 0;
   padding: 0;
-} 
+}
 
 *:not(body, html) {
-
- border: solid 0px red;
- box-sizing: border-box;
-
+  border: solid 0px red;
+  box-sizing: border-box;
 }
 
 .center {
-  align-items: center;justify-content: center;
+  align-items: center;
+  justify-content: center;
 }
 .pad {
   padding: 1vh;
@@ -35,6 +35,16 @@
 .flex {
   display: flex;
 }
+.scroller {
+  min-height: 0;
+  overflow-y: auto;
+}
+.layer {
+  height: 60px;
+  margin: 1vh;
+  background-color: lightslategray;
+}
+
   </style>
 
   
@@ -61,14 +71,38 @@
       <input id='exit_button' type='button' value='Exit'>
     </div>
   </div>
-  <div class="flex">
+  <div class="flex" style="">
     <div class="pad" style="background-color:#808080;">
       <div id="canvas_container" style="position: relative;">
         <canvas id="preview" style="position: absolute; top: 0; left: 0;"></canvas>
         <canvas id="mask" style="position: absolute; top: 0; left: 0;"></canvas>
       </div>
     </div>
-    <div class="grow">
+    <div class="grow scroller" id="layer_container" style="">
+      <div class="layer flex">
+        <div class="grow">
+          This is Layer 1
+        </div>
+        <div><button onclick="return this.parentNode.parentNode.remove();">X</button></div>
+      </div>
+      <div class="layer flex">
+        <div class="grow">
+          This is Layer 2
+        </div>
+        <div><button onclick="return this.parentNode.parentNode.remove();">X</button></div>
+      </div>
+      <div class="layer flex">
+        <div class="grow">
+          This is Layer 3
+        </div>
+        <div><button onclick="return this.parentNode.parentNode.remove();">X</button></div>
+      </div>
+      <div class="layer flex">
+        <div class="grow">
+          This is Layer 4
+        </div>
+        <div><button onclick="return this.parentNode.parentNode.remove();">X</button></div>
+      </div>
     </div>
   </div>
   <div class="pad grow">
@@ -80,20 +114,22 @@
     </input>
   </div>
 </div>
+<script src="./Sortable.min.js"></script>
 
 
   <script>
     // Get a handle to the button's HTML element
-const submitButton = document.getElementById('submit_button');
-const platform_element = document.getElementById('platform');
-const preview = document.getElementById('preview');
+const submitButton = document.getElementById("submit_button");
+const platform_element = document.getElementById("platform");
+const preview = document.getElementById("preview");
 const ctx = preview.getContext("2d");
-const mask = document.getElementById('mask');
+const mask = document.getElementById("mask");
 const mask_ctx = mask.getContext("2d");
-const canvas_container = document.getElementById('canvas_container');
+const canvas_container = document.getElementById("canvas_container");
+const layer_container = document.getElementById("layer_container");
 
-const background_color = document.getElementById('background_color_input');
-background_color.addEventListener('input', setBgColor);
+const background_color = document.getElementById("background_color_input");
+background_color.addEventListener("input", setBgColor);
 
 var platform;
 var plat_w;
@@ -102,63 +138,84 @@ var plat_h;
 getPlatform();
 setBgColor();
 
-function setBgColor(){
+new Sortable(layer_container, {
+    animation: 150,
+    ghostClass: 'blue-background-class'
+});
+orderLayers([0]);
+
+function orderLayers(order) {
+  var layer_items = [...layer_container.children];
+  console.log(order);
+  layer_items.sort(
+    (a, b) =>
+      order.indexOf(layer_items.indexOf(a)) -
+      order.indexOf(layer_items.indexOf(b)),
+  );
+
+  layer_items.forEach((it) => layer_container.appendChild(it));
+}
+
+function setBgColor() {
   background_color.value = quantizeColor(background_color.value);
   preview.style.backgroundColor = background_color.value;
 }
 
-function quantizeColor(color){
-  r = parseInt(color[1]+color[2],16);
-  g = parseInt(color[3]+color[4],16);
-  b = parseInt(color[5]+color[6],16);
-  r = "05AF"[Math.floor(r/64)];
-  g = "05AF"[Math.floor(g/64)];
-  b = "05AF"[Math.floor(b/64)];
-  return "#"+r+r+g+g+b+b;
+function quantizeColor(color) {
+  r = parseInt(color[1] + color[2], 16);
+  g = parseInt(color[3] + color[4], 16);
+  b = parseInt(color[5] + color[6], 16);
+  r = "05AF"[Math.floor(r / 64)];
+  g = "05AF"[Math.floor(g / 64)];
+  b = "05AF"[Math.floor(b / 64)];
+  return "#" + r + r + g + g + b + b;
 }
 
-function sizePreview(scale=1){
-preview.width = plat_w;
-preview.height = plat_h;
-preview.style.width = (plat_w*scale) + "px";
-preview.style.height = (plat_h*scale) + "px";
+function sizePreview(scale = 1) {
+  preview.width = plat_w;
+  preview.height = plat_h;
+  preview.style.width = plat_w * scale + "px";
+  preview.style.height = plat_h * scale + "px";
 
-mask.width = plat_w;
-mask.height = plat_h;
-mask.style.width = (plat_w*scale) + "px";
-mask.style.height = (plat_h*scale) + "px";
+  mask.width = plat_w;
+  mask.height = plat_h;
+  mask.style.width = plat_w * scale + "px";
+  mask.style.height = plat_h * scale + "px";
 
-canvas_container.style.width = (plat_w*scale) + "px";
-canvas_container.style.height = (plat_h*scale) + "px";
+  canvas_container.style.width = plat_w * scale + "px";
+  canvas_container.style.height = plat_h * scale + "px";
 
-if (platform == "chalk" || platform == "gabbro"){
+  layer_container.style.maxHeight = "calc(" + plat_h * scale + "px + 2vh)";
 
-mask_ctx.rect(0, 0, plat_w, plat_h);
-mask_ctx.fillStyle = "#808080B0";
-mask_ctx.fill();
-mask_ctx.globalCompositeOperation = 'destination-out'
-mask_ctx.beginPath();
-mask_ctx.fillStyle = "#FFFFFFFF";
-mask_ctx.arc(plat_w/2, plat_w/2, plat_w/2+0.5, 0, 2 * Math.PI);
-mask_ctx.fill();
-} else {
-mask_ctx.rect(0, 0, plat_w, plat_h);
-mask_ctx.fillStyle = "#FFFFFF00";
-mask_ctx.fill();
-}
+  console.log(layer_container.style.maxHeight);
+
+  if (platform == "chalk" || platform == "gabbro") {
+    mask_ctx.rect(0, 0, plat_w, plat_h);
+    mask_ctx.fillStyle = "#808080B0";
+    mask_ctx.fill();
+    mask_ctx.globalCompositeOperation = "destination-out";
+    mask_ctx.beginPath();
+    mask_ctx.fillStyle = "#FFFFFFFF";
+    mask_ctx.arc(plat_w / 2, plat_w / 2, plat_w / 2 + 0.5, 0, 2 * Math.PI);
+    mask_ctx.fill();
+  } else {
+    mask_ctx.rect(0, 0, plat_w, plat_h);
+    mask_ctx.fillStyle = "#FFFFFF00";
+    mask_ctx.fill();
+  }
 }
 
 function getQueryParam(variable, defaultValue) {
   var query = location.search.substring(1);
-  var vars = query.split('&');
+  var vars = query.split("&");
   for (var i = 0; i < vars.length; i++) {
-    var pair = vars[i].split('=');
+    var pair = vars[i].split("=");
     if (pair[0] === variable) {
       return decodeURIComponent(pair[1]);
     }
   }
   return defaultValue || false;
-};
+}
 
 var xhrRequest = function (url, type, callback) {
   var xhr = new XMLHttpRequest();
@@ -171,8 +228,8 @@ var xhrRequest = function (url, type, callback) {
 
 function getPlatform() {
   // Get the platform from the URL:
-  platform = getQueryParam('platform', 'none');
-  if (platform != 'none'){
+  platform = getQueryParam("platform", "none");
+  if (platform != "none") {
     platform_element.value = platform;
     platform_element.disabled = true;
   } else {
@@ -182,15 +239,15 @@ function getPlatform() {
     case "chalk":
       plat_w = 180;
       plat_h = 180;
-    break;
+      break;
     case "emery":
       plat_w = 200;
       plat_h = 228;
-    break;
+      break;
     case "gabbro":
       plat_w = 260;
       plat_h = 260;
-    break;
+      break;
     case "aplite":
     case "basalt":
     case "diorite":
@@ -198,7 +255,7 @@ function getPlatform() {
     default:
       plat_w = 144;
       plat_h = 168;
-    break;
+      break;
   }
   console.log(platform, plat_w, plat_h);
   sizePreview();
@@ -206,21 +263,24 @@ function getPlatform() {
 
 platform_element.addEventListener("input", getPlatform);
 // Add a 'click' listener
-submitButton.addEventListener('click', function() {
+submitButton.addEventListener("click", function () {
   // Get the config data from the UI elements
-  var background_color = document.getElementById('background_color_input');
-  var temperatureCheckbox = document.getElementById('temperature_checkbox');
+  var background_color = document.getElementById("background_color_input");
+  var temperatureCheckbox = document.getElementById("temperature_checkbox");
 
   // Make a data object to be sent, coercing value types to integers
   var options = {
-    'background_color': parseInt(background_color.value.substr(1, 6), 16),
-    'temperature_checkbox': temperatureCheckbox.checked ? 1 : 0
+    background_color: parseInt(background_color.value.substr(1, 6), 16),
+    temperature_checkbox: temperatureCheckbox.checked ? 1 : 0,
   };
 
-  console.log(parseInt(background_color.value.substr(1, 6), 16), temperatureCheckbox.checked ? 1 : 0);
+  console.log(
+    parseInt(background_color.value.substr(1, 6), 16),
+    temperatureCheckbox.checked ? 1 : 0,
+  );
 
   // Determine the correct return URL (emulator vs real watch)
-  var return_to = getQueryParam('return_to', 'pebblejs://close#');
+  var return_to = getQueryParam("return_to", "pebblejs://close#");
 
   // Encode and send the data when the page closes
   document.location = return_to + encodeURIComponent(JSON.stringify(options));
@@ -233,7 +293,6 @@ submitButton.addEventListener('click', function() {
   //document.body.appendChild(iframe);
 });
 
-
 //-------------------------------------
 //   Manage changing viewport heights.
 //   We-work when testing on Mobile.
@@ -241,13 +300,13 @@ submitButton.addEventListener('click', function() {
 // First we get the viewport height and we multiple it by 1% to get a value for a vh unit
 let vh = window.innerHeight * 0.01;
 // Then we set the value in the --vh custom property to the root of the document
-document.documentElement.style.setProperty('--vh', `${vh}px`);
+document.documentElement.style.setProperty("--vh", `${vh}px`);
 
 // We listen to the resize event
-window.addEventListener('resize', () => {
+window.addEventListener("resize", () => {
   // We execute the same script as before
   let vh = window.innerHeight * 0.01;
-  document.documentElement.style.setProperty('--vh', `${vh}px`);
+  document.documentElement.style.setProperty("--vh", `${vh}px`);
   //console.log(vh);
 });
 
