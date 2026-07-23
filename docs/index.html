@@ -44,6 +44,22 @@ body {
   margin: 1vh;
   background-color: lightslategray;
 }
+.square {
+  aspect-ratio:1/1;
+  height:100%;
+}
+.close {
+  height:80%;
+  aspect-ratio:1/1;
+  background-color: lightgray;
+  cursor:pointer;
+}
+.handle {
+  height:80%;
+  aspect-ratio:1/1;
+  background-color: lightgray;
+  cursor: grab;
+}
 
   </style>
 
@@ -80,28 +96,32 @@ body {
     </div>
     <div class="grow scroller" id="layer_container" style="">
       <div class="layer flex">
+        <div class="flex center square"><button class="handle">&#8645;</button></div>
+        <div class="grow">
+          This is Layer 0
+        </div>
+        <div class="flex center square"><button class="close" onclick="return this.parentNode.parentNode.remove();">&#128939;</button></div>
+      </div>
+      <div class="layer flex">
+        <div class="flex center square"><button class="handle">&#8645;</button></div>
         <div class="grow">
           This is Layer 1
         </div>
-        <div><button onclick="return this.parentNode.parentNode.remove();">X</button></div>
+        <div class="flex center square"><button class="close" onclick="return this.parentNode.parentNode.remove();">&#128939;</button></div>
       </div>
       <div class="layer flex">
+        <div class="flex center square"><button class="handle">&#8645;</button></div>
         <div class="grow">
           This is Layer 2
         </div>
-        <div><button onclick="return this.parentNode.parentNode.remove();">X</button></div>
+        <div class="flex center square"><button class="close" onclick="return this.parentNode.parentNode.remove();">&#128939;</button></div>
       </div>
       <div class="layer flex">
+        <div class="flex center square"><button class="handle">&#8645;</button></div>
         <div class="grow">
           This is Layer 3
         </div>
-        <div><button onclick="return this.parentNode.parentNode.remove();">X</button></div>
-      </div>
-      <div class="layer flex">
-        <div class="grow">
-          This is Layer 4
-        </div>
-        <div><button onclick="return this.parentNode.parentNode.remove();">X</button></div>
+        <div class="flex center square"><button class="close" onclick="return this.parentNode.parentNode.remove();">&#128939;</button></div>
       </div>
     </div>
   </div>
@@ -139,11 +159,12 @@ getPlatform();
 setBgColor();
 
 new Sortable(layer_container, {
+    handle: '.handle',
     animation: 150,
     ghostClass: 'blue-background-class'
 });
-orderLayers([0]);
 
+/**
 function orderLayers(order) {
   var layer_items = [...layer_container.children];
   console.log(order);
@@ -155,6 +176,7 @@ function orderLayers(order) {
 
   layer_items.forEach((it) => layer_container.appendChild(it));
 }
+  **/
 
 function setBgColor() {
   background_color.value = quantizeColor(background_color.value);
