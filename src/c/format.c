@@ -75,7 +75,7 @@ int formattimewords(char* buffer, int length, const char *format, time_t time) {
                 *str++ = *s++;
             }
             break;
-        case 'u':
+        case 'i':
             snprintf(s, sizeof(wordbuffer), "%ld", (long int)health_service_peek_current_value(HealthMetricHeartRateBPM));
             // printed++;
             while(*s) {
