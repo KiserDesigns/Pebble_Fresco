@@ -87,9 +87,9 @@ static void prv_default_settings() {
   layers[3].FontSettings = PBL_IF_COLOR_ELSE(GColorMagenta,GColorWhite).argb;
   strcpy(layers[3].Content, "");
   
-  layers[4].LayerSettings = LAYER_ENABLED | MODE_COLOR;
+  layers[4].LayerSettings = LAYER_ENABLED | BIT_DEPTH_4;
   layers[4].ContentSettings = 0;
-  layers[4].Radius = (1 << 8) | 1;
+  layers[4].Radius = 0;
   layers[4].Rect = GRect(5,20,4,4);
   layers[4].DynamicMask = 0;
   layers[4].BackgroundColor = GColorClear;
