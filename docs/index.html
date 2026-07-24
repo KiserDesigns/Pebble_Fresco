@@ -51,14 +51,17 @@ body {
 .action {
   height:80%;
   aspect-ratio:1/1;
-  background-color: lightgray;
+  background-color: white;
   cursor:pointer;
 }
 .handle {
   height:80%;
   aspect-ratio:1/1;
-  background-color: lightgray;
+  background-color: white;
   cursor: grab;
+}
+.ghost-class {
+  background-color: darkslategrey;
 }
 
   </style>
@@ -94,39 +97,7 @@ body {
         <canvas id="mask" style="position: absolute; top: 0; left: 0;"></canvas>
       </div>
     </div>
-    <div class="grow scroller" id="layer_container">
-      <div class="layer flex">
-        <div class="flex center square"><button class="handle">&#8645;</button></div>
-        <div class="flex center grow">
-          This is Layer A
-        </div>
-      </div>
-      <div class="layer flex">
-        <div class="flex center square"><button class="handle">&#8645;</button></div>
-        <div class="flex center grow">
-          This is Layer B
-        </div>
-      </div>
-      <div class="layer flex">
-        <div class="flex center square"><button class="handle">&#8645;</button></div>
-        <div class="flex center grow">
-          This is Layer C
-        </div>
-      </div>
-      <div class="layer flex">
-        <div class="flex center square"><button class="handle">&#8645;</button></div>
-        <div class="flex center grow">
-          This is Layer D
-        </div>
-      </div>
-      <div class="layer flex" style="background:none;">
-        <div class="flex center square"><button class="action">&#9547;</button></div>
-        <div class="flex center">
-          Add Layer
-        </div>
-        <div class="grow"></div>
-      </div>
-    </div>
+    <div class="grow scroller" id="layer_container"></div>
   </div>
   <div class="pad grow">
     <input id='background_color_input' type='color' value='#000000'>
@@ -135,10 +106,11 @@ body {
     <input id='temperature_checkbox' type='checkbox'>
       Temp in F
     </input>
-    <input type="number" value="0"><button onclick="return this.value += 1;">^</button><button onclick="return this.parentNode.value -= 1;">v</button>Position</input>
+    <div id="layer_info"></div>
   </div>
 </div>
 <script src="./Sortable.min.js"></script>
+<script src="./layerClass.js"></script>
 
 
   <script>
@@ -151,9 +123,14 @@ const mask = document.getElementById("mask");
 const mask_ctx = mask.getContext("2d");
 const canvas_container = document.getElementById("canvas_container");
 const layer_container = document.getElementById("layer_container");
+const layer_info = document.getElementById("layer_info");
 
 const background_color = document.getElementById("background_color_input");
 background_color.addEventListener("input", setBgColor);
+
+const numLayers = 25;
+
+const layers = [];
 
 var platform;
 var plat_w;
@@ -161,26 +138,99 @@ var plat_h;
 //init. May need to guard this until page/js completely loaded
 getPlatform();
 setBgColor();
+defaultLayers();
+//loadLayersFromLocalStorage();
+populateList();
+drawLayers();
+
+function openLayer(i) {
+  layer_info.innerHTML = 'Name: '+layers[i].getName() +'\
+  <br>Type: '+layers[i].getType() +'\
+  <br>Outline: '+layers[i].getLayerSetting("outline") +'\
+  <br>Background Color: '+layers[i].getBgColor() +'\
+  <br>Foreground Color: '+layers[i].getFgColor();
+}
+
+function populateList() {
+  layer_container.innerHTML = "";
+  for (let i = 0; i<numLayers; i++){
+    if (layers[i].getLayerSetting("enabled")){
+      addLayerToList(layers, i);
+    }
+  }
+  addButton = document.createElement("div");
+  addButton.classList.add("layer");
+  addButton.classList.add("flex");
+  addButton.style="background:none;"
+  addButton.innerHTML = '<div class="flex center square"><button class="action">&#9547;</button></div>\
+        <div class="flex center">\
+          Add Layer\
+        </div>\
+        <div class="grow"></div>'
+  layer_container.appendChild(addButton);
+}
+
+function addLayerToList(layers, i){
+  listItem = document.createElement("div");
+  listItem.classList.add("layer");
+  listItem.classList.add("flex");
+  listItem.innerHTML = '<div class="flex center square"><button class="handle">&#8645;</button></div>\
+  <div class="flex center grow"><button style="width:100%;height:100%" onclick="openLayer('+i+');">'+layers[i].getName()+'</button></div>'
+  layer_container.appendChild(listItem);
+  listItem.id = i;
+}
+
+function defaultLayers() {
+  for (let i = 0; i<numLayers; i++){
+    layer = new Layer();
+    layers[i] = layer;
+    layers[i].setLayerSetting("enabled", false);
+  }
+
+  layers[0].setName("Red Circle");
+  layers[0].setPos(15,15,40,40);
+  layers[0].setRadius(20);
+  layers[0].setBgColor("#AA0000");
+  layers[0].setFgColor("#00FF00");
+  layers[0].setLayerSetting("outline", true);
+  layers[0].setLayerSetting("enabled", true);
+
+  layers[1].setName("Inverter Rectangle")
+  layers[1].setPos(25,25,60,20);
+  layers[1].setRadius(5);
+  layers[1].setBgColor("#00000000");
+  layers[1].setLayerSetting("inverter", true);
+  layers[1].setLayerSetting("enabled", true);
+
+  layers[2].setName("Fade to Blue")
+  layers[2].setPos(40,20,60,30);
+  layers[2].setRadius(10);
+  layers[2].setBgColor("#00000000");
+  layers[2].setFgColor("#0000FF")
+  layers[2].setLayerSetting("dither", "lr");
+  layers[2].setLayerSetting("enabled", true);
+  layers[2].setLayerSetting("outline", true);
+}
+
+setInterval(drawLayers, 1000);
+
+function drawLayers() {
+  ctx.clearRect(0, 0, plat_w, plat_h);
+  for(var child=layer_container.firstChild; child!==null; child=child.nextSibling) {
+    let i = parseInt(child.id);
+    if (i >= 0 && i < numLayers){
+      if (layers[i].getLayerSetting("enabled")){
+        layers[i].draw(ctx);
+      }
+    }
+  }
+}
 
 new Sortable(layer_container, {
     handle: '.handle',
     animation: 150,
-    ghostClass: 'blue-background-class'
+    ghostClass: 'ghost-class'
 });
-
-/**
-function orderLayers(order) {
-  var layer_items = [...layer_container.children];
-  console.log(order);
-  layer_items.sort(
-    (a, b) =>
-      order.indexOf(layer_items.indexOf(a)) -
-      order.indexOf(layer_items.indexOf(b)),
-  );
-
-  layer_items.forEach((it) => layer_container.appendChild(it));
-}
-  **/
 
 function setBgColor() {
   background_color.value = quantizeColor(background_color.value);
