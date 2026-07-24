@@ -126,7 +126,6 @@ const layer_container = document.getElementById("layer_container");
 const layer_info = document.getElementById("layer_info");
 
 const background_color = document.getElementById("background_color_input");
-background_color.addEventListener("input", setBgColor);
 
 const numLayers = 25;
 
@@ -215,7 +214,8 @@ function defaultLayers() {
 setInterval(drawLayers, 1000);
 
 function drawLayers() {
-  ctx.clearRect(0, 0, plat_w, plat_h);
+  ctx.fillStyle = background_color.value;
+  ctx.fillRect(0, 0, plat_w, plat_h);
   for(var child=layer_container.firstChild; child!==null; child=child.nextSibling) {
     let i = parseInt(child.id);
     if (i >= 0 && i < numLayers){
@@ -231,11 +231,6 @@ new Sortable(layer_container, {
     animation: 150,
     ghostClass: 'ghost-class'
 });
-
-function setBgColor() {
-  background_color.value = quantizeColor(background_color.value);
-  preview.style.backgroundColor = background_color.value;
-}
 
 function quantizeColor(color) {
   r = parseInt(color[1] + color[2], 16);
