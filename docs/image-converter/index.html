@@ -211,6 +211,7 @@ input[type="checkbox"] + label {
             <label for="dithering">Dithering:</label>
             <select name="dithering" id="dithering" value="16" style="flex:1;">
               <option value="floyd">Floyd</option>
+              <option value="bayer">Bayer</option>
               <option value="none">None</option>
             </select>
           </div>
@@ -543,34 +544,71 @@ function render(){
     r = data[i];
     g = data[i+1];
     b = data[i+2];
-
+    
     chosen_color = closestColor([r,g,b]);
 
-    out[i] = chosen_color[0];
-    out[i+1] = chosen_color[1];
-    out[i+2] = chosen_color[2];
-    out[i+3] = 255;
+    if (dither != 'bayer'){
 
-//TODO Diffuse in Linear space, not RGB. This currently looks kinda bad.
-    if (dither == 'floyd'){
-      let dr = r - chosen_color[0];
-      let dg = g - chosen_color[1];
-      let db = b - chosen_color[2];
-      data[i+4] += 7*dr/16;
-      data[i+5] += 7*dg/16;
-      data[i+6] += 7*db/16;
+      out[i] = chosen_color[0];
+      out[i+1] = chosen_color[1];
+      out[i+2] = chosen_color[2];
+      out[i+3] = 255;
 
-      data[4*width+i-4] += 1*dr/16;
-      data[4*width+i-3] += 1*dg/16;
-      data[4*width+i-2] += 1*db/16;
+  //TODO Diffuse in Linear space, not RGB. This currently looks kinda bad.
+      if (dither == 'floyd'){
+        let dr = r - chosen_color[0];
+        let dg = g - chosen_color[1];
+        let db = b - chosen_color[2];
+        data[i+4] += 7*dr/16;
+        data[i+5] += 7*dg/16;
+        data[i+6] += 7*db/16;
 
-      data[4*width+i+0] += 5*dr/16;
-      data[4*width+i+1] += 5*dg/16;
-      data[4*width+i+2] += 5*db/16;
+        data[4*width+i-4] += 1*dr/16;
+        data[4*width+i-3] += 1*dg/16;
+        data[4*width+i-2] += 1*db/16;
 
-      data[4*width+i+4] += 3*dr/16;
-      data[4*width+i+5] += 3*dg/16;
-      data[4*width+i+6] += 3*db/16;
+        data[4*width+i+0] += 5*dr/16;
+        data[4*width+i+1] += 5*dg/16;
+        data[4*width+i+2] += 5*db/16;
+
+        data[4*width+i+4] += 3*dr/16;
+        data[4*width+i+5] += 3*dg/16;
+        data[4*width+i+6] += 3*db/16;
+      }
+    } else {
+      let bayer = [
+        [ 0, 32, 8,  40, 2,  34, 10, 42],
+        [48, 16, 56, 24, 50, 18, 58, 26],
+        [12, 44, 4,  36, 14, 46, 6,  38],
+        [60, 28, 52, 20, 62, 30, 54, 22],
+        [ 3, 35, 11, 43, 1,  33, 9,  41],
+        [51, 19, 59, 27, 49, 17, 57, 25],
+        [15, 47, 7,  39, 13, 45, 5,  37],
+        [63, 31, 55, 23, 61, 29, 53, 21]];
+      opposite_color = chosen_color;
+      let dr1 = r - chosen_color[0];
+      let dg1 = g - chosen_color[1];
+      let db1 = b - chosen_color[2];
+      let multiplier = 1;
+      while (opposite_color == chosen_color && multiplier < 8){ 
+      opposite_color = closestColor([r + multiplier * dr1, g + multiplier * dg1, b + multiplier * db1]);
+      multiplier += 1;
+      }
+      let dr2 = r - opposite_color[0];
+      let dg2 = g - opposite_color[1];
+      let db2 = b - opposite_color[2];
+      d1 = Math.sqrt(dr1*dr1 + dg1+dg1 + db1*db1);
+      d2 = Math.sqrt(dr2*dr2 + dg2+dg2 + db2*db2);
+      let threshhold = d1/(d1+d2) * 64;
+      let y = Math.floor((i/4)/width)%8;
+      let x = ((i/4)%width)%8;
+      if (threshhold > bayer[x][y]){
+        chosen_color = opposite_color;
+      }
+      out[i] = chosen_color[0];
+      out[i+1] = chosen_color[1];
+      out[i+2] = chosen_color[2];
+      out[i+3] = 255;
     }
 
   }
