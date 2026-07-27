@@ -17,6 +17,16 @@ body {
   padding: 0;
 }
 
+canvas {
+  
+    image-rendering: optimizeSpeed;             /* Older versions of FF          */
+    image-rendering: -moz-crisp-edges;          /* FF 6.0+                       */
+    image-rendering: -webkit-optimize-contrast; /* Safari                        */
+    image-rendering: -o-crisp-edges;            /* OS X & Windows Opera (12.02+) */
+    image-rendering: pixelated;                 /* Awesome future-browsers       */
+    -ms-interpolation-mode: nearest-neighbor;   /* IE                            */
+}
+
 *:not(body, html) {
   border: solid 0px red;
   box-sizing: border-box;
@@ -127,6 +137,10 @@ const layer_info = document.getElementById("layer_info");
 
 const background_color = document.getElementById("background_color_input");
 
+background_color.addEventListener("input", function () {
+  this.value = quantizeColor(this.value);
+})
+
 const numLayers = 25;
 
 const layers = [];
@@ -142,17 +156,55 @@ populateList();
 drawLayers();
 
 function openLayer(i) {
-  layer_info.innerHTML = 'Name: '+layers[i].getName() +'\
-  <br>Type: '+layers[i].getType() +'\
-  <br>Outline: '+layers[i].getLayerSetting("outline") +'\
-  <br>Background Color: '+layers[i].getBgColor() +'\
-  <br>Foreground Color: '+layers[i].getFgColor();
+  layer_info.innerHTML = `Name: <input type="text" value="${layers[i].getName()}"
+  onchange="layers[${i}].setName(this.value);document.getElementById('name${i}').innerHTML=this.value;"></input>
+  <br>
+  (X, Y): (<input type="number" value="${layers[i].getPos()["x"]}"
+  onchange="layers[${i}].setX(this.value);drawLayers();"></input>
+  ,<input type="number" value="${layers[i].getPos()["y"]}"
+  onchange="layers[${i}].setY(this.value);drawLayers();"></input>)
+  <br>
+  (W, H): (<input type="number" value="${layers[i].getPos()["w"]}"
+  onchange="layers[${i}].setW(this.value);drawLayers();"></input>
+  ,<input type="number" value="${layers[i].getPos()["h"]}"
+  onchange="layers[${i}].setH(this.value);drawLayers();"></input>)
+  <br>
+  Radius: <input type="number" value="${layers[i].getRadius()}""
+  onchange="layers[${i}].setRadius(this.value);drawLayers();"></input>
+  Draw Outline: <select
+  onchange="setLayerSetting(${i}, 'outline', this.value);drawLayers();">
+    <option value="true" ${layers[i].getLayerSetting('outline')=='true'?'selected':''}>Yes</option>
+    <option value="false" ${layers[i].getLayerSetting('outline')=='true'?'':'selected'}>No</option></select>
+  <br>
+  Gradient Fill: <select
+  onchange="setLayerSetting(${i}, 'dither', this.value);drawLayers();">
+    <option value="false" ${layers[i].getLayerSetting('dither')=='false'?'selected':''}>No</option>
+    <option value="lr" ${layers[i].getLayerSetting('dither')=='lr'?'selected':''}>Left-Right</option>
+    <option value="ud" ${layers[i].getLayerSetting('dither')=='ud'?'selected':''}>Up-Down</option>
+    <option value="mix" ${layers[i].getLayerSetting('dither')=='mix'?'selected':''}>Mix</option></select>
+  Inverter?: <select
+  onchange="setLayerSetting(${i}, 'inverter', this.value);drawLayers();">
+    <option value="true" ${layers[i].getLayerSetting('inverter')=='true'?'selected':''}>Yes</option>
+    <option value="false" ${layers[i].getLayerSetting('inverter')=='true'?'':'selected'}>No</option></select>
+  <br>
+  Background Color (#RRGGBB[AA]): <input type="text" value="${layers[i].getBgColor()}"
+  onchange="this.value=quantizeColor(this.value);layers[${i}].setBgColor(this.value);drawLayers();"></input>
+  <br>
+  Foreground Color (#RRGGBB[AA]): <input type="text" value="${layers[i].getFgColor()}"
+  onchange="this.value=quantizeColor(this.value);layers[${i}].setFgColor(this.value);drawLayers();"></input>
+    
+  `;
+
+}
+
+function setLayerSetting(i, key, value){
+  layers[i].setLayerSetting(key, value);
 }
 
 function populateList() {
   layer_container.innerHTML = "";
   for (let i = 0; i<numLayers; i++){
-    if (layers[i].getLayerSetting("enabled")){
+    if (layers[i].getLayerSetting("enabled")=='true'){
       addLayerToList(layers, i);
     }
   }
@@ -173,7 +225,7 @@ function addLayerToList(layers, i){
   listItem.classList.add("layer");
   listItem.classList.add("flex");
   listItem.innerHTML = '<div class="flex center square"><button class="handle">&#8645;</button></div>\
-  <div class="flex center grow"><button style="width:100%;height:100%" onclick="openLayer('+i+');">'+layers[i].getName()+'</button></div>'
+  <div class="flex center grow"><button style="width:100%;height:100%" onclick="openLayer('+i+');" id="name'+i+'">'+layers[i].getName()+'</button></div>'
   layer_container.appendChild(listItem);
   listItem.id = i;
 }
@@ -182,7 +234,7 @@ function defaultLayers() {
   for (let i = 0; i<numLayers; i++){
     layer = new Layer();
     layers[i] = layer;
-    layers[i].setLayerSetting("enabled", false);
+    layers[i].setLayerSetting("enabled", 'false');
   }
 
   layers[0].setName("Red Circle");
@@ -190,24 +242,24 @@ function defaultLayers() {
   layers[0].setRadius(20);
   layers[0].setBgColor("#AA0000");
   layers[0].setFgColor("#00FF00");
-  layers[0].setLayerSetting("outline", true);
-  layers[0].setLayerSetting("enabled", true);
+  layers[0].setLayerSetting("outline", 'true');
+  layers[0].setLayerSetting("enabled", 'true');
 
   layers[1].setName("Inverter Rectangle")
   layers[1].setPos(25,25,60,20);
   layers[1].setRadius(5);
   layers[1].setBgColor("#00000000");
-  layers[1].setLayerSetting("inverter", true);
-  layers[1].setLayerSetting("enabled", true);
+  layers[1].setLayerSetting("inverter", 'true');
+  layers[1].setLayerSetting("enabled", 'true');
 
   layers[2].setName("Fade to Blue")
   layers[2].setPos(40,20,60,30);
   layers[2].setRadius(10);
-  layers[2].setBgColor("#00000000");
+  layers[2].setBgColor("#FFFF00");
   layers[2].setFgColor("#0000FF")
   layers[2].setLayerSetting("dither", "lr");
-  layers[2].setLayerSetting("enabled", true);
-  layers[2].setLayerSetting("outline", true);
+  layers[2].setLayerSetting("enabled", 'true');
+  layers[2].setLayerSetting("outline", 'true');
 }
 
 setInterval(drawLayers, 1000);
@@ -218,7 +270,7 @@ function drawLayers() {
   for(var child=layer_container.firstChild; child!==null; child=child.nextSibling) {
     let i = parseInt(child.id);
     if (i >= 0 && i < numLayers){
-      if (layers[i].getLayerSetting("enabled")){
+      if (layers[i].getLayerSetting("enabled")=='true'){
         layers[i].draw(ctx);
       }
     }
@@ -235,10 +287,15 @@ function quantizeColor(color) {
   r = parseInt(color[1] + color[2], 16);
   g = parseInt(color[3] + color[4], 16);
   b = parseInt(color[5] + color[6], 16);
+  a = parseInt(color[7] + color[8], 16);
   r = "05AF"[Math.floor(r / 64)];
   g = "05AF"[Math.floor(g / 64)];
   b = "05AF"[Math.floor(b / 64)];
-  return "#" + r + r + g + g + b + b;
+  if (isNaN(a)){
+    return "#" + r + r + g + g + b + b
+  }
+  a = isNaN(a)||a>=64?'F':'0';
+  return "#" + r + r + g + g + b + b + a + a;
 }
 
 function sizePreview(scale = 1) {
@@ -329,6 +386,7 @@ function getPlatform() {
   }
   console.log(platform, plat_w, plat_h);
   sizePreview();
+  drawLayers();
 }
 
 platform_element.addEventListener("input", getPlatform);

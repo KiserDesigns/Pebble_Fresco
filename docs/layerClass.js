@@ -19,8 +19,10 @@ class Layer {
     this.w = w;
     this.h = h;
   }
+  setX(x){this.x = x;}setY(y){this.y = y;}
+  setW(w){this.w = w;}setH(h){this.h = h;}
   getPos(){
-    return {x:this.x, y:this.y, w: his.w, h:this.h};
+    return {x:this.x, y:this.y, w: this.w, h:this.h};
   }
   setName(name){
     this.name = name;
@@ -50,7 +52,7 @@ class Layer {
     this.radius = radius;
   }
   getRadius(){
-    return radius;
+    return this.radius;
   }
   setDynamic(key, value){
     this.dynamic[key] = value;
@@ -72,14 +74,14 @@ class Layer {
   }
   draw(ctx){
     if (this.type == "rect" || this.type == "text"){
-      if (this.bg_color[7] != 0 && !(this.layer_settings["dither"])){
+      if (this.bg_color[7] != 0 && !(this.layer_settings["dither"]=="mix"||this.layer_settings["dither"]=="lr"||this.layer_settings["dither"]=="ud")){
         //if the background color is not clear, draw a background
         ctx.fillStyle = this.bg_color;
         ctx.beginPath();
-        ctx.roundRect(this.x, this.y, this.w, this.h, this.radius);
+        ctx.roundRect(this.x, this.y, this.w, this.h, Math.max(0,this.radius));
         ctx.fill();
       }
-      if (this.layer_settings["dither"]){
+      if ((this.layer_settings["dither"]=="mix"||this.layer_settings["dither"]=="lr"||this.layer_settings["dither"]=="ud")){
         const bayer8x8 = [
           [0,  32, 8,  40, 2,  34, 10, 42],
           [48, 16, 56, 24, 50, 18, 58, 26],
@@ -92,32 +94,37 @@ class Layer {
         ];
 
         let path = new Path2D();
-        path.roundRect(0, 0, this.w, this.h, this.radius);
-
-        let w = this.w;
-        let h = this.h;
-        for (let x = 0; x<w; x++){
-          for(let y = 0; y<h; y++){
+        var x = parseInt(this.x);
+        var y = parseInt(this.y);
+        var w = parseInt(this.w)-1;
+        var h = parseInt(this.h)-1;
+        var r = Math.max(0,parseInt(this.radius)-0.5);
+        path.roundRect(x,y,w,h,r);
+        
+        w = parseInt(this.w);
+        h = parseInt(this.h);
+        for (x = this.x; x<parseInt(this.x)+w; x++){
+          for(y = this.y; y<parseInt(this.y)+h; y++){
             if (ctx.isPointInPath(path, x, y)){
               var stroke_color;
               if (this.layer_settings["dither"] == "mix"){
-                if ((x+y)%2){
+                if (((x-this.x)+(y-this.y))%2){
                   stroke_color = this.fg_color;
                 } else {
                   stroke_color = this.bg_color;
                 }
                 if (stroke_color[7] != 0){
                   ctx.fillStyle = stroke_color;
-                  ctx.fillRect(this.x+x,this.y+y,1,1);
+                  ctx.fillRect(x,y,1,1);
                 }
               } else {
                 var threshold = 0;
                 if (this.layer_settings["dither"] == "lr"){
-                  threshold = (x * 64) / (w-1); //it's Left/Right
-                } else {
-                  threshold = (y * 64) / (h-1); //it's Up/Down
+                  threshold = ((x-this.x) * 64) / (w-1); //it's Left/Right
+                } else if (this.layer_settings["dither"] == "ud") {
+                  threshold = ((y-this.y) * 64) / (h-1); //it's Up/Down
                 }
-                let bayer = bayer8x8[x%8][y%8];
+                let bayer = bayer8x8[(x-this.x)%8][(y-this.y)%8];
                 if (threshold > bayer){
                   stroke_color = this.fg_color;
                 } else {
@@ -125,19 +132,25 @@ class Layer {
                 }
                 if (stroke_color != 0){
                   ctx.fillStyle = stroke_color;
-                  ctx.fillRect(this.x+x,this.y+y,1,1);
+                  ctx.fillRect(x,y,1,1);
                 }
               }
             }
           }
         }
       }
-      if (this.layer_settings["outline"]){
+      if (this.layer_settings["outline"] == 'true'){
         //if the DRAW_OUTLINE bit is set, draw an outline in the ForegroundColor
         ctx.strokeStyle = this.fg_color;
         ctx.lineWidth = 1;
         ctx.beginPath();
-        ctx.roundRect(this.x, this.y, this.w, this.h, this.radius);
+        var x = parseInt(this.x)+0.5;
+        var y = parseInt(this.y)+0.5;
+        var w = parseInt(this.w)-1;
+        var h = parseInt(this.h)-1;
+        var r = Math.max(0,parseInt(this.radius)-0.5);
+        ctx.roundRect(x,y,w,h,r);
+        //ctx.roundRect(this.x, this.y, this.w, this.h, this.radius);
         ctx.stroke();
       }
       /**
@@ -153,11 +166,11 @@ class Layer {
         graphics_draw_text(ctx, text, font(layer->FontSettings), layer->Rect, overflow(layer->FontSettings), alignment(layer->FontSettings), (GTextAttributes *)0);
       }
       **/
-      if (this.layer_settings["inverter"]){
+      if (this.layer_settings["inverter"] == 'true'){
         ctx.fillStyle = "#FFFFFF";
         ctx.globalCompositeOperation = "difference";
         ctx.beginPath();
-        ctx.roundRect(this.x, this.y, this.w, this.h, this.radius);
+        ctx.roundRect(this.x, this.y, this.w, this.h, Math.max(0,this.radius));
         ctx.fill();
         ctx.globalCompositeOperation = "source-over";
       }
