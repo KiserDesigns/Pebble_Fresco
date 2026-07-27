@@ -105,7 +105,7 @@ class Layer {
         h = parseInt(this.h);
         for (x = this.x; x<parseInt(this.x)+w; x++){
           for(y = this.y; y<parseInt(this.y)+h; y++){
-            if (ctx.isPointInPath(path, x, y)){
+            if (false && ctx.isPointInPath(path, x, y)){
               var stroke_color;
               if (this.layer_settings["dither"] == "mix"){
                 if (((x-this.x)+(y-this.y))%2){
