@@ -622,6 +622,7 @@ function closestColor(color, all=false){
         if (error < min_error){
           min_error = error;
           closest = [r,g,b];
+          closest = [r,g,b,error,box];
         }
       }
     }
