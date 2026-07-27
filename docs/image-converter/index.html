@@ -579,7 +579,7 @@ function render(){
       let dr = r - chosen_color[0];
       let dg = g - chosen_color[1];
       let db = b - chosen_color[2];
-      opposite_color = closestColor([r + dr, g + dg, b + db], space = color_space);
+      opposite_color = closestColor([r + dr, g + dg, b + db]);
       box.checked = true;
       let d2 = opposite_color[3];
       let threshhold = d1/(d1+d2) * 64;
