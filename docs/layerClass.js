@@ -105,36 +105,34 @@ class Layer {
         h = parseInt(this.h);
         for (x = this.x; x<parseInt(this.x)+w; x++){
           for(y = this.y; y<parseInt(this.y)+h; y++){
-            if (ctx.isPointInPath(path, x, y)){
+            if (false && ctx.isPointInPath(path, x, y)){
               var stroke_color;
-              if (!(r>0&&x==0&&y==0)){
-                if (this.layer_settings["dither"] == "mix"){
-                    if (((x-this.x)+(y-this.y))%2){
-                    stroke_color = this.fg_color;
-                    } else {
-                    stroke_color = this.bg_color;
-                    }
-                    if (stroke_color[7] != 0){
-                    ctx.fillStyle = stroke_color;
-                    ctx.fillRect(x,y,1,1);
-                    }
+              if (this.layer_settings["dither"] == "mix"){
+                if (((x-this.x)+(y-this.y))%2){
+                  stroke_color = this.fg_color;
                 } else {
-                    var threshold = 0;
-                    if (this.layer_settings["dither"] == "lr"){
-                    threshold = ((x-this.x) * 64) / (w-1); //it's Left/Right
-                    } else if (this.layer_settings["dither"] == "ud") {
-                    threshold = ((y-this.y) * 64) / (h-1); //it's Up/Down
-                    }
-                    let bayer = bayer8x8[(x-this.x)%8][(y-this.y)%8];
-                    if (threshold > bayer){
-                    stroke_color = this.fg_color;
-                    } else {
-                    stroke_color = this.bg_color;
-                    }
-                    if (stroke_color != 0){
-                    ctx.fillStyle = stroke_color;
-                    ctx.fillRect(x,y,1,1);
-                    }
+                  stroke_color = this.bg_color;
+                }
+                if (stroke_color[7] != 0){
+                  ctx.fillStyle = stroke_color;
+                  ctx.fillRect(x,y,1,1);
+                }
+              } else {
+                var threshold = 0;
+                if (this.layer_settings["dither"] == "lr"){
+                  threshold = ((x-this.x) * 64) / (w-1); //it's Left/Right
+                } else if (this.layer_settings["dither"] == "ud") {
+                  threshold = ((y-this.y) * 64) / (h-1); //it's Up/Down
+                }
+                let bayer = bayer8x8[(x-this.x)%8][(y-this.y)%8];
+                if (threshold > bayer){
+                  stroke_color = this.fg_color;
+                } else {
+                  stroke_color = this.bg_color;
+                }
+                if (stroke_color != 0){
+                  ctx.fillStyle = stroke_color;
+                  ctx.fillRect(x,y,1,1);
                 }
               }
             }
