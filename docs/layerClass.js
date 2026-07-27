@@ -96,16 +96,16 @@ class Layer {
         let path = new Path2D();
         var x = parseInt(this.x);
         var y = parseInt(this.y);
-        var w = parseInt(this.w)-1;
-        var h = parseInt(this.h)-1;
-        var r = Math.max(0,parseInt(this.radius)-0.5);
+        var w = parseInt(this.w);
+        var h = parseInt(this.h);
+        var r = Math.max(0,parseInt(this.radius));
         path.roundRect(x,y,w,h,r);
         
         w = parseInt(this.w);
         h = parseInt(this.h);
         for (x = this.x; x<parseInt(this.x)+w; x++){
           for(y = this.y; y<parseInt(this.y)+h; y++){
-            if (ctx.isPointInPath(path, x, y)){
+            if (ctx.isPointInPath(path, parseInt(x)+0.5, parseInt(y)+0.5)){
               var stroke_color;
               if (this.layer_settings["dither"] == "mix"){
                 if (((x-this.x)+(y-this.y))%2){
