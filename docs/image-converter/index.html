@@ -197,9 +197,9 @@ input[type="checkbox"] + label {
           </div>
           <div style="display:flex;align-items: center;">
             <label for="dithering">Dithering:</label>
-            <select name="dithering" id="dithering" value="16" style="flex:1;">
+            <select name="dithering" id="dithering" value="bayer" style="flex:1;">
               <option value="floyd">Floyd</option>
-              <option value="bayer">Bayer</option>
+              <option value="bayer" selected>Bayer</option>
               <option value="none">None</option>
             </select>
           </div>
@@ -573,20 +573,15 @@ function render(){
         [51, 19, 59, 27, 49, 17, 57, 25],
         [15, 47, 7,  39, 13, 45, 5,  37],
         [63, 31, 55, 23, 61, 29, 53, 21]];
-      opposite_color = chosen_color;
-      let dr1 = r - chosen_color[0];
-      let dg1 = g - chosen_color[1];
-      let db1 = b - chosen_color[2];
-      let multiplier = 1;
-      while (opposite_color == chosen_color && multiplier < 8){ 
-      opposite_color = closestColor([r + multiplier * dr1, g + multiplier * dg1, b + multiplier * db1]);
-      multiplier += 1;
-      }
-      let dr2 = r - opposite_color[0];
-      let dg2 = g - opposite_color[1];
-      let db2 = b - opposite_color[2];
-      d1 = Math.sqrt(dr1*dr1 + dg1+dg1 + db1*db1);
-      d2 = Math.sqrt(dr2*dr2 + dg2+dg2 + db2*db2);
+      let box = chosen_color[4];
+      let d1 = chosen_color[3];
+      box.checked = false;
+      let dr = r - chosen_color[0];
+      let dg = g - chosen_color[1];
+      let db = b - chosen_color[2];
+      opposite_color = closestColor([r + dr, g + dg, b + db], space = color_space);
+      box.checked = true;
+      let d2 = opposite_color[3];
       let threshhold = d1/(d1+d2) * 64;
       let y = Math.floor((i/4)/width)%8;
       let x = ((i/4)%width)%8;
