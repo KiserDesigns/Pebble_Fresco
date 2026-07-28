@@ -1,6 +1,97 @@
 
 // https://andy0130tw.github.io/pbf-inspect/
 
+
+function getFirstWord(date){
+  let words = ["half", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "quarter", "twenty"];
+  let min = date.getMinutes();
+  let hour = date.getHours();
+  
+  let index = -1;
+  
+  if (min == 5 || (min >= 10 && min <= 13)){
+    index = min;
+  } else if (min == 30) {
+    index = 0;
+  } else if (min == 15 || min == 45) {
+    index = 14;
+  } else if (min == 40 || min == 20) {
+    index = 15;
+  } else if (min == 50) {
+    index = 10;
+  } else if (min == 55) {
+    index = 5;
+  } else {
+    index = hour % 12;
+    if (index == 0) {
+      index = 12;
+    }
+  }
+  return words[index];
+}
+
+function getSecondWord(date){
+  let words = ["o'", "oh", "twenty", "thirty", "fourty", "fifty", "six-", "seven-", "eight-", "nine-", "past", "till", "four-"];
+  let min = date.getMinutes();
+  
+  let index = -1;
+  
+  if (min == 5 || (min >= 10 && min <= 13) || min == 15 || min == 20 || min == 30){
+    index = 10;
+  } else if (min >= 1 && min <= 9) {
+    index = 1;
+  } else if (min == 0) {
+    index = 0;
+  } else if (min >= 14 && min <= 19) {
+    if (min == 14) {
+      index = 12;
+    } else {
+      index = min - 10;
+    }
+  } else if (min == 40 || min == 45 || min == 50 || min == 55) {
+    index = 11;
+  } else {
+    index = Math.floor(min / 10);
+  }
+ return words[index];
+}
+
+function getThirdWord(date){
+  let words = ["clock", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "teen", "noon", "midnight"];
+  let min = date.getMinutes();
+  let hour = date.getHours();
+  
+  let index = -1;
+  
+  if (min == 5 || (min >= 10 && min <= 13) || min == 15 || min == 20 || min == 30){
+    if (hour == 0) {
+      index = 15;
+    } else if (hour == 12) {
+      index = 14;
+    } else {
+      index = hour % 12;
+    }
+  } else if (min == 0) {
+    index = 0;
+  } else if (min >= 14 && min <= 19) {
+    index = 13;
+  } else if (min == 40 || min == 45 || min == 50 || min == 55) {
+    hour = hour + 1;
+    if (hour == 24) {
+      index = 15;
+    } else if (hour == 12) {
+      index = 14;
+    } else {
+      index = hour % 12;
+    }
+  } else {
+    index = min % 10;
+  }
+  return words[index];
+}
+
+
+
 function wrapText(ctx, text, x, y, maxWidth, maxHeight, lineHeight, wordWrap = "true", align){
     const words = text.split(' ');
     let currentLine = '';
@@ -232,6 +323,9 @@ class Layer {
         formatted = formatted.replaceAll('\%f',document.getElementById("battery").value);
         formatted = formatted.replaceAll('\%i',document.getElementById("heartrate").value);
         formatted = formatted.replaceAll('\%v',document.getElementById("steps").value);
+        formatted = formatted.replaceAll('\%J',getFirstWord(date));
+        formatted = formatted.replaceAll('\%K',getSecondWord(date));
+        formatted = formatted.replaceAll('\%L',getThirdWord(date));
         formatted = formatted.replaceAll('\%q',document.getElementById("time_mode").value=="24"?"%H":"%I");
         formatted = formatted.replaceAll('\%Q',document.getElementById("time_mode").value=="24"?"%H":"%o");
         formatted = formatted.replaceAll('\%N',date.getHours());
