@@ -220,7 +220,9 @@ class Layer {
         let align = this.font_settings["align"];
         ctx.textAlign = align;
         let wordWrap = this.font_settings["wordWrap"];
-        let lineHeight = 18;
+        
+        
+        let lineHeight = parseInt(this.font_settings["font"]);
         
         ctx.textBaseline = "top";   
 

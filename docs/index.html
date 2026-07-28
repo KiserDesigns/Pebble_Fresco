@@ -224,11 +224,30 @@ function openLayer(i) {
     Word Wrap: <select
     onchange="setFontSetting(${i}, 'wordWrap', this.value);drawLayers();">
       <option value="true" ${layers[i].getFontSetting('wordWrap')=='true'?'selected':''}>&#8629;</option>
-      <option value="false" ${layers[i].getFontSetting('wordWrap')=='false'?'selected':''}>&#8230;</option>
+      <option value="false" ${layers[i].getFontSetting('wordWrap')=='false'?'selected':''}>&#8230;</option></select>
+    <br>
+    Font Style: <select id="font-style"
+    onchange="setFontSizeStyle(${i});drawLayers();">
+      <option value="sans-serif" ${getFontStyle(i)=='sans-serif'?'selected':''}>Sans-Serif</option>
+      <option value="serif" ${getFontStyle(i)=='serif'?'selected':''}>Serif</option>
+      <option value="monospace" ${getFontStyle(i)=='monospace'?'selected':''}>Monospace</option></select>
+    Font Size: <input type="number" id="font-size" value="${getFontSize(i)}"
+    onchange="setFontSizeStyle(${i});drawLayers();"></input>
     `;
   }
   
 
+}
+
+function setFontSizeStyle(i){
+  setFontSetting(i, "font", document.getElementById("font-size").value + "px " +
+                            document.getElementById("font-style").value);
+}
+function getFontSize(i){
+  return parseInt(layers[i].getFontSetting("font"));
+}
+function getFontStyle(i){
+  return (layers[i].getFontSetting("font")).split(' ')[1];
 }
 
 function setLayerSetting(i, key, value){
