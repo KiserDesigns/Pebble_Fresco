@@ -164,6 +164,7 @@ populateList();
 drawLayers();
 
 function openLayer(i) {
+  if (i<0){ layer_info.innerHTML='';return; }
   layer_info.innerHTML = `Name: <input type="text" value="${layers[i].getName()}"
   onchange="layers[${i}].setName(this.value);document.getElementById('name${i}').innerHTML=this.value;"></input>
   <br>
@@ -235,8 +236,27 @@ function openLayer(i) {
     onchange="setFontSizeStyle(${i});drawLayers();"></input>
     `;
   }
-  
+  layer_info.innerHTML = layer_info.innerHTML + `
+  <hr>
+  <button onclick="disableLayer(${i});openLayer(-1);populateList();drawLayers();">
+    Disable this Layer</button>`;
+}
 
+function addLayer(){
+  for (let i = 0; i<numLayers; i++){
+    if (layers[i].getLayerSetting("enabled")=='false'){
+      layers[i].setLayerSetting("enabled", 'true');
+      layers[i].setName('New Layer '+i);
+      layers[i].setY(10+5*i);
+      populateList();
+      drawLayers();
+      return;
+    }
+  }
+}
+
+function disableLayer(i){
+  layers[i].setLayerSetting("enabled", 'false');
 }
 
 function setFontSizeStyle(i){
@@ -269,11 +289,12 @@ function populateList() {
   addButton.classList.add("layer");
   addButton.classList.add("flex");
   addButton.style="background:none;"
-  addButton.innerHTML = '<div class="flex center square"><button class="action">&#128932;</button></div>\
-        <div class="flex center">\
-          Add Layer\
-        </div>\
-        <div class="grow"></div>'
+  addButton.innerHTML = `<div class="flex center square">
+    <button class="action" onclick="addLayer();">&#128932;</button></div>
+        <div class="flex center">
+          Add Layer
+        </div>
+        <div class="grow"></div>`
   layer_container.appendChild(addButton);
 }
 

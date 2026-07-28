@@ -134,7 +134,7 @@ class Layer {
     this.y = 10;
     this.w = 80;
     this.h = 50;
-    this.layer_settings = {};
+    this.layer_settings = {"enabled":"false","outline":"true"};
     this.content_settings = {};
     this.font_settings = {"align":"left","wordWap":"false","font":"18px sans-serif"}; // font, align, and wordWrap
     this.radius = 10;
