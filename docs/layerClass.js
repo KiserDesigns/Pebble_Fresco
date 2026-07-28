@@ -1,6 +1,40 @@
 
 // https://andy0130tw.github.io/pbf-inspect/
 
+function wrapText(ctx, text, x, y, maxWidth, maxHeight, lineHeight, wordWrap = "true", align){
+    const words = text.split(' ');
+    let currentLine = '';
+    const maxY = parseInt(maxHeight) + parseInt(y);
+    let plotX;
+
+    if (align == "left") {
+        plotX = parseInt(x);
+    } else if (align =="right") {
+        plotX = parseInt(x) + parseInt(maxWidth);
+    } else {
+        plotX = parseInt(x) + Math.floor(maxWidth/2);
+    }
+
+    for (let i=0; i<words.length;i++) {
+        let testLine = currentLine + words[i];
+        let metrics = ctx.measureText(testLine);
+        let testWidth = metrics.width;
+        if (testWidth > parseInt(maxWidth) && i>0) {
+            if (wordWrap == "true"){
+                if (parseInt(y) <= parseInt(maxY)) { ctx.fillText(currentLine.slice(0,-1), plotX, y); }
+                currentLine = words[i] + ' ';
+                y = parseInt(y) + parseInt(lineHeight);
+            } else {
+                ctx.fillText(currentLine.slice(0,-1) + '...', plotX, y);
+                return;
+            }
+        } else {
+            currentLine = testLine + ' ';
+        }
+    }
+    if (y <= maxY) { ctx.fillText(currentLine.slice(0,-1), plotX, y); }
+}
+
 class Layer {
   constructor(){
     this.name = "New Layer";
@@ -11,10 +45,24 @@ class Layer {
     this.h = 50;
     this.layer_settings = {};
     this.content_settings = {};
+    this.font_settings = {}; // font, align, and wordWrap
     this.radius = 10;
     this.dynamic = {};
     this.fg_color = "#00AAAA";
     this.bg_color = "#550000";
+    this.content = "";
+  }
+  setFont(key, value){
+    this.font_settings[key] = value;
+  }
+  getFont(key){
+    return this.font_settings[key];
+  }
+  setContent(content){
+    this.content = content;
+  }
+  getContent(){
+    return this.content;
   }
   setPos(x,y,w,h){
     this.x = x;
@@ -156,19 +204,29 @@ class Layer {
         //ctx.roundRect(this.x, this.y, this.w, this.h, this.radius);
         ctx.stroke();
       }
-      /**
-      if (layer->Type == TYPE_TEXT){
-        graphics_context_set_text_color(ctx, layer->ForegroundColor);
-        static char text[100];
-        static char text2[100];
-        //add date/time where specified
-        struct tm *tick_time = localtime(&time);
-        formattimewords(text2, sizeof(text2), layer->Content, time);
-        strftime(text, sizeof(text), text2, tick_time);
-        //draw it
-        graphics_draw_text(ctx, text, font(layer->FontSettings), layer->Rect, overflow(layer->FontSettings), alignment(layer->FontSettings), (GTextAttributes *)0);
-      }
-      **/
+      if (this.type == 'text'){
+        // //graphics_context_set_text_color(ctx, layer->ForegroundColor);
+        // static char text[100];
+        // static char text2[100];
+        // //add date/time where specified
+        // struct tm *tick_time = localtime(&time);
+        // formattimewords(text2, sizeof(text2), layer->Content, time);
+        // strftime(text, sizeof(text), text2, tick_time);
+        // //draw it
+        // graphics_draw_text(ctx, text, font(layer->FontSettings), layer->Rect, overflow(layer->FontSettings), alignment(layer->FontSettings), (GTextAttributes *)0);
+        
+        ctx.font = this.font_settings["font"];
+        ctx.fillStyle = this.fg_color;
+        let align = this.font_settings["align"];
+        ctx.textAlign = align;
+        let wordWrap = this.font_settings["wordWrap"];
+        let lineHeight = 18;
+        
+        ctx.textBaseline = "top";   
+            
+        wrapText(ctx, this.content, this.x, this.y, this.w, this.h, lineHeight, wordWrap, align);  
+    }
+      
       if (this.layer_settings["inverter"] == 'true'){
         ctx.fillStyle = "#FFFFFF";
         ctx.globalCompositeOperation = "difference";

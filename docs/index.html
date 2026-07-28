@@ -192,7 +192,9 @@ function openLayer(i) {
   <br>
   Foreground Color (#RRGGBB[AA]): <input type="text" value="${layers[i].getFgColor()}"
   onchange="this.value=quantizeColor(this.value);layers[${i}].setFgColor(this.value);drawLayers();"></input>
-    
+  <br>
+  Content: <input type="text" value="${layers[i].getContent()}"
+  onchange="layers[${i}].setContent(this.value);drawLayers();"></input>  
   `;
 
 }
@@ -255,11 +257,24 @@ function defaultLayers() {
   layers[2].setName("Fade to Blue")
   layers[2].setPos(40,20,60,30);
   layers[2].setRadius(10);
-  layers[2].setBgColor("#FFFF00");
-  layers[2].setFgColor("#0000FF")
+  layers[2].setBgColor("#00000000");
+  layers[2].setFgColor("#0055FF");
   layers[2].setLayerSetting("dither", "lr");
   layers[2].setLayerSetting("enabled", 'true');
   layers[2].setLayerSetting("outline", 'true');
+
+  layers[3].setName("Hello World Text");
+  layers[3].setType("text");
+  layers[3].setFont("font", "18px sans-serif");
+  layers[3].setFont("align", "left");
+  layers[3].setFont("wordWrap", "true");
+  layers[3].setPos(20,60,100,50);
+  layers[3].setRadius(10);
+  layers[3].setBgColor("#000000");
+  layers[3].setFgColor("#FFFFFF");
+  layers[3].setLayerSetting("enabled", 'true');
+  layers[3].setLayerSetting("outline", 'true');
+  layers[3].setContent("Hello World a bb ccc dddd eeeee");
 }
 
 setInterval(drawLayers, 1000);
