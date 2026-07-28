@@ -72,19 +72,10 @@ The ISO 8601:1988 week number of the current year as a decimal number, range 01 
 week number of the current year as a decimal number, starting with the first Monday as the first day of the first week
 %Z
 time zone name or abbreviation
-
+*/
 		j: function (d) {
-				var t = d.getDate();
-				var m = d.getMonth() - 1;
-				if (m > 1) {
-					var y = d.getYear();
-					if (((y % 100) == 0) && ((y % 400) == 0)) ++t;
-					else if ((y % 4) == 0) ++t;
-				}
-				while (m > -1) t += d.dpm[m--];
-				return t.pad(3,'0');
+                return pad(Math.ceil((d.getTime() - (new Date(d.getFullYear(), 0, 1)).getTime()) / (1000 * 60 * 60 * 24)),3,'0');
 			},
-            */
 		k: function (d) { return pad(d.getHours(), 2,' '); },
 		l: function (d) { return pad((d.getHours() % 12 || 12), 2,' '); },
 		M: function (d) { return pad(d.getMinutes(), 2,'0'); },

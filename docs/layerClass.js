@@ -234,6 +234,8 @@ class Layer {
         formatted = formatted.replaceAll('\%Q',document.getElementById("time_mode").value=="24"?"%H":"%o");
         formatted = formatted.replaceAll('\%N',date.getHours());
         formatted = formatted.replaceAll('\%o',(date.getHours()+23)%12+1);
+        formatted = formatted.replaceAll('\%S',(new Date).strftime("%S"));
+        formatted = formatted.replaceAll('\%s',parseInt(date.strftime("%s"))+parseInt((new Date).strftime("%S")));
         //format additional words
         formatted = date.strftime(formatted);
         wrapText(ctx, formatted, this.x, this.y, this.w, this.h, lineHeight, wordWrap, align);  
