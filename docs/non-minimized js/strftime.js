@@ -5,6 +5,8 @@
 // Some modification by tokuhirom.
 // Tokuhirom's modifications are public domain, too.
 // GitHub source: https://github.com/tokuhirom/strftime-js
+// 
+// More modifications (and minify) by Noah Kiser
 (function () {
     "use strict";
 
