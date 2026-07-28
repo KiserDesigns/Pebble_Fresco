@@ -223,8 +223,20 @@ class Layer {
         let lineHeight = 18;
         
         ctx.textBaseline = "top";   
-            
-        wrapText(ctx, this.content, this.x, this.y, this.w, this.h, lineHeight, wordWrap, align);  
+
+        let date = new Date(document.getElementById("datetime").value);
+        
+        let formatted = this.content;
+        formatted = formatted.replaceAll('\%f',document.getElementById("battery").value);
+        formatted = formatted.replaceAll('\%i',document.getElementById("heartrate").value);
+        formatted = formatted.replaceAll('\%v',document.getElementById("steps").value);
+        formatted = formatted.replaceAll('\%q',document.getElementById("time_mode").value=="24"?"%H":"%I");
+        formatted = formatted.replaceAll('\%Q',document.getElementById("time_mode").value=="24"?"%H":"%o");
+        formatted = formatted.replaceAll('\%N',date.getHours());
+        formatted = formatted.replaceAll('\%o',(date.getHours()+23)%12+1);
+        //format additional words
+        formatted = date.strftime(formatted);
+        wrapText(ctx, formatted, this.x, this.y, this.w, this.h, lineHeight, wordWrap, align);  
     }
       
       if (this.layer_settings["inverter"] == 'true'){
