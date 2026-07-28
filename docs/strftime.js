@@ -55,6 +55,8 @@ var formats = {
 				return formats.Y(d) + '-' + formats.m(d) + '-' +
 					formats.d(d);
 			},
+		G: function (d) { return getISOWeekYear(d).year; },
+		g: function (d) { return pad((getISOWeekYear(d).year % 100), 2); },
 		H: function (d) { return pad(d.getHours(), 2,'0'); },
 		I: function (d) { return pad((d.getHours() % 12 || 12), 2); },
         /*
@@ -62,19 +64,11 @@ var formats = {
 like %G, but without the century
 %G
 The 4-digit year corresponding to the ISO week number
-%j
-day of the year as a decimal number (range 001 to 366)
-%U
-week number of the current year as a decimal number, starting with the first Sunday as the first day of the first week
-%V
-The ISO 8601:1988 week number of the current year as a decimal number, range 01 to 53, where week 1 is the first week that has at least 4 days in the current year, and with Monday as the first day of the week.
-%W
-week number of the current year as a decimal number, starting with the first Monday as the first day of the first week
 %Z
 time zone name or abbreviation
 */
 		j: function (d) {
-                return pad(Math.ceil((d.getTime() - (new Date(d.getFullYear(), 0, 1)).getTime()) / (1000 * 60 * 60 * 24)),3,'0');
+                return pad(Math.floor((d - (new Date(d.getFullYear(), 0, 0))) / (1000 * 60 * 60 * 24)+1),3,'0');
 			},
 		k: function (d) { return pad(d.getHours(), 2,' '); },
 		l: function (d) { return pad((d.getHours() % 12 || 12), 2,' '); },
@@ -95,19 +89,19 @@ time zone name or abbreviation
 					formats.S(d);
 			},
 		t: function (d) { return "\t"; },
-/*		U: function (d) { return false; }, */
+		U: function (d) { return pad(weekNumber(d, 'sunday'), 2, '0'); }, 
 		u: function (d) { return(d.getDay() || 7); },
-/*		V: function (d) { return false; }, */
+		V: function (d) { return getISOWeekYear(d).week; }, 
 		v: function (d) {
 				return formats.e(d) + '-' + formats.b(d) + '-' +
 					formats.Y(d);
 			},
-/*		W: function (d) { return false; }, */
+		W: function (d) { return pad(weekNumber(d, 'monday'), 2, '0'); }, 
 		w: function (d) { return d.getDay(); },
 		X: function (d) { return d.toTimeString(); }, // wrong?
 		x: function (d) { return d.toDateString(); }, // wrong?
 		Y: function (d) { return d.getFullYear(); },
-		y: function (d) { return pad((d.getYear() % 100), 2); },
+		y: function (d) { return pad((d.getYear() % 100), 2, '0'); },
 //		Z: function (d) { return d.toString().match(/\((.+)\)$/)[1]; },
 //		z: function (d) { return d.getTimezoneOffset(); }, // wrong
 //		z: function (d) { return d.toString().match(/\sGMT([+-]\d+)/)[1]; },
@@ -145,3 +139,36 @@ Date.prototype.strftime.setDefaultLocale = function (locale) {
 Date.prototype.strftime.locales = locales;
 
 })();
+
+    // firstWeekday: 'sunday' or 'monday', default is 'sunday'
+    //
+    // Pilfered & ported from Ruby's strftime implementation.
+    function weekNumber(date, firstWeekday) {
+        firstWeekday = firstWeekday || 'sunday';
+
+        // This works by shifting the weekday back by one day if we
+        // are treating Monday as the first day of the week.
+        var weekday = date.getDay();
+        if (firstWeekday === 'monday') {
+            if (weekday === 0) // Sunday
+                weekday = 6;
+            else
+                weekday--;
+        }
+
+        var firstDayOfYearUtc = Date.UTC(date.getFullYear(), 0, 1),
+            dateUtc = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()),
+            yday = Math.floor((dateUtc - firstDayOfYearUtc) / 86400000),
+            weekNum = (yday + 7 - weekday) / 7;
+
+        return Math.floor(weekNum);
+    }
+
+function getISOWeekYear(date) {
+    const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+    const dayNum = d.getUTCDay() || 7; // Sunday = 7
+    d.setUTCDate(d.getUTCDate() + 4 - dayNum); // Move to nearest Thursday
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+    return { year: d.getUTCFullYear(), week: weekNo };
+}
