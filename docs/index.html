@@ -139,6 +139,7 @@ const background_color = document.getElementById("background_color_input");
 
 background_color.addEventListener("input", function () {
   this.value = quantizeColor(this.value);
+  drawLayers();
 })
 
 const numLayers = 25;
@@ -158,6 +159,15 @@ drawLayers();
 function openLayer(i) {
   layer_info.innerHTML = `Name: <input type="text" value="${layers[i].getName()}"
   onchange="layers[${i}].setName(this.value);document.getElementById('name${i}').innerHTML=this.value;"></input>
+  <br>
+  Layer Type: <select
+  onchange="layers[${i}].setType(this.value);drawLayers();openLayer(${i})">
+    <option value="rect" ${layers[i].getType()=='rect'?'selected':''}>&#9633; / &#9675;</option>
+    <option value="text" ${layers[i].getType()=='text'?'selected':''}>&#127280;&#127281;&#127282;</option></select>
+  Inverter?: <select
+  onchange="setLayerSetting(${i}, 'inverter', this.value);drawLayers();">
+    <option value="true" ${layers[i].getLayerSetting('inverter')=='true'?'selected':''}>Yes</option>
+    <option value="false" ${layers[i].getLayerSetting('inverter')=='true'?'':'selected'}>No</option></select>
   <br>
   (X, Y): (<input type="number" value="${layers[i].getPos()["x"]}"
   onchange="layers[${i}].setX(this.value);drawLayers();"></input>
@@ -179,9 +189,9 @@ function openLayer(i) {
   Gradient Fill: <select
   onchange="setLayerSetting(${i}, 'dither', this.value);drawLayers();">
     <option value="false" ${layers[i].getLayerSetting('dither')=='false'?'selected':''}>No</option>
-    <option value="lr" ${layers[i].getLayerSetting('dither')=='lr'?'selected':''}>Left-Right</option>
-    <option value="ud" ${layers[i].getLayerSetting('dither')=='ud'?'selected':''}>Up-Down</option>
-    <option value="mix" ${layers[i].getLayerSetting('dither')=='mix'?'selected':''}>Mix</option></select>
+    <option value="lr" ${layers[i].getLayerSetting('dither')=='lr'?'selected':''}>&#8646;</option>
+    <option value="ud" ${layers[i].getLayerSetting('dither')=='ud'?'selected':''}>&#8645;</option>
+    <option value="mix" ${layers[i].getLayerSetting('dither')=='mix'?'selected':''}>&#8281;</option></select>
   Inverter?: <select
   onchange="setLayerSetting(${i}, 'inverter', this.value);drawLayers();">
     <option value="true" ${layers[i].getLayerSetting('inverter')=='true'?'selected':''}>Yes</option>
@@ -192,15 +202,34 @@ function openLayer(i) {
   <br>
   Foreground Color (#RRGGBB[AA]): <input type="text" value="${layers[i].getFgColor()}"
   onchange="this.value=quantizeColor(this.value);layers[${i}].setFgColor(this.value);drawLayers();"></input>
-  <br>
-  Content: <input type="text" value="${layers[i].getContent()}"
-  onchange="layers[${i}].setContent(this.value);drawLayers();"></input>  
-  `;
+  <br>`
+  if(layers[i].getType() == "text"){
+    layer_info.innerHTML = layer_info.innerHTML + `
+    <hr>
+    Text Content: <input type="text" value="${layers[i].getContent()}"
+    onchange="layers[${i}].setContent(this.value);drawLayers();"></input>
+    <br>
+    Text Align: <select
+    onchange="setFontSetting(${i}, 'align', this.value);drawLayers();">
+      <option value="left" ${layers[i].getFontSetting('align')=='left'?'selected':''}>&#8676;</option>
+      <option value="center" ${layers[i].getFontSetting('align')=='center'?'selected':''}>&#8697;</option>
+      <option value="right" ${layers[i].getFontSetting('align')=='right'?'selected':''}>&#8677;</option></select>
+    Word Wrap: <select
+    onchange="setFontSetting(${i}, 'wordWrap', this.value);drawLayers();">
+      <option value="true" ${layers[i].getFontSetting('wordWrap')=='true'?'selected':''}>&#8629;</option>
+      <option value="false" ${layers[i].getFontSetting('wordWrap')=='false'?'selected':''}>&#8230;</option>
+    `;
+  }
+  
 
 }
 
 function setLayerSetting(i, key, value){
   layers[i].setLayerSetting(key, value);
+}
+
+function setFontSetting(i, key, value){
+  layers[i].setFontSetting(key, value);
 }
 
 function populateList() {
@@ -265,9 +294,9 @@ function defaultLayers() {
 
   layers[3].setName("Hello World Text");
   layers[3].setType("text");
-  layers[3].setFont("font", "18px sans-serif");
-  layers[3].setFont("align", "left");
-  layers[3].setFont("wordWrap", "true");
+  layers[3].setFontSetting("font", "18px sans-serif");
+  layers[3].setFontSetting("align", "left");
+  layers[3].setFontSetting("wordWrap", "true");
   layers[3].setPos(20,60,100,50);
   layers[3].setRadius(10);
   layers[3].setBgColor("#000000");

@@ -45,17 +45,17 @@ class Layer {
     this.h = 50;
     this.layer_settings = {};
     this.content_settings = {};
-    this.font_settings = {}; // font, align, and wordWrap
+    this.font_settings = {"align":"left","wordWap":"false","font":"18px sans-serif"}; // font, align, and wordWrap
     this.radius = 10;
     this.dynamic = {};
     this.fg_color = "#00AAAA";
     this.bg_color = "#550000";
-    this.content = "";
+    this.content = "%S/59";
   }
-  setFont(key, value){
+  setFontSetting(key, value){
     this.font_settings[key] = value;
   }
-  getFont(key){
+  getFontSetting(key){
     return this.font_settings[key];
   }
   setContent(content){
