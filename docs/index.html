@@ -167,15 +167,10 @@ function openLayer(i) {
   if (i<0){ layer_info.innerHTML='';return; }
   layer_info.innerHTML = `Name: <input type="text" value="${layers[i].getName()}"
   onchange="layers[${i}].setName(this.value);document.getElementById('name${i}').innerHTML=this.value;"></input>
-  <br>
   Layer Type: <select
   onchange="layers[${i}].setType(this.value);drawLayers();openLayer(${i})">
     <option value="rect" ${layers[i].getType()=='rect'?'selected':''}>&#9633; / &#9675;</option>
     <option value="text" ${layers[i].getType()=='text'?'selected':''}>&#127280;&#127281;&#127282;</option></select>
-  Inverter?: <select
-  onchange="setLayerSetting(${i}, 'inverter', this.value);drawLayers();">
-    <option value="true" ${layers[i].getLayerSetting('inverter')=='true'?'selected':''}>Yes</option>
-    <option value="false" ${layers[i].getLayerSetting('inverter')=='true'?'':'selected'}>No</option></select>
   <br>
   (X, Y): (<input type="number" value="${layers[i].getPos()["x"]}"
   onchange="layers[${i}].setX(this.value);drawLayers();"></input>
