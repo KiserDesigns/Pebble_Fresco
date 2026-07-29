@@ -52,10 +52,10 @@ canvas {
 .layer {
   height: 60px;
   margin: 1vh;
-  background-color: lightslategray;
+  background-color: rgb(124, 180, 199);
 }
 .square {
-  aspect-ratio:1/1;
+  aspect-ratio:1/2;
   height:100%;
 }
 .action {
@@ -66,7 +66,7 @@ canvas {
 }
 .handle {
   height:80%;
-  aspect-ratio:1/1;
+  aspect-ratio:1/2;
   background-color: white;
   cursor: grab;
 }
@@ -79,7 +79,7 @@ canvas {
   
 </head>
 <body>
-  <div style="display:flex;flex-direction:column;height:100%;margin:0;">
+  <div style="display:flex;flex-direction:column;height:100%;max-height:100%;margin:0;">
   <div class="flex">
     <div class="center pad">
       <input id='submit_button' type='button' value='Save'>
@@ -109,7 +109,7 @@ canvas {
     </div>
     <div class="grow scroller" id="layer_container"></div>
   </div>
-  <div class="pad grow">
+  <div class="pad">
     Background Color:<input id='background_color_input' type='color' value='#000000'>
     <!-- Temp in F:<input id='temperature_checkbox' type='checkbox'> -->
     Spoof Date/Time:<input type="datetime-local" id="datetime">
@@ -119,9 +119,8 @@ canvas {
     24-Hour Mode:<select id ="time_mode">
     <option value="24" selected>24</option>
     <option value="12">12</option></select>
-    <hr>
-    <div id="layer_info"></div>
   </div>
+  <div id="layer_info" class="scroller"></div>
 </div>
 <script src="./Sortable.min.js"></script>
 <script src="./strftime.min.js"></script>
@@ -238,8 +237,18 @@ function openLayer(i) {
   }
   layer_info.innerHTML = layer_info.innerHTML + `
   <hr>
-  <button onclick="disableLayer(${i});openLayer(-1);populateList();drawLayers();">
-    Disable this Layer</button>`;
+  <button onclick="disableLayer(${i});">
+    Delete Layer</button>`;
+  for(var child=layer_container.firstChild; child!==null; child=child.nextSibling) {
+    let j = child.id;
+    if (i == j){
+      child.style.backgroundColor = "lightslategray";
+      child.style.color = "white";
+    } else if (j != 'add_button') {
+      child.style.backgroundColor = "rgb(124, 180, 199)";
+      child.style.color = "black";
+    }
+  }
 }
 
 function addLayer(){
@@ -248,6 +257,8 @@ function addLayer(){
       layers[i].setLayerSetting("enabled", 'true');
       layers[i].setName('New Layer '+i);
       layers[i].setY(10+5*i);
+      addLayerToList(layers, i);
+      reorderListData();
       populateList();
       drawLayers();
       return;
@@ -257,6 +268,26 @@ function addLayer(){
 
 function disableLayer(i){
   layers[i].setLayerSetting("enabled", 'false');
+  openLayer(-1);
+  reorderListData();
+  populateList();
+  drawLayers();
+}
+
+function reorderListData(){
+  let new_layers = [];
+  for(var child=layer_container.firstChild; child!==null; child=child.nextSibling) {
+    let i = parseInt(child.id);
+    if (child.id != 'add_button') {
+      if (layers[i].getLayerSetting("enabled") == "true"){
+        new_layers.push(layers[i]);
+      }
+    }
+  }
+  for(let i=new_layers.length; i<numLayers; i++){
+    new_layers.push(new Layer());
+  }
+  layers.splice(0, new_layers.length, ...new_layers);
 }
 
 function setFontSizeStyle(i){
@@ -288,6 +319,7 @@ function populateList() {
   addButton = document.createElement("div");
   addButton.classList.add("layer");
   addButton.classList.add("flex");
+  addButton.id = 'add_button'
   addButton.style="background:none;"
   addButton.innerHTML = `<div class="flex center square">
     <button class="action" onclick="addLayer();">&#128932;</button></div>
@@ -303,7 +335,7 @@ function addLayerToList(layers, i){
   listItem.classList.add("layer");
   listItem.classList.add("flex");
   listItem.innerHTML = '<div class="flex center square"><button class="handle">&#8645;</button></div>\
-  <div class="flex center grow"><button style="width:100%;height:100%" onclick="openLayer('+i+');" id="name'+i+'">'+layers[i].getName()+'</button></div>'
+  <div class="flex center grow"><button style="width:100%;height:100%;background:none;color:inherit;" onclick="openLayer('+i+');" id="name'+i+'">'+layers[i].getName()+'</button></div>'
   layer_container.appendChild(listItem);
   listItem.id = i;
 }
