@@ -97,7 +97,7 @@ canvas {
       </select>
     </div>
     <div class="center pad">
-      <input id='exit_button' type='button' value='Exit'>
+      <input id='import_button' type='button' value='Import'>
     </div>
   </div>
   <div class="flex">
@@ -130,6 +130,7 @@ canvas {
   <script>
     // Get a handle to the button's HTML element
 const submitButton = document.getElementById("submit_button");
+const importButton = document.getElementById("import_button");
 const platform_element = document.getElementById("platform");
 const preview = document.getElementById("preview");
 const ctx = preview.getContext("2d");
@@ -517,21 +518,27 @@ platform_element.addEventListener("input", getPlatform);
 submitButton.addEventListener("click", function () {
   // Get the config data from the UI elements
   var background_color = document.getElementById("background_color_input");
-  var temperatureCheckbox = document.getElementById("temperature_checkbox");
+  //var temperatureCheckbox = document.getElementById("temperature_checkbox");
 
   // Make a data object to be sent, coercing value types to integers
   var options = {
     background_color: parseInt(background_color.value.substr(1, 6), 16),
-    temperature_checkbox: temperatureCheckbox.checked ? 1 : 0,
+    //temperature_checkbox: temperatureCheckbox.checked ? 1 : 0,
   };
 
   console.log(
     parseInt(background_color.value.substr(1, 6), 16),
-    temperatureCheckbox.checked ? 1 : 0,
+    //temperatureCheckbox.checked ? 1 : 0,
+  );
+
+  //console.log(JSON.stringify(layers));
+  download('Fresco_'+platform+'_'+(new Date).getTime()+'.json',
+  JSON.stringify(layers)
   );
 
   // Determine the correct return URL (emulator vs real watch)
   var return_to = getQueryParam("return_to", "pebblejs://close#");
+
 
   // Encode and send the data when the page closes
   document.location = return_to + encodeURIComponent(JSON.stringify(options));
@@ -543,6 +550,33 @@ submitButton.addEventListener("click", function () {
   //iframe.style.display = "none";
   //document.body.appendChild(iframe);
 });
+
+function downloadString(text, fileType, fileName) {
+  var blob = new Blob([text], { type: fileType });
+
+  var a = document.createElement('a');
+  a.download = fileName;
+  a.href = URL.createObjectURL(blob);
+  a.dataset.downloadurl = [fileType, a.download, a.href].join(':');
+  a.style.display = "none";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(function() { URL.revokeObjectURL(a.href); }, 1500);
+}
+
+function download(filename, text) {
+  var element = document.createElement('a');
+  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+  element.setAttribute('download', filename);
+
+  element.style.display = 'none';
+  document.body.appendChild(element);
+
+  element.click();
+
+  document.body.removeChild(element);
+}
 
 //-------------------------------------
 //   Manage changing viewport heights.
