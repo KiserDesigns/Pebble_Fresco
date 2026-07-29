@@ -1,0 +1,1 @@
+var E={'+':'-','/':'_','=':'.'};var D={'-':'+',_: '/','.':'='};function encode(b){return b.replace(/[+/=]/g,function(m){return E[m];});};function decode(s){return s.replace(/[-_.]/g,function(m){return D[m];});};
