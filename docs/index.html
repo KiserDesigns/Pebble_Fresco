@@ -124,8 +124,7 @@ canvas {
 </div>
 <script src="./Sortable.min.js"></script>
 <script src="./strftime.min.js"></script>
-<script src="./lzutf8.min.js"></script>
-<script src="./urlsafe.js"></script>
+<script src="./lz-string.min.js"></script>
 <script src="./layerClass.js"></script>
 
 
@@ -539,7 +538,7 @@ submitButton.addEventListener("click", function () {
     }
   }
   download('Fresco_'+platform+'_'+(new Date).getTime()+'.frs',
-    encode(LZUTF8.compress(JSON.stringify(new_layers), {outputEncoding:"Base64"}))
+     LZString.compressToEncodedURIComponent(JSON.stringify(new_layers))
   );
 
   // Determine the correct return URL (emulator vs real watch)
@@ -577,14 +576,10 @@ importButton.addEventListener("click", function () {
 
     // here we tell the reader what to do when it's done reading...
     reader.onload = readerEvent => {
-      try {
-        var content = LZUTF8.decompress(decode(readerEvent.target.result), {inputEncoding:"Base64"}); // this is the content!
-      } catch {
-        var content = readerEvent.target.result; // this is the content!
+      var content = LZString.decompressFromEncodedURIComponent(readerEvent.target.result); // this is the content!
+      if (!content) {
+        content = readerEvent.target.result;
       }
-        //if (content == ''){
-        //  content = readerEvent.target.result;
-        //}
         console.log( content );
         let parseObject = JSON.parse(content);
         for( let i=0; i<Math.min(numLayers,parseObject.length); i++){
