@@ -6,8 +6,63 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Fresco Settings</title>
+<script src="./layerClass.js"></script>
+<script src="./Sortable.min.js"></script>
+<script src="./strftime.min.js"></script>
+<script src="./lz-string.min.js"></script>
 
   <style>
+@font-face {
+  font-family: droid-bold; /* set name */
+  src: url('./fonts/ttf/DroidSerif-Bold.ttf'); /* url of the font */
+}
+@font-face {
+  font-family: gotham-black; /* set name */
+  src: url('./fonts/ttf/Gotham Black.otf'); /* url of the font */
+}
+@font-face {
+  font-family: gotham-bold; /* set name */
+  src: url('./fonts/ttf/Gotham Bold.otf'); /* url of the font */
+}
+@font-face {
+  font-family: gotham-light; /* set name */
+  src: url('./fonts/ttf/Gotham Light.otf'); /* url of the font */
+  font-display: block;
+}
+@font-face {
+  font-family: gotham-medium; /* set name */
+  src: url('./fonts/ttf/Gotham Medium.otf'); /* url of the font */
+  font-display: block;
+}
+@font-face {
+  font-family: leco-bold; /* set name */
+  src: url('./fonts/ttf/LECO 1976 Bold.ttf'); /* url of the font */
+}
+@font-face {
+  font-family: leco-regular; /* set name */
+  src: url('./fonts/ttf/LECO 1976 Regular.ttf'); /* url of the font */
+}
+@font-face {
+  font-family: leco-light; /* set name */
+  src: url('./fonts/ttf/LECO 1976 Light.ttf'); /* url of the font */
+}
+@font-face{
+  font-family: gothic-14; /* set name */
+  src: url('./fonts/ttf/raster-gothic-14.woff2'); /* url of the font */
+}
+@font-face{
+  font-family: gothic-14-bold; /* set name */
+  src: url('./fonts/ttf/raster-gothic-14-bold.woff2'); /* url of the font */
+}
+@font-face{
+  font-family: gothic; /* set name */
+  src: url('./fonts/ttf/raster-gothic-18.woff2'); /* url of the font */
+}
+@font-face{
+  font-family: gothic-bold; /* set name */
+  src: url('./fonts/ttf/raster-gothic-18-bold.woff2'); /* url of the font */
+}
+
     html,
 body {
   background-color: lightblue;
@@ -15,6 +70,7 @@ body {
   height: calc(var(--vh, 1vh) * 100);
   margin: 0;
   padding: 0;
+  font-family: gotham-medium, sans-serif;
 }
 
 canvas {
@@ -30,6 +86,13 @@ canvas {
 *:not(body, html) {
   border: solid 0px red;
   box-sizing: border-box;
+}
+
+input, select {
+  font-family: gotham-light, sans-serif;
+}
+button {
+  font-family: gotham-medium, sans-serif;
 }
 
 .center {
@@ -82,7 +145,7 @@ canvas {
   <div style="display:flex;flex-direction:column;height:100%;max-height:100%;margin:0;">
   <div class="flex">
     <div class="center pad">
-      <input id='submit_button' type='button' value='Save'>
+      <button id='submit_button'>Save</button>
     </div>
     <div class="center pad grow flex">
       Platform:&nbsp
@@ -97,7 +160,7 @@ canvas {
       </select>
     </div>
     <div class="center pad">
-      <input id='import_button' type='button' value='Import'>
+      <button id='import_button'>Import</button>
     </div>
   </div>
   <div class="flex">
@@ -122,10 +185,7 @@ canvas {
   </div>
   <div id="layer_info" class="scroller"></div>
 </div>
-<script src="./Sortable.min.js"></script>
-<script src="./strftime.min.js"></script>
-<script src="./lz-string.min.js"></script>
-<script src="./layerClass.js"></script>
+
 
 
   <script>
@@ -224,13 +284,21 @@ function openLayer(i) {
       <option value="false" ${layers[i].getFontSetting('wordWrap')=='false'?'selected':''}>&#8230;</option></select>
     <br>
     Font Style: <select id="font-style"
-    onchange="setFontSizeStyle(${i});drawLayers();">
-      <option value="sans-serif" ${getFontStyle(i)=='sans-serif'?'selected':''}>Sans-Serif</option>
-      <option value="serif" ${getFontStyle(i)=='serif'?'selected':''}>Serif</option>
-      <option value="monospace" ${getFontStyle(i)=='monospace'?'selected':''}>Monospace</option></select>
-    Font Size: <input type="number" id="font-size" value="${getFontSize(i)}"
-    onchange="setFontSizeStyle(${i});drawLayers();"></input>
+    onchange="setFontStyle(${i});drawLayers();">
+      <option style="font-family:gotham-light"  value="gotham-light"  ${getFontStyle(i)=='gotham-light'?'selected':''} >Bitham Light</option>
+      <option style="font-family:gotham-medium" value="gotham-medium" ${getFontStyle(i)=='gotham-medium'?'selected':''} >Bitham Medium</option>
+      <option style="font-family:gotham-bold"   value="gotham-bold"   ${getFontStyle(i)=='gotham-bold'?'selected':''} >Bitham Bold</option>
+      <option style="font-family:gotham-black"  value="gotham-black"  ${getFontStyle(i)=='gotham-black'?'selected':''} >Bitham Black</option>
+      <option style="font-family:leco-light"    value="leco-light"    ${getFontStyle(i)=='leco-light'?'selected':''}   >LECO Light</option>
+      <option style="font-family:leco-regular"  value="leco-regular"  ${getFontStyle(i)=='leco-regular'?'selected':''}   >LECO Regular</option>
+      <option style="font-family:leco-bold"     value="leco-bold"     ${getFontStyle(i)=='leco-bold'?'selected':''}   >LECO Bold</option>
+      <option style="font-family:gothic"        value="gothic"        ${getFontStyle(i)=='gothic'?'selected':''} >Gothic Regular</option>
+      <option style="font-family:gothic-bold"   value="gothic-bold"   ${getFontStyle(i)=='gothic-bold'?'selected':''} >Gothic Bold</option>
+      <option style="font-family:droid-bold"    value="droid-bold"    ${getFontStyle(i)=='droid-bold'?'selected':''}  >Serif Bold</option></select>
+    Font Size: <select id="font-size"
+    onchange="setFontSizeStyle(${i});drawLayers();"></select>
     `;
+    setFontStyle(i);
   }
   layer_info.innerHTML = layer_info.innerHTML + `
   <hr>
@@ -285,6 +353,65 @@ function reorderListData(){
     new_layers.push(new Layer());
   }
   layers.splice(0, new_layers.length, ...new_layers);
+}
+
+function setFontStyle(i){
+  let style = document.getElementById("font-style").value;
+  let size_select = document.getElementById("font-size");
+  let current_size = parseInt(size_select.value);
+  let sizes = [];
+  if(style == 'leco-light'){
+    sizes.push(28);}
+  if(style == 'leco-regular'){
+    sizes.push(42);
+    sizes.push(60);}
+  if(style == 'leco-bold'){
+    sizes.push(20);
+    sizes.push(26);
+    sizes.push(32);
+    sizes.push(36);
+    sizes.push(38);
+    sizes.push(60);}
+  if(style == 'gotham-light'){
+    sizes.push(18);
+    sizes.push(34);
+    sizes.push(42);}
+  if(style == 'gotham-medium'){
+    sizes.push(34);
+    sizes.push(42);}
+  if(style == 'gotham-bold'){
+    sizes.push(42);}
+  if(style == 'gotham-black'){
+    sizes.push(30);}
+  if(style == 'droid-bold'){
+    sizes.push(28);}
+  if(style == 'gothic'){
+    sizes.push(9);
+    sizes.push(14);
+    sizes.push(18);
+    sizes.push(24);
+    sizes.push(28);
+    sizes.push(36);}
+  if(style == 'gothic-bold'){sizes.push(14);
+    sizes.push(18);
+    sizes.push(24);
+    sizes.push(28);
+    sizes.push(36);}
+  let new_size = sizes[0];
+  for (let j = 1; j < sizes.length; j++){
+    if (Math.abs(sizes[j]-current_size)<Math.abs(new_size-current_size)){
+      new_size = sizes[j];
+    }
+  }
+  size_select.innerHTML = '';
+  for (let j = 0; j < sizes.length; j++){
+    let sizeOption = document.createElement("option");
+    sizeOption.value = sizes[j];
+    sizeOption.selected = sizes[j]==new_size;
+    sizeOption.innerHTML = sizes[j];
+    size_select.appendChild(sizeOption);
+  }
+  setFontSizeStyle(i);
 }
 
 function setFontSizeStyle(i){
@@ -370,7 +497,7 @@ function defaultLayers() {
 
   layers[3].setName("Hello World Text");
   layers[3].setType("text");
-  layers[3].setFontSetting("font", "18px sans-serif");
+  layers[3].setFontSetting("font", "18px gotham-light");
   layers[3].setFontSetting("align", "left");
   layers[3].setFontSetting("wordWrap", "true");
   layers[3].setPos(20,60,100,50);

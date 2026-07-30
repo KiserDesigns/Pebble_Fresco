@@ -112,18 +112,18 @@ function wrapText(ctx, text, x, y, maxWidth, maxHeight, lineHeight, wordWrap = "
         let testWidth = metrics.width;
         if (testWidth > parseInt(maxWidth) && i>0) {
             if (wordWrap == "true"){
-                if (parseInt(y) <= parseInt(maxY)) { ctx.fillText(currentLine.slice(0,-1), plotX, y); }
+                if (parseInt(y) <= parseInt(maxY)) { ctx.fillText(currentLine.slice(0,-1), plotX, parseInt(y)+parseInt(lineHeight)); }
                 currentLine = words[i] + ' ';
                 y = parseInt(y) + parseInt(lineHeight);
             } else {
-                ctx.fillText(currentLine.slice(0,-1) + '...', plotX, y);
+                ctx.fillText(currentLine.slice(0,-1) + '...', plotX, parseInt(y)+parseInt(lineHeight));
                 return;
             }
         } else {
             currentLine = testLine + ' ';
         }
     }
-    if (y <= maxY) { ctx.fillText(currentLine.slice(0,-1), plotX, y); }
+    if (y <= maxY) { ctx.fillText(currentLine.slice(0,-1), plotX, parseInt(y)+parseInt(lineHeight)); }
 }
 
 class Layer {
@@ -136,7 +136,7 @@ class Layer {
     this.h = 50;
     this.layer_settings = {"enabled":"false","outline":"true"};
     this.content_settings = {};
-    this.font_settings = {"align":"left","wordWap":"false","font":"18px sans-serif"}; // font, align, and wordWrap
+    this.font_settings = {"align":"left","wordWap":"false","font":"18px gotham-light"}; // font, align, and wordWrap
     this.radius = 10;
     this.dynamic = {};
     this.fg_color = "#00AAAA";
@@ -315,7 +315,7 @@ class Layer {
         
         let lineHeight = parseInt(this.font_settings["font"]);
         
-        ctx.textBaseline = "top";   
+        ctx.textBaseline = "alphabetic";   
 
         let date = new Date(document.getElementById("datetime").value);
         
