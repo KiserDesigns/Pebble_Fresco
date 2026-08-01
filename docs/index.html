@@ -141,7 +141,7 @@ button {
 
   
 </head>
-<body>
+<body style="max-width:80vh;margin-left:auto;margin-right:auto;">
   <div style="display:flex;flex-direction:column;height:100%;max-height:100%;margin:0;">
   <div class="flex">
     <div class="center pad">
@@ -358,7 +358,8 @@ function reorderListData(){
 function setFontStyle(i){
   let style = document.getElementById("font-style").value;
   let size_select = document.getElementById("font-size");
-  let current_size = parseInt(size_select.value);
+  let current_size = getFontSize(i);
+  console.log(current_size);
   let sizes = [];
   if(style == 'leco-light'){
     sizes.push(28);}
