@@ -172,18 +172,25 @@ button {
     </div>
     <div class="grow scroller" id="layer_container"></div>
   </div>
-  <div class="pad">
-    Background Color:<input id='background_color_input' type='color' value='#000000'>
-    <!-- Temp in F:<input id='temperature_checkbox' type='checkbox'> -->
-    Spoof Date/Time:<input type="datetime-local" id="datetime">
-    <br>Battery %:<input type="number" id="battery" value="80">
-    Step Count:<input type="number" id="steps" value="4600">
-    <br>Heartrate:<input type="number" id="heartrate" value="75">
-    24-Hour Mode:<select id ="time_mode">
-    <option value="24" selected>24</option>
-    <option value="12">12</option></select>
+  <div >
   </div>
-  <div id="layer_info" class="scroller"></div>
+  <div id="settings_button" style="position:relative" class="pad">
+    <button class="square action" style="height:40px" onclick="let v=document.getElementById('main_info');v.style.visibility=v.style.visibility=='hidden'?'visible':'hidden';">&#9881;</button>
+    <div style="position:relative" > </div>
+    <div id="main_info" class="pad" style="position:absolute;top:calc(40px+2vh);background-color: aqua;">
+      Background Color:<input id='background_color_input' type='color' value='#000000'>
+      <!-- Temp in F:<input id='temperature_checkbox' type='checkbox'> -->
+      Spoof Date/Time:<input type="datetime-local" id="datetime">
+      <br>Battery %:<input type="number" id="battery" value="80">
+      Step Count:<input type="number" id="steps" value="4600">
+      <br>Heartrate:<input type="number" id="heartrate" value="75">
+      24-Hour Mode:<select id ="time_mode">
+      <option value="24" selected>24</option>
+      <option value="12">12</option></select>
+    </div>
+    <script>document.getElementById('main_info').style.visibility = 'hidden';console.log("invis");</script>
+  </div>
+  <div id="layer_info" class="pad scroller"></div>
 </div>
 
 
