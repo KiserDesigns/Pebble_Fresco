@@ -186,7 +186,7 @@ button {
       <option value="12">12</option></select>
     </div>
   </div>
-  <div id="layer_info" class="pad scroller" visibility="hidden">
+  <div id="layer_info" class="pad scroller">
     Name: <input type="text" id="layer_name"
   onchange="layers[selected_layer].setName(this.value);document.getElementById(selected_layer).innerHTML=this.value;"></input>
   Layer Type: <select id="layer_type"
@@ -226,7 +226,7 @@ button {
   <br>
   Foreground Color (#RRGGBB[AA]): <input class="fg-color-picker""></input>
   <br>
-  <div id="text_settings" visibility="hidden">
+  <div id="text_settings">
     <hr>
     Text Content: <input type="text" id="layer_text"
     onchange="layers[selected_layer].setContent(this.value);drawLayers();"></input>
