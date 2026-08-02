@@ -185,9 +185,82 @@ button {
       <option value="24" selected>24</option>
       <option value="12">12</option></select>
     </div>
-    <script>document.getElementById('main_info').style.visibility = 'hidden';console.log("invis");</script>
   </div>
-  <div id="layer_info" class="pad scroller"></div>
+  <div id="layer_info" class="pad scroller" visibility="hidden">
+    Name: <input type="text" id="layer_name"
+  onchange="layers[selected_layer].setName(this.value);document.getElementById(selected_layer).innerHTML=this.value;"></input>
+  Layer Type: <select id="layer_type"
+  onchange="layers[selected_layer].setType(this.value);drawLayers();openLayer(selected_layer)">
+    <option value="rect">&#9633; / &#9675;</option>
+    <option value="text">&#127280;&#127281;&#127282;</option></select>
+  <br>
+  (X, Y): (<input type="number" id="layer_x"
+  onchange="layers[selected_layer].setX(this.value);drawLayers();"></input>
+  ,<input type="number" id="layer_y"
+  onchange="layers[selected_layer].setY(this.value);drawLayers();"></input>)
+  <br>
+  (W, H): (<input type="number" id="layer_w"
+  onchange="layers[selected_layer].setW(this.value);drawLayers();"></input>
+  ,<input type="number" id="layer_h"
+  onchange="layers[selected_layer].setH(this.value);drawLayers();"></input>)
+  <br>
+  Radius: <input type="number" id="layer_radius"
+  onchange="layers[selected_layer].setRadius(this.value);drawLayers();"></input>
+  Draw Outline: <select id="layer_outline"
+  onchange="setLayerSetting(selected_layer, 'outline', this.value);drawLayers();">
+    <option value="true">Yes</option>
+    <option value="false">No</option></select>
+  <br>
+  Gradient Fill: <select id="layer_dither"
+  onchange="setLayerSetting(selected_layer, 'dither', this.value);drawLayers();">
+    <option value="false">No</option>
+    <option value="lr"}>&#8646;</option>
+    <option value="ud"}>&#8645;</option>
+    <option value="mix"}>&#8281;</option></select>
+  Inverter?: <select id="layer_inverter"
+  onchange="setLayerSetting(selected_layer, 'inverter', this.value);drawLayers();">
+    <option value="true">Yes</option>
+    <option value="false">No</option></select>
+  <br>
+  Background Color (#RRGGBB[AA]): <input class="bg-color-picker"></input>
+  <br>
+  Foreground Color (#RRGGBB[AA]): <input class="fg-color-picker""></input>
+  <br>
+  <div id="text_settings" visibility="hidden">
+    <hr>
+    Text Content: <input type="text" id="layer_text"
+    onchange="layers[selected_layer].setContent(this.value);drawLayers();"></input>
+    <br>
+    Text Align: <select id="layer_align"
+    onchange="setFontSetting(selected_layer, 'align', this.value);drawLayers();">
+      <option value="left">&#8676;</option>
+      <option value="center">&#8697;</option>
+      <option value="right">&#8677;</option></select>
+    Word Wrap: <select id="layer_wrap"
+    onchange="setFontSetting(${i}, 'wordWrap', this.value);drawLayers();">
+      <option value="true">&#8629;</option>
+      <option value="false">&#8230;</option></select>
+    <br>
+    Font Style: <select id="font-style"
+    onchange="setFontStyle(selected_layer);drawLayers();">
+      <option style="font-family:gotham-light"  value="gotham-light" >Bitham Light</option>
+      <option style="font-family:gotham-medium" value="gotham-medium">Bitham Medium</option>
+      <option style="font-family:gotham-bold"   value="gotham-bold"  >Bitham Bold</option>
+      <option style="font-family:gotham-black"  value="gotham-black" >Bitham Black</option>
+      <option style="font-family:leco-light"    value="leco-light"   >LECO Light</option>
+      <option style="font-family:leco-regular"  value="leco-regular" >LECO Regular</option>
+      <option style="font-family:leco-bold"     value="leco-bold"    >LECO Bold</option>
+      <option style="font-family:gothic"        value="gothic"       >Gothic Regular</option>
+      <option style="font-family:gothic-bold"   value="gothic-bold"  >Gothic Bold</option>
+      <option style="font-family:droid-bold"    value="droid-bold"   >Serif Bold</option></select>
+    Font Size: <select id="font-size"
+    onchange="setFontSizeStyle(selected_layer);drawLayers();"></select>
+
+  </div>
+  <hr>
+  <button onclick="disableLayer(selected_layer);">
+    Delete Layer</button>`
+  </div>
 </div>
 
 <script src="./layerClass.js"></script>
@@ -217,6 +290,9 @@ const layer_info = document.getElementById("layer_info");
 //  drawLayers();
 //})
 
+document.getElementById('main_info').style.visibility = 'hidden';
+document.getElementById('layer_info').style.visibility = 'hidden';
+
 let background_color = '#000000';
 
 document.getElementById("datetime").value = (new Date).strftime("%Y-%m-%dT%H:%M");
@@ -235,86 +311,40 @@ defaultLayers();
 populateList();
 //drawLayers();
 
+var selected_layer = 0;
+
 function openLayer(i) {
-  if (i<0){ layer_info.innerHTML='';return; }
-  layer_info.innerHTML = `Name: <input type="text" value="${layers[i].getName()}"
-  onchange="layers[${i}].setName(this.value);document.getElementById('name${i}').innerHTML=this.value;"></input>
-  Layer Type: <select
-  onchange="layers[${i}].setType(this.value);drawLayers();openLayer(${i})">
-    <option value="rect" ${layers[i].getType()=='rect'?'selected':''}>&#9633; / &#9675;</option>
-    <option value="text" ${layers[i].getType()=='text'?'selected':''}>&#127280;&#127281;&#127282;</option></select>
-  <br>
-  (X, Y): (<input type="number" value="${layers[i].getPos()["x"]}"
-  onchange="layers[${i}].setX(this.value);drawLayers();"></input>
-  ,<input type="number" value="${layers[i].getPos()["y"]}"
-  onchange="layers[${i}].setY(this.value);drawLayers();"></input>)
-  <br>
-  (W, H): (<input type="number" value="${layers[i].getPos()["w"]}"
-  onchange="layers[${i}].setW(this.value);drawLayers();"></input>
-  ,<input type="number" value="${layers[i].getPos()["h"]}"
-  onchange="layers[${i}].setH(this.value);drawLayers();"></input>)
-  <br>
-  Radius: <input type="number" value="${layers[i].getRadius()}""
-  onchange="layers[${i}].setRadius(this.value);drawLayers();"></input>
-  Draw Outline: <select
-  onchange="setLayerSetting(${i}, 'outline', this.value);drawLayers();">
-    <option value="true" ${layers[i].getLayerSetting('outline')=='true'?'selected':''}>Yes</option>
-    <option value="false" ${layers[i].getLayerSetting('outline')=='true'?'':'selected'}>No</option></select>
-  <br>
-  Gradient Fill: <select
-  onchange="setLayerSetting(${i}, 'dither', this.value);drawLayers();">
-    <option value="false" ${layers[i].getLayerSetting('dither')=='false'?'selected':''}>No</option>
-    <option value="lr" ${layers[i].getLayerSetting('dither')=='lr'?'selected':''}>&#8646;</option>
-    <option value="ud" ${layers[i].getLayerSetting('dither')=='ud'?'selected':''}>&#8645;</option>
-    <option value="mix" ${layers[i].getLayerSetting('dither')=='mix'?'selected':''}>&#8281;</option></select>
-  Inverter?: <select
-  onchange="setLayerSetting(${i}, 'inverter', this.value);drawLayers();">
-    <option value="true" ${layers[i].getLayerSetting('inverter')=='true'?'selected':''}>Yes</option>
-    <option value="false" ${layers[i].getLayerSetting('inverter')=='true'?'':'selected'}>No</option></select>
-  <br>
-  Background Color (#RRGGBB[AA]): <input type="text" value="${layers[i].getBgColor()}" class="bg-color-picker"
-  onchange="this.value=quantizeColor(this.value);layers[${i}].setBgColor(this.value);drawLayers();"></input>
-  <br>
-  Foreground Color (#RRGGBB[AA]): <input type="text" value="${layers[i].getFgColor()}" class="fg-color-picker"
-  onchange="this.value=quantizeColor(this.value);layers[${i}].setFgColor(this.value);drawLayers();"></input>
-  <br>`
+  if (i<0){ layer_info.style.visibility='hidden';return; }
+  selected_layer = i;
+  document.getElementById('layer_name').value = layers[i].getName();
+  document.getElementById('layer_type').value = layers[i].getType();
+  document.getElementById('layer_x').value = layers[i].getPos()["x"];
+  document.getElementById('layer_y').value = layers[i].getPos()["y"];
+  document.getElementById('layer_w').value = layers[i].getPos()["w"];
+  document.getElementById('layer_h').value = layers[i].getPos()["h"];
+  document.getElementById('layer_radius').value = layers[i].getRadius()
+  document.getElementById('layer_outline').value = layers[i].getLayerSetting('outline');
+  document.getElementById('layer_dither').value = layers[i].getLayerSetting('dither');
+  document.getElementById('layer_inverter').value = layers[i].getLayerSetting('inverter');
+  bg_pickr.setColor(layers[i].getBgColor());
+  fg_pickr.setColor(layers[i].getFgColor());
+
+  layer_info.style.visibility = 'visible'
+
   if(layers[i].getType() == "text"){
-    layer_info.innerHTML = layer_info.innerHTML + `
-    <hr>
-    Text Content: <input type="text" value="${layers[i].getContent()}"
-    onchange="layers[${i}].setContent(this.value);drawLayers();"></input>
-    <br>
-    Text Align: <select
-    onchange="setFontSetting(${i}, 'align', this.value);drawLayers();">
-      <option value="left" ${layers[i].getFontSetting('align')=='left'?'selected':''}>&#8676;</option>
-      <option value="center" ${layers[i].getFontSetting('align')=='center'?'selected':''}>&#8697;</option>
-      <option value="right" ${layers[i].getFontSetting('align')=='right'?'selected':''}>&#8677;</option></select>
-    Word Wrap: <select
-    onchange="setFontSetting(${i}, 'wordWrap', this.value);drawLayers();">
-      <option value="true" ${layers[i].getFontSetting('wordWrap')=='true'?'selected':''}>&#8629;</option>
-      <option value="false" ${layers[i].getFontSetting('wordWrap')=='false'?'selected':''}>&#8230;</option></select>
-    <br>
-    Font Style: <select id="font-style"
-    onchange="setFontStyle(${i});drawLayers();">
-      <option style="font-family:gotham-light"  value="gotham-light"  ${getFontStyle(i)=='gotham-light'?'selected':''} >Bitham Light</option>
-      <option style="font-family:gotham-medium" value="gotham-medium" ${getFontStyle(i)=='gotham-medium'?'selected':''} >Bitham Medium</option>
-      <option style="font-family:gotham-bold"   value="gotham-bold"   ${getFontStyle(i)=='gotham-bold'?'selected':''} >Bitham Bold</option>
-      <option style="font-family:gotham-black"  value="gotham-black"  ${getFontStyle(i)=='gotham-black'?'selected':''} >Bitham Black</option>
-      <option style="font-family:leco-light"    value="leco-light"    ${getFontStyle(i)=='leco-light'?'selected':''}   >LECO Light</option>
-      <option style="font-family:leco-regular"  value="leco-regular"  ${getFontStyle(i)=='leco-regular'?'selected':''}   >LECO Regular</option>
-      <option style="font-family:leco-bold"     value="leco-bold"     ${getFontStyle(i)=='leco-bold'?'selected':''}   >LECO Bold</option>
-      <option style="font-family:gothic"        value="gothic"        ${getFontStyle(i)=='gothic'?'selected':''} >Gothic Regular</option>
-      <option style="font-family:gothic-bold"   value="gothic-bold"   ${getFontStyle(i)=='gothic-bold'?'selected':''} >Gothic Bold</option>
-      <option style="font-family:droid-bold"    value="droid-bold"    ${getFontStyle(i)=='droid-bold'?'selected':''}  >Serif Bold</option></select>
-    Font Size: <select id="font-size"
-    onchange="setFontSizeStyle(${i});drawLayers();"></select>
-    `;
+    document.getElementById('layer_text').value = layers[i].getContent();
+    document.getElementById('layer_align').value = layers[i].getFontSetting('align');
+    document.getElementById('layer_wrap').value = layers[i].getFontSetting('wordWrap');
+    document.getElementById('font-style').value = getFontStyle(i);
+
+    document.getElementById('text_settings').style.visibility = 'visible';
     setFontStyle(i);
-  }
-  layer_info.innerHTML = layer_info.innerHTML + `
-  <hr>
-  <button onclick="disableLayer(${i});">
-    Delete Layer</button>`;
+  } else {
+    document.getElementById('text_settings').style.visibility = 'hidden';
+  } 
+    
+    
+
   for(var child=layer_container.firstChild; child!==null; child=child.nextSibling) {
     let j = child.id;
     if (i == j){
@@ -337,6 +367,7 @@ function addLayer(){
       reorderListData();
       populateList();
       drawLayers();
+      openLayer(i);
       return;
     }
   }

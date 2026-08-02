@@ -48,6 +48,7 @@ pickr.on('cancel', (color, source, instance) => {
     let quant = quantizeColor(rgbaToHex(color.toRGBA().toString(0)));
     background_color = quant;
     drawLayers();
+    console.log(pickr.getRoot())
 }).on('hide', instance => {
     console.log('Event: "hide"', instance);
     pickr.setColor(background_color);
@@ -66,9 +67,9 @@ function rgbaToHex(rgba) {
   return `#${toHex(r)}${toHex(g)}${toHex(b)}${a<0.3?'00':'FF'}`;
 }
 
-if(false){
 
-const pickr1 = Pickr.create({
+
+const bg_pickr = Pickr.create({
     el: '.bg-color-picker',
     theme: 'monolith',
 
@@ -107,7 +108,7 @@ const pickr1 = Pickr.create({
     }
 });
 
-const pickr2 = Pickr.create({
+const fg_pickr = Pickr.create({
     el: '.fg-color-picker',
     theme: 'monolith',
 
@@ -146,4 +147,3 @@ const pickr2 = Pickr.create({
     }
 });
 
-}
