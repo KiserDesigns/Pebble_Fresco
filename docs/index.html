@@ -6,10 +6,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Fresco Settings</title>
-<script src="./layerClass.js"></script>
-<script src="./Sortable.min.js"></script>
-<script src="./strftime.min.js"></script>
-<script src="./lz-string.min.js"></script>
 
   <style>
 @font-face {
@@ -138,6 +134,7 @@ button {
 }
 
   </style>
+<link rel="stylesheet" href="./monolith.min.css"/> <!-- 'monolith' theme -->
 
   
 </head>
@@ -178,7 +175,7 @@ button {
     <button class="square action" style="height:40px" onclick="let v=document.getElementById('main_info');v.style.visibility=v.style.visibility=='hidden'?'visible':'hidden';">&#9881;</button>
     <div style="position:relative" > </div>
     <div id="main_info" class="pad" style="position:absolute;top:calc(40px+2vh);background-color: aqua;">
-      Background Color:<input id='background_color_input' type='color' value='#000000'>
+      Background Color:<input id='background_color_input' type='color' class="main-color-picker" value='#000000'>
       <!-- Temp in F:<input id='temperature_checkbox' type='checkbox'> -->
       Spoof Date/Time:<input type="datetime-local" id="datetime">
       <br>Battery %:<input type="number" id="battery" value="80">
@@ -193,7 +190,12 @@ button {
   <div id="layer_info" class="pad scroller"></div>
 </div>
 
-
+<script src="./layerClass.js"></script>
+<script src="./Sortable.min.js"></script>
+<script src="./strftime.min.js"></script>
+<script src="./lz-string.min.js"></script>
+<script src="./pickr.min.js"></script>
+<script src="./colorPicker.js"></script>
 
   <script>
     // Get a handle to the button's HTML element
@@ -208,12 +210,14 @@ const canvas_container = document.getElementById("canvas_container");
 const layer_container = document.getElementById("layer_container");
 const layer_info = document.getElementById("layer_info");
 
-const background_color = document.getElementById("background_color_input");
+//const background_color = document.getElementById("background_color_input");
 
-background_color.addEventListener("input", function () {
-  this.value = quantizeColor(this.value);
-  drawLayers();
-})
+//background_color.addEventListener("input", function () {
+//  this.value = quantizeColor(this.value);
+//  drawLayers();
+//})
+
+let background_color = '#000000';
 
 document.getElementById("datetime").value = (new Date).strftime("%Y-%m-%dT%H:%M");
 
@@ -268,10 +272,10 @@ function openLayer(i) {
     <option value="true" ${layers[i].getLayerSetting('inverter')=='true'?'selected':''}>Yes</option>
     <option value="false" ${layers[i].getLayerSetting('inverter')=='true'?'':'selected'}>No</option></select>
   <br>
-  Background Color (#RRGGBB[AA]): <input type="text" value="${layers[i].getBgColor()}"
+  Background Color (#RRGGBB[AA]): <input type="text" value="${layers[i].getBgColor()}" class="bg-color-picker"
   onchange="this.value=quantizeColor(this.value);layers[${i}].setBgColor(this.value);drawLayers();"></input>
   <br>
-  Foreground Color (#RRGGBB[AA]): <input type="text" value="${layers[i].getFgColor()}"
+  Foreground Color (#RRGGBB[AA]): <input type="text" value="${layers[i].getFgColor()}" class="fg-color-picker"
   onchange="this.value=quantizeColor(this.value);layers[${i}].setFgColor(this.value);drawLayers();"></input>
   <br>`
   if(layers[i].getType() == "text"){
@@ -520,7 +524,7 @@ function defaultLayers() {
 setInterval(drawLayers, 1000);
 
 function drawLayers() {
-  ctx.fillStyle = background_color.value;
+  ctx.fillStyle = background_color;
   ctx.fillRect(0, 0, plat_w, plat_h);
   for(var child=layer_container.firstChild; child!==null; child=child.nextSibling) {
     let i = parseInt(child.id);
@@ -648,17 +652,18 @@ platform_element.addEventListener("input", getPlatform);
 // Add a 'click' listener
 submitButton.addEventListener("click", function () {
   // Get the config data from the UI elements
-  var background_color = document.getElementById("background_color_input");
+  //var background_color = document.getElementById("background_color_input");
   //var temperatureCheckbox = document.getElementById("temperature_checkbox");
 
   // Make a data object to be sent, coercing value types to integers
   var options = {
-    background_color: parseInt(background_color.value.substr(1, 6), 16),
+    //background_color: parseInt(background_color.value.substr(1, 6), 16),
     //temperature_checkbox: temperatureCheckbox.checked ? 1 : 0,
   };
 
   console.log(
-    parseInt(background_color.value.substr(1, 6), 16),
+//    parseInt(background_color.substr(1, 6), 16),
+    parseInt(background_color.substr(1, 6), 16)
     //temperatureCheckbox.checked ? 1 : 0,
   );
 
