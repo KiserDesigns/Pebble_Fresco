@@ -33,7 +33,7 @@ const pickr = Pickr.create({
             cmyk: false,
             input: true,
             clear: false,
-            cancel: true,
+            cancel: false,
             save: false
         }
     }
@@ -46,9 +46,7 @@ pickr.on('cancel', (color, source, instance) => {
     let quant = quantizeColor(rgbaToHex(color.toRGBA().toString(0)));
     background_color = quant;
     drawLayers();
-    console.log(pickr.getRoot())
 }).on('hide', instance => {
-    console.log('Event: "hide"', instance);
     pickr.setColor(background_color);
 });
 
@@ -100,8 +98,9 @@ const bg_pickr = Pickr.create({
             hsva: false,
             cmyk: false,
             input: true,
-            clear: true,
-            save: true
+            clear: false,
+            cancel: false,
+            save: false
         }
     }
 });
@@ -112,9 +111,7 @@ bg_pickr.on('cancel', (color, source, instance) => {
     let quant = quantizeColor(rgbaToHex(color.toRGBA().toString(0)));
     layers[selected_layer].setBgColor(quant);
     drawLayers();
-    console.log(bg_pickr.getRoot())
 }).on('hide', instance => {
-    console.log('Event: "hide"', instance);
     bg_pickr.setColor(layers[selected_layer].getBgColor());
 });
 
@@ -151,8 +148,9 @@ const fg_pickr = Pickr.create({
             hsva: false,
             cmyk: false,
             input: true,
-            clear: true,
-            save: true
+            clear: false,
+            cancel: false,
+            save: false
         }
     }
 });
@@ -163,8 +161,6 @@ fg_pickr.on('cancel', (color, source, instance) => {
     let quant = quantizeColor(rgbaToHex(color.toRGBA().toString(0)));
     layers[selected_layer].setFgColor(quant);
     drawLayers();
-    console.log(fg_pickr.getRoot())
 }).on('hide', instance => {
-    console.log('Event: "hide"', instance);
     fg_pickr.setColor(layers[selected_layer].getFgColor());
 });
