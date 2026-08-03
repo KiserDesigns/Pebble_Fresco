@@ -44,7 +44,16 @@ input {
   padding: 12px 1px;
 }
 select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+      background-color: white;
+      background-image: url(data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMTAwMCAxMDAwIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPg0KICA8cGF0aCBmaWxsPSJncmF5IiBkPSJNMTAsMjMyLjdsNDkwLDUzNC41bDQ5MC01MzQuNUgxMHoiIC8+DQo8L3N2Zz4=);
+      background-repeat: no-repeat;
+      background-position: right;
+      background-size: 10px;
   padding: 12px 6px;
+  min-width: 60px;
 }
 
 .wide {
@@ -265,7 +274,7 @@ button.action {
           <option value="right">&#8677;</option></select>
         <div class="grow"></div>
         Word Wrap:&nbsp;<select id="layer_wrap"
-          onchange="setFontSetting(${i}, 'wordWrap', this.value);drawLayers();">
+          onchange="setFontSetting(selected_layer, 'wordWrap', this.value);drawLayers();">
           <option value="true">&#8629;</option>
           <option value="false">&#8230;</option></select>
         <div class="grow"></div>
