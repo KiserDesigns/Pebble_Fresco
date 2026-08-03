@@ -89,11 +89,12 @@ button:not(.pcr-last-color){
   aspect-ratio:1/2;
   height:100%;
 }
-.action {
+button.action {
   height:80%;
   aspect-ratio:1/1;
   background-color: white;
   cursor:pointer;
+  padding:0;
 }
 .handle {
   height:80%;
@@ -516,7 +517,7 @@ function populateList() {
   addButton.id = 'add_button'
   addButton.style="background:none;"
   addButton.innerHTML = `<div class="flex center square">
-    <button class="action" onclick="addLayer();">&#128932;</button></div>
+    <button class="action" onclick="addLayer();">&#65291;</button></div>
         <div class="flex center">
           Add Layer
         </div>
