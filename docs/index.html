@@ -4,7 +4,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
   <title>Fresco Settings</title>
 <link rel="stylesheet" href="./fontsheet.css" type="text/css" charset="utf-8" />
   <style>
@@ -30,7 +30,7 @@ canvas {
 }
 
 *:not(body, html) {
-  border: solid 0px red;
+  border: solid 1px red;
   box-sizing: border-box;
 }
 
@@ -89,7 +89,7 @@ button {
   
 </head>
 <body style="max-width:80vh;margin-left:auto;margin-right:auto;">
-  <div class="font_preload" style="opacity: 0">
+  <div class="font_preload" style="position:absolute;opacity: 0">
     <span style="font-family:gotham-light;" ></span> 
     <span style="font-family:gotham-medium;" ></span>
     <span style="font-family:gotham-bold;" ></span>  
@@ -137,18 +137,24 @@ button {
   </div>
   <div >
   </div>
-  <div id="settings_button" style="position:relative" class="pad">
-    <button class="square action" style="height:40px" onclick="let v=document.getElementById('main_info');v.style.visibility=v.style.visibility=='hidden'?'visible':'hidden';">&#9881;</button>
-    <div style="position:relative" > </div>
-    <div id="main_info" class="pad" style="position:absolute;top:calc(40px+2vh);background-color: aqua;">
-      Background Color:<input id='background_color_input' type='color' class="main-color-picker" value='#000000'>
-      <!-- Temp in F:<input id='temperature_checkbox' type='checkbox'> -->
-      Project Name:<input id="project_name" type="text" value="New Project">
+  <div id="settings_button" class="flex center">
+    <div class="pad">
+      <button class="square action" style="position:relative;height:40px" onclick="let v=document.getElementById('main_info');v.style.visibility=v.style.visibility=='hidden'?'visible':'hidden';">&#9881;</button>
+    </div>
+    <div class="pad flex center">
+      Background:<input id='background_color_input' type='color' class="main-color-picker" value='#000000'>
+    </div>
+    <div class="pad">
+      Project:<input id="project_name" type="text" value="New Project">
+    </div>
+  </div>
+  <div style="position:relative">
+    <div id="main_info" class="pad" style="position:absolute;top:-2vh;left:1vh;background-color: aqua;visibility:hidden;">
       Spoof Date/Time:<input type="datetime-local" id="datetime">
       <br>Battery %:<input type="number" id="battery" value="80">
-      Step Count:<input type="number" id="steps" value="4600">
+      <br>Step Count:<input type="number" id="steps" value="4600">
       <br>Heartrate:<input type="number" id="heartrate" value="75">
-      24-Hour Mode:<select id ="time_mode">
+      <br>24-Hour Mode:<select id ="time_mode">
       <option value="24" selected>24</option>
       <option value="12">12</option></select>
     </div>
@@ -228,7 +234,7 @@ button {
   </div>
   <hr>
   <button onclick="disableLayer(selected_layer);">
-    Delete Layer</button>`
+    Delete Layer</button>
   </div>
 </div>
 
@@ -259,8 +265,8 @@ const layer_info = document.getElementById("layer_info");
 //  drawLayers();
 //})
 
-document.getElementById('main_info').style.visibility = 'hidden';
-document.getElementById('layer_info').style.visibility = 'hidden';
+document.getElementById('text_settings').style.display = 'none';
+document.getElementById('layer_info').style.display = 'none';
 
 let background_color = '#000000';
 
@@ -283,7 +289,11 @@ populateList();
 var selected_layer = 0;
 
 function openLayer(i) {
-  if (i<0){ layer_info.style.visibility='hidden';return; }
+  if (i<0){ 
+    layer_info.style.display='none';
+    document.getElementById('text_settings').style.display = 'none';
+    return;
+  }
   selected_layer = i;
   document.getElementById('layer_name').value = layers[i].getName();
   document.getElementById('layer_type').value = layers[i].getType();
@@ -298,7 +308,7 @@ function openLayer(i) {
   bg_pickr.setColor(layers[i].getBgColor());
   fg_pickr.setColor(layers[i].getFgColor());
 
-  layer_info.style.visibility = 'visible'
+  layer_info.style.display = 'block'
 
   if(layers[i].getType() == "text"){
     document.getElementById('layer_text').value = layers[i].getContent();
@@ -306,10 +316,10 @@ function openLayer(i) {
     document.getElementById('layer_wrap').value = layers[i].getFontSetting('wordWrap');
     document.getElementById('font-style').value = getFontStyle(i);
 
-    document.getElementById('text_settings').style.visibility = 'visible';
+    document.getElementById('text_settings').style.display = 'block';
     setFontStyle(i);
   } else {
-    document.getElementById('text_settings').style.visibility = 'hidden';
+    document.getElementById('text_settings').style.display = 'none';
   } 
     
     
