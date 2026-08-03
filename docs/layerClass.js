@@ -215,6 +215,8 @@ class Layer {
     return this.layer_settings[key];
   }
   draw(ctx){
+    let max_w = ctx.canvas.width;
+    let max_h = ctx.canvas.height;
     if (this.type == "rect" || this.type == "text"){
       if (this.bg_color[7] != 0 && !(this.layer_settings["dither"]=="mix"||this.layer_settings["dither"]=="lr"||this.layer_settings["dither"]=="ud")){
         //if the background color is not clear, draw a background
@@ -245,8 +247,8 @@ class Layer {
         
         w = parseInt(this.w);
         h = parseInt(this.h);
-        for (x = this.x; x<parseInt(this.x)+w; x++){
-          for(y = this.y; y<parseInt(this.y)+h; y++){
+        for (x = Max.max(0,this.x); Max.min(max_w,x<parseInt(this.x)+w); x++){
+          for(y = Max.max(0,this.y); Max.min(max_h,y<parseInt(this.y)+h); y++){
             if (ctx.isPointInPath(path, parseInt(x)+0.5, parseInt(y)+0.5)){
               var stroke_color;
               if (this.layer_settings["dither"] == "mix"){
