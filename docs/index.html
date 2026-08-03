@@ -58,6 +58,8 @@ select {
 button {
   font-family: gotham-medium, sans-serif;
   font-size: 16px; 
+}
+button:not(.pcr-last-color){
   padding: 12px 6px;
 }
 
@@ -181,9 +183,6 @@ button {
     </div>
     <div class="grow"></div>
   </div>
-  <div style="position:relative">
-    
-  </div>
   <div id="layer_info" class="pad scroller">
     <div class="flex center">
       Name:&nbsp;<input class="grow" type="text" id="layer_name"
@@ -253,6 +252,7 @@ button {
           <option style="font-family:roboto-cond"   value="roboto-cond"  >Roboto Condensed</option>
           <option style="font-family:roboto-bold"   value="roboto-bold"  >Roboto Bold</option>
           <option style="font-family:droid-bold"    value="droid-bold"   >Serif Bold</option></select>
+        <div class="grow"></div>
         Font Size:&nbsp;<select id="font-size"
           onchange="setFontSizeStyle(selected_layer);drawLayers();"></select>
       </div>
@@ -262,6 +262,7 @@ button {
           <option value="left">&#8676;</option>
           <option value="center">&#8697;</option>
           <option value="right">&#8677;</option></select>
+        <div class="grow"></div>
         Word Wrap:&nbsp;<select id="layer_wrap"
           onchange="setFontSetting(${i}, 'wordWrap', this.value);drawLayers();">
           <option value="true">&#8629;</option>
