@@ -247,8 +247,8 @@ class Layer {
         
         w = parseInt(this.w);
         h = parseInt(this.h);
-        for (x = Max.max(0,this.x); Max.min(max_w,x<parseInt(this.x)+w); x++){
-          for(y = Max.max(0,this.y); Max.min(max_h,y<parseInt(this.y)+h); y++){
+        for (x = Math.max(0,this.x); Math.min(max_w,x<parseInt(this.x)+w); x++){
+          for(y = Math.max(0,this.y); Math.min(max_h,y<parseInt(this.y)+h); y++){
             if (ctx.isPointInPath(path, parseInt(x)+0.5, parseInt(y)+0.5)){
               var stroke_color;
               if (this.layer_settings["dither"] == "mix"){
