@@ -47,7 +47,7 @@
   src: url('./fonts/ttf/raster-gothic-14.woff2'); /* url of the font */
 }
 @font-face{
-  font-family: gothic-14-bold; /* set name */
+  font-family: gothic-bold-14; /* set name */
   src: url('./fonts/ttf/raster-gothic-14-bold.woff2'); /* url of the font */
 }
 @font-face{
@@ -58,6 +58,16 @@
   font-family: gothic-bold; /* set name */
   src: url('./fonts/ttf/raster-gothic-18-bold.woff2'); /* url of the font */
 }
+@font-face{
+  font-family: roboto-cond; /* set name */
+  src: url('./fonts/ttf/Roboto-Condensed.ttf'); /* url of the font */
+}
+@font-face{
+  font-family: roboto-bold; /* set name */
+  src: url('./fonts/ttf/Roboto-Bold.ttf'); /* url of the font */
+}
+
+      
 
     html,
 body {
@@ -252,6 +262,8 @@ button {
       <option style="font-family:leco-bold"     value="leco-bold"    >LECO Bold</option>
       <option style="font-family:gothic"        value="gothic"       >Gothic Regular</option>
       <option style="font-family:gothic-bold"   value="gothic-bold"  >Gothic Bold</option>
+      <option style="font-family:roboto-cond"   value="roboto-cond"  >Roboto Condensed</option>
+      <option style="font-family:roboto-bold"   value="roboto-bold"  >Roboto Bold</option>
       <option style="font-family:droid-bold"    value="droid-bold"   >Serif Bold</option></select>
     Font Size: <select id="font-size"
     onchange="setFontSizeStyle(selected_layer);drawLayers();"></select>
@@ -428,6 +440,10 @@ function setFontStyle(i){
     sizes.push(30);}
   if(style == 'droid-bold'){
     sizes.push(28);}
+  if(style == 'roboto-cond'){
+    sizes.push(21);}
+  if(style == 'roboto-bold'){
+    sizes.push(49);}
   if(style == 'gothic'){
     sizes.push(9);
     sizes.push(14);
@@ -435,7 +451,8 @@ function setFontStyle(i){
     sizes.push(24);
     sizes.push(28);
     sizes.push(36);}
-  if(style == 'gothic-bold'){sizes.push(14);
+  if(style == 'gothic-bold'){
+    sizes.push(14);
     sizes.push(18);
     sizes.push(24);
     sizes.push(28);
@@ -458,8 +475,13 @@ function setFontStyle(i){
 }
 
 function setFontSizeStyle(i){
-  setFontSetting(i, "font", document.getElementById("font-size").value + "px " +
-                            document.getElementById("font-style").value);
+  let style = document.getElementById("font-style").value;
+  let size = document.getElementById("font-size").value
+  if((style == 'gothic' || style == 'gothic-bold') &&
+      (size == '14' || size == '28')){
+        style = style + "-14";
+      }
+  setFontSetting(i, "font", size + "px " + style);
 }
 function getFontSize(i){
   return parseInt(layers[i].getFontSetting("font"));
