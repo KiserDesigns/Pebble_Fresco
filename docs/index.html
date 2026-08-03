@@ -143,6 +143,7 @@ button {
     <div id="main_info" class="pad" style="position:absolute;top:calc(40px+2vh);background-color: aqua;">
       Background Color:<input id='background_color_input' type='color' class="main-color-picker" value='#000000'>
       <!-- Temp in F:<input id='temperature_checkbox' type='checkbox'> -->
+      Project Name:<input id="project_name" type="text" value="New Project">
       Spoof Date/Time:<input type="datetime-local" id="datetime">
       <br>Battery %:<input type="number" id="battery" value="80">
       Step Count:<input type="number" id="steps" value="4600">
@@ -676,8 +677,12 @@ submitButton.addEventListener("click", function () {
     //temperatureCheckbox.checked ? 1 : 0,
   );
 
-  //console.log(JSON.stringify(layers));
+  
   let new_layers = [];
+
+  let project_name = document.getElementById('project_name').value;
+  new_layers.push({"name":project_name, "bg":background_color});
+  //console.log(JSON.stringify(layers));
   for(var child=layer_container.firstChild; child!==null; child=child.nextSibling) {
     let i = parseInt(child.id);
     if (child.id != 'add_button') {
@@ -686,7 +691,7 @@ submitButton.addEventListener("click", function () {
       }
     }
   }
-  download('Fresco_'+platform+'_'+(new Date).getTime()+'.frs',
+  download('Fresco '+project_name+' '+platform+' '+(new Date).getTime()+'.frs',
      LZString.compressToEncodedURIComponent(JSON.stringify(new_layers))
   );
 
@@ -731,10 +736,18 @@ importButton.addEventListener("click", function () {
       }
         console.log( content );
         let parseObject = JSON.parse(content);
-        for( let i=0; i<Math.min(numLayers,parseObject.length); i++){
-          Object.assign(layers[i], parseObject[i]);
+        let offset = 1;
+        if (parseObject[0]['bg'] == undefined){
+          offset = 0;
+        } else {
+          document.getElementById('project_name').value = parseObject[0]["name"];
+          background_color = parseObject[0]["bg"];
+          pickr.setColor(background_color);
         }
-        for(i=parseObject.length;i<numLayers;i++){
+        for( let i=offset; i<Math.min(numLayers,parseObject.length); i++){
+          Object.assign(layers[i-offset], parseObject[i]);
+        }
+        for(i=parseObject.length-offset;i<numLayers;i++){
           layers[i].setLayerSetting("enabled", "false");
         }
         populateList();
