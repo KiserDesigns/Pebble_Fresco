@@ -234,31 +234,31 @@ button.action {
       Name:&nbsp;<input class="grow" type="text" id="layer_name"
         onchange="layers[selected_layer].setName(this.value);document.getElementById('b'+selected_layer).innerHTML=this.value;"></input>
       Layer Type:<select id="layer_type"
-        onchange="layers[selected_layer].setType(this.value);drawLayers();openLayer(selected_layer)">
+        onchange="layers[selected_layer].setType(this.value);drawLayers(fast);openLayer(selected_layer)">
         <option value="rect">&#9633; / &#9675;</option>
         <option value="text">&#127280;&#127281;&#127282;</option></select>
     </div>
     <div class="flex center">
       (X,&nbsp;Y):&nbsp;(<input class="grow" type="number" id="layer_x"
-        onchange="layers[selected_layer].setX(this.value);drawLayers();"></input>
+        onchange="layers[selected_layer].setX(this.value);drawLayers(fast);"></input>
       <button id="xyTrack" class="square track" style="height:40px;">&#129306;</button>
       <input class="grow" type="number" id="layer_y"
-        onchange="layers[selected_layer].setY(this.value);drawLayers();"></input>)
+        onchange="layers[selected_layer].setY(this.value);drawLayers(fast);"></input>)
     </div>
     <div class="flex center">
       (W,&nbsp;H):&nbsp;(<input class="grow" type="number" id="layer_w"
-        onchange="layers[selected_layer].setW(this.value);drawLayers();"></input>
+        onchange="layers[selected_layer].setW(this.value);drawLayers(fast);"></input>
       <button id="whTrack" class="square track" style="height:40px;">&#129306;</button>
       <input class="grow" type="number" id="layer_h"
-        onchange="layers[selected_layer].setH(this.value);drawLayers();"></input>)
+        onchange="layers[selected_layer].setH(this.value);drawLayers(fast);"></input>)
     </div>
     <div class="flex center">
       Radius:&nbsp;<input class="half-wide" type="number" id="layer_radius"
-      onchange="layers[selected_layer].setRadius(this.value);drawLayers();"></input>
+      onchange="layers[selected_layer].setRadius(this.value);drawLayers(fast);"></input>
       <button id="rTrack" class="square track" style="height:40px;">&#129306;</button>
       <div class="grow"></div>
       Inverter?:<select id="layer_inverter"
-      onchange="setLayerSetting(selected_layer, 'inverter', this.value);drawLayers();">
+      onchange="setLayerSetting(selected_layer, 'inverter', this.value);drawLayers(fast);">
         <option value="true">Yes</option>
         <option value="false">No</option></select>
     </div>
@@ -266,7 +266,7 @@ button.action {
       Background Color:&nbsp;<input class="bg-color-picker"></input>
       <div class="grow"></div>
       Draw Outline:<select id="layer_outline"
-        onchange="setLayerSetting(selected_layer, 'outline', this.value);drawLayers();">
+        onchange="setLayerSetting(selected_layer, 'outline', this.value);drawLayers(fast);">
         <option value="true">Yes</option>
         <option value="false">No</option></select>
     </div>
@@ -274,7 +274,7 @@ button.action {
       Foreground Color:&nbsp;<input class="fg-color-picker""></input>
       <div class="grow"></div>
       Gradient Fill:<select id="layer_dither"
-        onchange="setLayerSetting(selected_layer, 'dither', this.value);drawLayers();">
+        onchange="setLayerSetting(selected_layer, 'dither', this.value);drawLayers(fast);">
         <option value="false">No</option>
         <option value="lr"}>&#8646;</option>
         <option value="ud"}>&#8645;</option>
@@ -284,11 +284,11 @@ button.action {
       <hr>
         Text Content:
         <input class="wide" type="text" id="layer_text"
-          onchange="layers[selected_layer].setContent(this.value);drawLayers();"></input>
+          onchange="layers[selected_layer].setContent(this.value);drawLayers(fast);"></input>
       
       <div class="flex center">
         Font Style:&nbsp;<select class="grow" id="font-style"
-          onchange="setFontStyle(selected_layer);drawLayers();">
+          onchange="setFontStyle(selected_layer);drawLayers(fast);">
           <option style="font-family:gotham-light"  value="gotham-light" >Bitham Light</option>
           <option style="font-family:gotham-medium" value="gotham-medium">Bitham Medium</option>
           <option style="font-family:gotham-bold"   value="gotham-bold"  >Bitham Bold</option>
@@ -303,17 +303,17 @@ button.action {
           <option style="font-family:droid-bold"    value="droid-bold"   >Serif Bold</option></select>
         <div class="grow"></div>
         Font Size:&nbsp;<select id="font-size"
-          onchange="setFontSizeStyle(selected_layer);drawLayers();"></select>
+          onchange="setFontSizeStyle(selected_layer);drawLayers(fast);"></select>
       </div>
       <div class="flex center">
         Text Align:&nbsp;<select id="layer_align"
-          onchange="setFontSetting(selected_layer, 'align', this.value);drawLayers();">
+          onchange="setFontSetting(selected_layer, 'align', this.value);drawLayers(fast);">
           <option value="left">&#8676;</option>
           <option value="center">&#8697;</option>
           <option value="right">&#8677;</option></select>
         <div class="grow"></div>
         Word Wrap:&nbsp;<select id="layer_wrap"
-          onchange="setFontSetting(selected_layer, 'wordWrap', this.value);drawLayers();">
+          onchange="setFontSetting(selected_layer, 'wordWrap', this.value);drawLayers(fast);">
           <option value="true">&#8629;</option>
           <option value="false">&#8230;</option></select>
         <div class="grow"></div>
@@ -367,6 +367,8 @@ let background_color = '#000000';
 document.getElementById("datetime").value = (new Date).strftime("%Y-%m-%dT%H:%M");
 
 const numLayers = 25;
+
+const fast = true;
 
 const layers = [];
 
@@ -445,7 +447,7 @@ function addLayer(){
       addLayerToList(layers, i);
       reorderListData();
       populateList();
-      drawLayers();
+      drawLayers(fast);
       openLayer(i);
       document.getElementById(selected_layer).scrollIntoView();
       return true;
@@ -459,7 +461,7 @@ function disableLayer(i){
   openLayer(-1);
   reorderListData();
   populateList();
-  drawLayers();
+  drawLayers(fast);
 }
 
 function duplicateLayer(i){
@@ -570,7 +572,7 @@ document.addEventListener('pointermove', (event) => {
     layer_y.value = new_y;
     if (dx != 0){x_track = event.screenX;}
     if (dy != 0){y_track = event.screenY;}
-    drawLayers();
+    drawLayers(fast);
   }
   if (whTracking) {
     let dw = Math.round((event.screenX - w_track)/2);
@@ -593,7 +595,7 @@ document.addEventListener('pointermove', (event) => {
     }
     if (dw != 0){w_track = event.screenX;}
     if (dh != 0){h_track = event.screenY;}
-    drawLayers();
+    drawLayers(fast);
   }
   if (rTracking) {
     let dr =  Math.round((event.screenY - r_track)/4);
@@ -611,7 +613,7 @@ document.addEventListener('pointermove', (event) => {
       layer_radius.value = new_r;
     }
     if (dr != 0){r_track = event.screenY;}
-    drawLayers();
+    drawLayers(fast);
   }
 });
 
@@ -785,14 +787,14 @@ function defaultLayers() {
 
 setInterval(drawLayers, 1000);
 
-function drawLayers() {
+function drawLayers(drawFast=false) {
   ctx.fillStyle = background_color;
   ctx.fillRect(0, 0, plat_w, plat_h);
   for(var child=layer_container.firstChild; child!==null; child=child.nextSibling) {
     let i = parseInt(child.id);
     if (i >= 0 && i < numLayers){
       if (layers[i].getLayerSetting("enabled")=='true'){
-        layers[i].draw(ctx);
+        layers[i].draw(ctx, drawFast);
         if (i == selected_layer) {
           outline.style.top = layers[i].getPos()["y"] + 'px';
           outline.style.left = layers[i].getPos()["x"] + 'px';
@@ -914,7 +916,7 @@ function getPlatform() {
   }
   console.log(platform, plat_w, plat_h);
   sizePreview();
-  drawLayers();
+  drawLayers(fast);
 }
 platform_element.addEventListener("input", getPlatform);
 
@@ -1010,7 +1012,7 @@ importButton.addEventListener("click", function () {
           layers[i].setLayerSetting("enabled", "false");
         }
         populateList();
-        drawLayers();
+        drawLayers(fast);
     }
 
   }

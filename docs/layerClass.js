@@ -126,6 +126,34 @@ function wrapText(ctx, text, x, y, maxWidth, maxHeight, lineHeight, wordWrap = "
     if (y <= maxY) { ctx.fillText(currentLine.slice(0,-1), plotX, parseInt(y)+parseInt(lineHeight)); }
 }
 
+function colorMix(c1, c2){
+  let r1,r2,r,g1,g2,g,b1,b2,b,a1,a2,a;
+  r1 = parseInt(c1[1],16)/15;
+  r1*=r1;
+  g1 = parseInt(c1[3],16)/15;
+  g1*=g1;
+  b1 = parseInt(c1[5],16)/15;
+  b1*=b1;
+  a1 = parseInt(c1[7],16)/15;
+  a1*=a1;
+  r2 = parseInt(c2[1],16)/15;
+  r2*=r2;
+  g2 = parseInt(c2[3],16)/15;
+  g2*=g2;
+  b2 = parseInt(c2[5],16)/15;
+  b2*=b2;
+  a2 = parseInt(c2[7],16)/15;
+  a2*=a2;
+  if (isNaN(a1)){a1 = 1};
+  if (isNaN(a2)){a2 = 1};
+  r = Math.round(15*(r1+r2)*(r1+r2)/4).toString(16);
+  g = Math.round(15*(g1+g2)*(g1+g2)/4).toString(16);
+  b = Math.round(15*(b1+b2)*(b1+b2)/4).toString(16);
+  a = Math.round(15*(a1+a2)*(a1+a2)/4).toString(16);
+  
+  return "#"+r+r+g+g+b+b+a+a;
+}
+
 class Layer {
   constructor(){
     this.name = "New Layer";
@@ -214,7 +242,7 @@ class Layer {
   getLayerSetting(key){
     return this.layer_settings[key];
   }
-  draw(ctx){
+  draw(ctx, drawFast=false){
     let max_w = ctx.canvas.width;
     let max_h = ctx.canvas.height;
     if (this.type == "rect" || this.type == "text"){
@@ -226,57 +254,81 @@ class Layer {
         ctx.fill();
       }
       if ((this.layer_settings["dither"]=="mix"||this.layer_settings["dither"]=="lr"||this.layer_settings["dither"]=="ud")){
-        const bayer8x8 = [
-          [0,  32, 8,  40, 2,  34, 10, 42],
-          [48, 16, 56, 24, 50, 18, 58, 26],
-          [12, 44, 4,  36, 14, 46, 6, 38],
-          [60, 28, 52, 20, 62, 30, 54, 22],
-          [3,  35, 11, 43, 1,  33, 9,  41],
-          [51, 19, 59, 27, 49, 17, 57, 25], 
-          [15, 47, 7,  39, 13, 45, 5,  37],
-          [63, 31, 55, 23, 61, 29, 53, 21]
-        ];
+        if (drawFast == true){
+          let gradient, start_color, mix_color, end_color;
+          mix_color = colorMix(this.bg_color, this.fg_color);
+          if (this.layer_settings["dither"]=="lr"){
+            gradient = ctx.createLinearGradient(this.x, this.y, this.x+this.w, this.y);
+          } else {
+            gradient = ctx.createLinearGradient(this.x, this.y, this.x, this.y+this.h);
+          }
+          if (this.layer_settings["dither"]=="mix"){
+            start_color = mix_color;
+            end_color = mix_color;
+          } else {
+            start_color = this.bg_color;
+            end_color = this.fg_color;
+          }
+          gradient.addColorStop(0, start_color);
+          gradient.addColorStop(0.5, mix_color);
+          gradient.addColorStop(1, end_color);
+          ctx.fillStyle = gradient;
+          ctx.beginPath();
+          ctx.roundRect(this.x, this.y, this.w, this.h, Math.max(0,this.radius));
+          ctx.fill();
+        } else {
+          const bayer8x8 = [
+            [0,  32, 8,  40, 2,  34, 10, 42],
+            [48, 16, 56, 24, 50, 18, 58, 26],
+            [12, 44, 4,  36, 14, 46, 6, 38],
+            [60, 28, 52, 20, 62, 30, 54, 22],
+            [3,  35, 11, 43, 1,  33, 9,  41],
+            [51, 19, 59, 27, 49, 17, 57, 25], 
+            [15, 47, 7,  39, 13, 45, 5,  37],
+            [63, 31, 55, 23, 61, 29, 53, 21]
+          ];
 
-        let path = new Path2D();
-        var x = parseInt(this.x);
-        var y = parseInt(this.y);
-        var w = parseInt(this.w);
-        var h = parseInt(this.h);
-        var r = Math.max(0,parseInt(this.radius));
-        path.roundRect(x,y,w,h,r);
-        
-        w = parseInt(this.w);
-        h = parseInt(this.h);
-        for (x = Math.max(0,this.x); Math.min(max_w,x<parseInt(this.x)+w); x++){
-          for(y = Math.max(0,this.y); Math.min(max_h,y<parseInt(this.y)+h); y++){
-            if (ctx.isPointInPath(path, parseInt(x)+0.5, parseInt(y)+0.5)){
-              var stroke_color;
-              if (this.layer_settings["dither"] == "mix"){
-                if (((x-this.x)+(y-this.y))%2){
-                  stroke_color = this.fg_color;
+          let path = new Path2D();
+          var x = parseInt(this.x);
+          var y = parseInt(this.y);
+          var w = parseInt(this.w);
+          var h = parseInt(this.h);
+          var r = Math.max(0,parseInt(this.radius));
+          path.roundRect(x,y,w,h,r);
+          
+          w = parseInt(this.w);
+          h = parseInt(this.h);
+          for (x = Math.max(0,this.x); Math.min(max_w,x<parseInt(this.x)+w); x++){
+            for(y = Math.max(0,this.y); Math.min(max_h,y<parseInt(this.y)+h); y++){
+              if (ctx.isPointInPath(path, parseInt(x)+0.5, parseInt(y)+0.5)){
+                var stroke_color;
+                if (this.layer_settings["dither"] == "mix"){
+                  if (((x-this.x)+(y-this.y))%2){
+                    stroke_color = this.fg_color;
+                  } else {
+                    stroke_color = this.bg_color;
+                  }
+                  if (stroke_color[7] != 0){
+                    ctx.fillStyle = stroke_color;
+                    ctx.fillRect(x,y,1,1);
+                  }
                 } else {
-                  stroke_color = this.bg_color;
-                }
-                if (stroke_color[7] != 0){
-                  ctx.fillStyle = stroke_color;
-                  ctx.fillRect(x,y,1,1);
-                }
-              } else {
-                var threshold = 0;
-                if (this.layer_settings["dither"] == "lr"){
-                  threshold = ((x-this.x) * 64) / (w-1); //it's Left/Right
-                } else if (this.layer_settings["dither"] == "ud") {
-                  threshold = ((y-this.y) * 64) / (h-1); //it's Up/Down
-                }
-                let bayer = bayer8x8[(x-this.x)%8][(y-this.y)%8];
-                if (threshold > bayer){
-                  stroke_color = this.fg_color;
-                } else {
-                  stroke_color = this.bg_color;
-                }
-                if (stroke_color != 0){
-                  ctx.fillStyle = stroke_color;
-                  ctx.fillRect(x,y,1,1);
+                  var threshold = 0;
+                  if (this.layer_settings["dither"] == "lr"){
+                    threshold = ((x-this.x) * 64) / (w-1); //it's Left/Right
+                  } else if (this.layer_settings["dither"] == "ud") {
+                    threshold = ((y-this.y) * 64) / (h-1); //it's Up/Down
+                  }
+                  let bayer = bayer8x8[(x-this.x)%8][(y-this.y)%8];
+                  if (threshold > bayer){
+                    stroke_color = this.fg_color;
+                  } else {
+                    stroke_color = this.bg_color;
+                  }
+                  if (stroke_color != 0){
+                    ctx.fillStyle = stroke_color;
+                    ctx.fillRect(x,y,1,1);
+                  }
                 }
               }
             }
