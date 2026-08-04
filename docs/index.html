@@ -135,7 +135,7 @@ button.action {
 }
 .outliner {
   box-sizing:content-box;
-  outline:0.8vh solid rgb(0, 130, 173);
+  box-shadow: 0 0 0 0.8vh rgb(0, 130, 173);
   position: absolute;
   top: 0;
   left: 0;
@@ -143,6 +143,7 @@ button.action {
   height: 228px;
   padding: inherit;
   z-index: 8888;
+  pointer-events: none;
 }
 @keyframes fade {
 0%, 100% { opacity: 80%; }
@@ -406,6 +407,7 @@ function openLayer(i) {
   outline.style.left = layers[i].getPos()["x"] + 'px';
   outline.style.width = layers[i].getPos()["w"] + 'px';
   outline.style.height = layers[i].getPos()["h"] + 'px';
+  outline.style.borderRadius = layers[i].getRadius() + 'px';
   outline.style.display = 'block';
 
   layer_info.style.display = 'block'
@@ -796,6 +798,7 @@ function drawLayers() {
           outline.style.left = layers[i].getPos()["x"] + 'px';
           outline.style.width = layers[i].getPos()["w"] + 'px';
           outline.style.height = layers[i].getPos()["h"] + 'px';
+          outline.style.borderRadius = layers[i].getRadius() + 'px';
         }
       }
     }
