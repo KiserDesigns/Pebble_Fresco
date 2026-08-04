@@ -240,6 +240,12 @@ class Layer {
     return this.layer_settings[key];
   }
   draw(ctx, drawFast=false){
+    this.x = parseInt(this.x);
+    this.y = parseInt(this.y);
+    this.w = parseInt(this.w);
+    this.h = parseInt(this.h);
+    this.radius = parseInt(this.radius);
+
     drawFast ||= xyTracking || whTracking || rTracking;
     let max_w = ctx.canvas.width;
     let max_h = ctx.canvas.height;
@@ -285,18 +291,18 @@ class Layer {
           ];
 
           let path = new Path2D();
-          var x = parseInt(this.x);
-          var y = parseInt(this.y);
-          var w = parseInt(this.w);
-          var h = parseInt(this.h);
-          var r = Math.max(0,parseInt(this.radius));
+          var x = this.x;
+          var y = this.y;
+          var w = this.w;
+          var h = this.h;
+          var r = Math.max(0,radius);
           path.roundRect(x,y,w,h,r);
           
-          w = parseInt(this.w);
-          h = parseInt(this.h);
-          for (x = Math.max(0,this.x); Math.min(max_w,x<parseInt(this.x)+w); x++){
-            for(y = Math.max(0,this.y); Math.min(max_h,y<parseInt(this.y)+h); y++){
-              if (ctx.isPointInPath(path, parseInt(x)+0.5, parseInt(y)+0.5)){
+          w = this.w;
+          h = this.h;
+          for (x = Math.max(0,this.x); Math.min(max_w,x<this.x+w); x++){
+            for(y = Math.max(0,this.y); Math.min(max_h,y<this.y+h); y++){
+              if (ctx.isPointInPath(path, x+0.5, y+0.5)){
                 var stroke_color;
                 if (this.layer_settings["dither"] == "mix"){
                   if (((x-this.x)+(y-this.y))%2){
@@ -336,11 +342,11 @@ class Layer {
         ctx.strokeStyle = this.fg_color;
         ctx.lineWidth = 1;
         ctx.beginPath();
-        var x = parseInt(this.x)+0.5;
-        var y = parseInt(this.y)+0.5;
-        var w = parseInt(this.w)-1;
-        var h = parseInt(this.h)-1;
-        var r = Math.max(0,parseInt(this.radius)-0.5);
+        var x = this.x+0.5;
+        var y = this.y+0.5;
+        var w = this.w-1;
+        var h = this.h-1;
+        var r = Math.max(0,this.radius-0.5);
         ctx.roundRect(x,y,w,h,r);
         //ctx.roundRect(this.x, this.y, this.w, this.h, this.radius);
         ctx.stroke();
