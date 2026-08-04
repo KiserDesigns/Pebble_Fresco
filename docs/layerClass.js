@@ -253,19 +253,17 @@ class Layer {
       if ((this.layer_settings["dither"]=="mix"||this.layer_settings["dither"]=="lr"||this.layer_settings["dither"]=="ud")){
         if (drawFast == true){
           let gradient, start_color, mix_color, end_color;
+          start_color = this.bg_color;
+          end_color = this.fg_color;
           mix_color = colorMix(this.bg_color, this.fg_color);
+          gradient = ctx.createLinearGradient(this.x, this.y, this.x, this.y+this.h);
           if (this.layer_settings["dither"]=="lr"){
             gradient = ctx.createLinearGradient(this.x, this.y, this.x+this.w, this.y);
-          } else {
-            gradient = ctx.createLinearGradient(this.x, this.y, this.x, this.y+this.h);
           }
           if (this.layer_settings["dither"]=="mix"){
             start_color = mix_color;
             end_color = mix_color;
-          } else {
-            start_color = this.bg_color;
-            end_color = this.fg_color;
-          }
+          } 
           gradient.addColorStop(0, start_color);
           gradient.addColorStop(0.5, mix_color);
           gradient.addColorStop(1, end_color);
