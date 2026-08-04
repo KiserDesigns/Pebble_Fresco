@@ -342,7 +342,7 @@ const submitButton = document.getElementById("submit_button");
 const importButton = document.getElementById("import_button");
 const platform_element = document.getElementById("platform");
 const preview = document.getElementById("preview");
-const ctx = preview.getContext("2d");
+const ctx = preview.getContext("2d", {willReadFrequently:true});
 const mask = document.getElementById("mask");
 const mask_ctx = mask.getContext("2d");
 const canvas_container = document.getElementById("canvas_container");
@@ -596,9 +596,14 @@ document.addEventListener('pointermove', (event) => {
   if (rTracking) {
     let dr =  Math.round((event.screenY - r_track)/4);
     let new_r = parseInt(layer_radius.value) + dr;
+    let max_r = Math.floor(Math.min(layers[selected_layer].getPos()["w"],
+                        layers[selected_layer].getPos()["h"])/2);
     if (new_r < 0) {
       layers[selected_layer].setRadius(0);
       layer_radius.value = 0;
+    } else if( new_r > max_r){
+      layers[selected_layer].setRadius(max_r);
+      layer_radius.value = max_r;
     } else {
       layers[selected_layer].setRadius(new_r);
       layer_radius.value = new_r;
