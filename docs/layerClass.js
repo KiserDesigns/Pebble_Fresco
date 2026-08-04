@@ -295,7 +295,7 @@ class Layer {
           var y = this.y;
           var w = this.w;
           var h = this.h;
-          var r = Math.max(0,radius);
+          var r = Math.max(0,this.radius);
           path.roundRect(x,y,w,h,r);
           
           w = this.w;
