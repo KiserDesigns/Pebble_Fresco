@@ -129,29 +129,26 @@ function wrapText(ctx, text, x, y, maxWidth, maxHeight, lineHeight, wordWrap = "
 function colorMix(c1, c2){
   let r1,r2,r,g1,g2,g,b1,b2,b,a1,a2,a;
   r1 = parseInt(c1[1],16)/15;
-  r1*=r1;
   g1 = parseInt(c1[3],16)/15;
-  g1*=g1;
   b1 = parseInt(c1[5],16)/15;
-  b1*=b1;
   a1 = parseInt(c1[7],16)/15;
-  a1*=a1;
   r2 = parseInt(c2[1],16)/15;
-  r2*=r2;
   g2 = parseInt(c2[3],16)/15;
-  g2*=g2;
   b2 = parseInt(c2[5],16)/15;
-  b2*=b2;
   a2 = parseInt(c2[7],16)/15;
-  a2*=a2;
   if (isNaN(a1)){a1 = 1};
   if (isNaN(a2)){a2 = 1};
-  r = Math.round(15*(r1+r2)*(r1+r2)/4).toString(16);
-  g = Math.round(15*(g1+g2)*(g1+g2)/4).toString(16);
-  b = Math.round(15*(b1+b2)*(b1+b2)/4).toString(16);
-  a = Math.round(15*(a1+a2)*(a1+a2)/4).toString(16);
-  
+  r = Math.round(15*blend(r1,r2)).toString(16);
+  g = Math.round(15*blend(g1,g2)).toString(16);
+  b = Math.round(15*blend(b1,b2)).toString(16);
+  a = Math.round(15*(a1+a2)/2).toString(16);
   return "#"+r+r+g+g+b+b+a+a;
+}
+
+function blend(c1,c2){
+  let a = c1*c1;
+  let b = c2*c2;
+  return Math.sqrt((a+b)/2);
 }
 
 class Layer {
