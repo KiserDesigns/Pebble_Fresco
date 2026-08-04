@@ -240,6 +240,7 @@ class Layer {
     return this.layer_settings[key];
   }
   draw(ctx, drawFast=false){
+    drawFast ||= xyTracking || whTracking || rTracking;
     let max_w = ctx.canvas.width;
     let max_h = ctx.canvas.height;
     if (this.type == "rect" || this.type == "text"){
