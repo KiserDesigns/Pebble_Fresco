@@ -470,9 +470,9 @@ function disableLayer(i){
 }
 
 function duplicateLayer(i){
-  let current_layer = i;
+  let current_layer = JSON.stringify(layers[i]);
   if (addLayer()){
-    Object.assign(layers[selected_layer], JSON.parse(JSON.stringify(layers[current_layer])));
+    Object.assign(layers[selected_layer], JSON.parse(current_layer));
     layers[selected_layer].setName('('+layers[selected_layer].getName()+')')
     populateList();
     openLayer(selected_layer);
