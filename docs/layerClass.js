@@ -161,7 +161,7 @@ class Layer {
     this.h = 50;
     this.layer_settings = {"enabled":"false","outline":"true"};
     this.content_settings = {};
-    this.font_settings = {"align":"left","wordWap":"false","font":"18px gotham-light"}; // font, align, and wordWrap
+    this.font_settings = {"align":"left","wordWrap":"false","font":"18px gotham-light"}; // font, align, and wordWrap
     this.radius = 10;
     this.dynamic = {};
     this.fg_color = "#00AAAA";

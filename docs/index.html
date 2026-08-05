@@ -380,6 +380,8 @@ const layers = [];
 var platform;
 var plat_w;
 var plat_h;
+
+const inApp = false; //getPlatform will determine if we are in the Pebble app 
 //init. May need to guard this until page/js completely loaded
 getPlatform();
 defaultLayers();
@@ -906,8 +908,10 @@ function getPlatform() {
   if (platform != "none") {
     platform_element.value = platform;
     platform_element.disabled = true;
+    inApp = true;
   } else {
     platform = platform_element.value;
+    inApp = false;
   }
   switch (platform) {
     case "chalk":
@@ -943,54 +947,47 @@ submitButton.addEventListener("click", function () {
   //var background_color = document.getElementById("background_color_input");
   //var temperatureCheckbox = document.getElementById("temperature_checkbox");
 
+  if (inApp){
   // Make a data object to be sent, coercing value types to integers
-  var options = {
-    //background_color: parseInt(background_color.value.substr(1, 6), 16),
-    //temperature_checkbox: temperatureCheckbox.checked ? 1 : 0,
-  };
+    var options = {
+      background_color: parseInt(background_color.value.substr(1, 6), 16)
+      //temperature_checkbox: temperatureCheckbox.checked ? 1 : 0,
+    };
 
-  console.log(
-//    parseInt(background_color.substr(1, 6), 16),
-    parseInt(background_color.substr(1, 6), 16)
-    //temperatureCheckbox.checked ? 1 : 0,
-  );
+    console.log(
+      parseInt(background_color.substr(1, 6), 16)
+      //temperatureCheckbox.checked ? 1 : 0,
+    );
+    
+      // Determine the correct return URL (emulator vs real watch)
+      var return_to = getQueryParam("return_to", "pebblejs://close#");
+
+      // Encode and send the data when the page closes
+      document.location = return_to + encodeURIComponent(JSON.stringify(options));
+      
 
   
-  let new_layers = [];
+  } else {
+  
+    let new_layers = [];
 
-  let project_name = document.getElementById('project_name').value;
-  new_layers.push({"name":project_name, "bg":background_color});
-  //console.log(JSON.stringify(layers));
-  for(var child=layer_container.firstChild; child!==null; child=child.nextSibling) {
-    let i = parseInt(child.id);
-    if (child.id != 'add_button') {
-      if (layers[i].getLayerSetting("enabled") == "true"){
-        new_layers.push(layers[i]);
+    let project_name = document.getElementById('project_name').value;
+    new_layers.push({"name":project_name, "bg":background_color});
+    //console.log(JSON.stringify(layers));
+    for(var child=layer_container.firstChild; child!==null; child=child.nextSibling) {
+      let i = parseInt(child.id);
+      if (child.id != 'add_button') {
+        if (layers[i].getLayerSetting("enabled") == "true"){
+          new_layers.push(layers[i]);
+        }
       }
     }
+    download('Fresco '+project_name+' '+platform+' '+(new Date).getTime()+'.frs',
+      LZString.compressToEncodedURIComponent(JSON.stringify(new_layers))
+    );
+  
   }
-  download('Fresco '+project_name+' '+platform+' '+(new Date).getTime()+'.frs',
-     LZString.compressToEncodedURIComponent(JSON.stringify(new_layers))
-  );
 
-  // Determine the correct return URL (emulator vs real watch)
-  var return_to = getQueryParam("return_to", "pebblejs://close#");
-
-
-  // Encode and send the data when the page closes
-  /*****************************
-  document.location = return_to + encodeURIComponent(JSON.stringify(options));
-  ******************************/
-
-
-
-
-  //fetch(return_to + encodeURIComponent(JSON.stringify(options)));
-
-  //const iframe = document.createElement("iframe");
-  //iframe.src = return_to + encodeURIComponent(JSON.stringify(options));
-  //iframe.style.display = "none";
-  //document.body.appendChild(iframe);
 });
 
 importButton.addEventListener("click", function () {
