@@ -565,10 +565,18 @@ document.addEventListener('pointercancel', (e) => {
   console.log('Tracking stopped.');
 });
 
+function dragHysteresis(d) {
+  if ( Math.abs(d) <= 3 ) {
+    return Math.round(d/4);
+  } else {
+    return d>0?d-3:d+3;
+  }
+}
+
 document.addEventListener('pointermove', (event) => {
   if (xyTracking) {
-    let dx = Math.round((event.screenX - x_track)/2);
-    let dy = Math.round((event.screenY - y_track)/2);
+    let dx = dragHysteresis(Math.round((event.screenX - x_track)/2));
+    let dy = dragHysteresis(Math.round((event.screenY - y_track)/2));
     let new_x = parseInt(layer_x.value) + dx;
     let new_y = parseInt(layer_y.value) + dy;
     layers[selected_layer].setX(new_x);
@@ -580,8 +588,8 @@ document.addEventListener('pointermove', (event) => {
     drawLayers(fast);
   }
   if (whTracking) {
-    let dw = Math.round((event.screenX - w_track)/2);
-    let dh = Math.round((event.screenY - h_track)/2);
+    let dw = dragHysteresis(Math.round((event.screenX - w_track)/2));
+    let dh = dragHysteresis(Math.round((event.screenY - h_track)/2));
     let new_w = parseInt(layer_w.value) + dw;
     let new_h = parseInt(layer_h.value) + dh;
     if (new_w < 0) {
@@ -603,7 +611,7 @@ document.addEventListener('pointermove', (event) => {
     drawLayers(fast);
   }
   if (rTracking) {
-    let dr =  Math.round((event.screenY - r_track)/4);
+    let dr =  dragHysteresis(Math.round((event.screenY - r_track)/4));
     let new_r = parseInt(layer_radius.value) + dr;
     let max_r = Math.floor(Math.min(layers[selected_layer].getPos()["w"],
                         layers[selected_layer].getPos()["h"])/2);
