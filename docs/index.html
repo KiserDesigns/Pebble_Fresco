@@ -950,7 +950,7 @@ submitButton.addEventListener("click", function () {
   if (true){
   // Make a data object to be sent, coercing value types to integers
     var options = {
-      background_color: parseInt(background_color.value.substr(1, 6), 16)
+      background_color: parseInt(background_color.substr(1, 6), 16)
       //temperature_checkbox: temperatureCheckbox.checked ? 1 : 0,
     };
 
