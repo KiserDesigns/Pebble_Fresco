@@ -953,9 +953,27 @@ submitButton.addEventListener("click", function () {
       background_color: parseInt(background_color.substr(1, 6), 16)
       //temperature_checkbox: temperatureCheckbox.checked ? 1 : 0,
     };
+    for (let i = 0; i<numLayers; i++){
+      var layer = {};
+      if(layers[i].getLayerSetting("enabled") == "true"){
+      layer['t'] = layers[i].getType();
+      layer['p'] = layers[i].getPos();
+      layer['l'] = layers[i].getLayerSettings();
+      layer['s'] = layers[i].getContentSettings();
+      layer['n'] = layers[i].getFontSettings();
+      layer['r'] = layers[i].getRadius();
+      layer['d'] = layers[i].getDynamics();
+      layer['f'] = parseInt(layers[i].getFgColor().substr(1, 6), 16);
+      layer['b'] = parseInt(layers[i].getBgColor().substr(1, 6), 16);
+      layer['c'] = layers[i].getContent();
+      } else {
+        layer['l'] = {"enabled":"false"};
+      }
+      options[i] = layer;
+    }
 
     console.log(
-      parseInt(background_color.substr(1, 6), 16)
+      JSON.stringify(options)
       //temperatureCheckbox.checked ? 1 : 0,
     );
     
@@ -963,7 +981,9 @@ submitButton.addEventListener("click", function () {
       var return_to = getQueryParam("return_to", "pebblejs://close#");
 
       // Encode and send the data when the page closes
+      if (inApp){
       document.location = return_to + encodeURIComponent(JSON.stringify(options));
+      }
       
 
   

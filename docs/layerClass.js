@@ -174,6 +174,9 @@ class Layer {
   getFontSetting(key){
     return this.font_settings[key];
   }
+  getFontSettings(){
+    return this.font_settings;
+  }
   setContent(content){
     this.content = content;
   }
@@ -227,17 +230,26 @@ class Layer {
   getDynamic(key){
     return this.dynamic[key];
   }
+  getDynamics(){
+    return this.dynamic;
+  }
   setContentSetting(key, value){
     this.content_settings[key] = value;
   }
   getContentSetting(key){
     return this.content_settings[key];
   }
+  getContentSettings(){
+    return this.content_settings;
+  }
   setLayerSetting(key, value){
     this.layer_settings[key] = value;
   }
   getLayerSetting(key){
     return this.layer_settings[key];
+  }
+  getLayerSettings(){
+    return this.layer_settings;
   }
   draw(ctx, drawFast=false){
     this.x = parseInt(this.x);
