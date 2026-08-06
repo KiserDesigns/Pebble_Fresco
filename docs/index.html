@@ -964,7 +964,9 @@ submitButton.addEventListener("click", function () {
       layer['r'] = layers[i].getRadius();
       layer['d'] = layers[i].getDynamics();
       layer['f'] = parseInt(layers[i].getFgColor().substr(1, 6), 16);
+      if (layers[i].getFgColor()[7]=="0"){layer['f']+=16777888;}
       layer['b'] = parseInt(layers[i].getBgColor().substr(1, 6), 16);
+      if (layers[i].getBgColor()[7]=="0"){layer['b']+=16777888;}
       layer['c'] = layers[i].getContent();
       } else {
         layer['l'] = {"enabled":"false"};
