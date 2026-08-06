@@ -124,7 +124,7 @@ bool prv_in_rect(int w, int h, uint16_t radius, uint16_t x, uint16_t y){
     static const uint32_t round_top_corner_lookup[] = {
       0x0, 0x01, 0x01, 0x12, 0x113, 0x123, 0x1234, 0x11235, 0x112346,
     };
-    APP_LOG (APP_LOG_LEVEL_INFO, "x=%u, y=%u, mask=%u", x, y, 0x0F&&(round_top_corner_lookup[radius] >> (4*y)));
+    //APP_LOG (APP_LOG_LEVEL_INFO, "x=%u, y=%u, mask=%u", x, y, 0x0F&&(round_top_corner_lookup[radius] >> (4*y)));
     if (x >= (0x0F&(round_top_corner_lookup[radius] >> (4*y)))){
       return true;
     }

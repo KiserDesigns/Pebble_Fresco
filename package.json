@@ -19,22 +19,21 @@
             "CONDITIONS",
             "REQUEST_WEATHER",
             "MainBGColor",
-            "MainFGColor",
             "TemperatureUnit",
             "JSReady",
-            "LayerSettings",
-            "ContentSettings",
-            "Radius",
-            "X",
-            "Y",
-            "W",
-            "H",
-            "BGColor",
-            "FGColor",
-            "Type",
-            "Font",
-            "Dynamic",
-            "Content"
+            "LayerSettings[25]",
+            "ContentSettings[25]",
+            "Radius[25]",
+            "X[25]",
+            "Y[25]",
+            "W[25]",
+            "H[25]",
+            "BGColor[25]",
+            "FGColor[25]",
+            "Type[25]",
+            "Font[25]",
+            "Dynamic[25]",
+            "Content[25]"
         ],
         "projectType": "native",
         "resources": {
@@ -55,5 +54,5 @@
             "watchface": true
         }
     },
-    "version": "0.0.5"
+    "version": "0.1.0"
 }

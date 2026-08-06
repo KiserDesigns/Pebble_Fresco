@@ -4,7 +4,9 @@
 // https://virtual-graph-paper.com/index.html?edit=201155e1c240
 // https://simonwep.github.io/pickr/
 
-const Keys = require('message_keys');
+const keys = require('message_keys');
+
+const numLayers = 25;
 
 // Helper function for XMLHttpRequest
 var xhrRequest = function (url, type, callback) {
@@ -117,27 +119,14 @@ Pebble.addEventListener('showConfiguration', function() {
 
 Pebble.addEventListener('webviewclosed', function(e) {
   // Decode the user's preferences
-  //var configData = JSON.parse(decodeURIComponent(e.response));
-  var configData = JSON.parse('{"0":{"t":"rect","p":{"x":15,"y":15,"w":40,"h":40},"l":{"enabled":"true","outline":"true"},"s":{},"n":{"align":"left","wordWrap":"false","font":"18px gotham-light"},"r":20,"d":{},"f":65280,"b":11141120,"c":"%S/59"},"1":{"t":"rect","p":{"x":25,"y":25,"w":60,"h":20},"l":{"enabled":"true","outline":"true","inverter":"true"},"s":{},"n":{"align":"left","wordWrap":"false","font":"18px gotham-light"},"r":5,"d":{},"f":43690,"b":0,"c":"%S/59"},"2":{"t":"rect","p":{"x":40,"y":20,"w":60,"h":30},"l":{"enabled":"true","outline":"true","dither":"lr"},"s":{},"n":{"align":"left","wordWrap":"false","font":"18px gotham-light"},"r":10,"d":{},"f":22015,"b":0,"c":"%S/59"},"3":{"t":"text","p":{"x":20,"y":60,"w":100,"h":50},"l":{"enabled":"true","outline":"true"},"s":{},"n":{"align":"left","wordWrap":"true","font":"18px gotham-light"},"r":10,"d":{},"f":16777215,"b":0,"c":"Hello World a bb ccc dddd eeeee"},"4":{"l":{"enabled":"false"}},"5":{"l":{"enabled":"false"}},"6":{"l":{"enabled":"false"}},"7":{"l":{"enabled":"false"}},"8":{"l":{"enabled":"false"}},"9":{"l":{"enabled":"false"}},"10":{"l":{"enabled":"false"}},"11":{"l":{"enabled":"false"}},"12":{"l":{"enabled":"false"}},"13":{"l":{"enabled":"false"}},"14":{"l":{"enabled":"false"}},"15":{"l":{"enabled":"false"}},"16":{"l":{"enabled":"false"}},"17":{"l":{"enabled":"false"}},"18":{"l":{"enabled":"false"}},"19":{"l":{"enabled":"false"}},"20":{"l":{"enabled":"false"}},"21":{"l":{"enabled":"false"}},"22":{"l":{"enabled":"false"}},"23":{"l":{"enabled":"false"}},"24":{"l":{"enabled":"false"}},"background_color":5592320}');
+  var configData = JSON.parse(decodeURIComponent(e.response));
+  //var configData = JSON.parse('{"0":{"t":"rect","p":{"x":15,"y":15,"w":40,"h":40},"l":{"enabled":"true","outline":"true"},"s":{},"n":{"align":"left","wordWrap":"false","font":"18px gotham-light"},"r":20,"d":{},"f":65280,"b":11141120,"c":"%S/59"},"1":{"t":"rect","p":{"x":25,"y":25,"w":60,"h":20},"l":{"enabled":"true","outline":"true","inverter":"true"},"s":{},"n":{"align":"left","wordWrap":"false","font":"18px gotham-light"},"r":5,"d":{},"f":43690,"b":0,"c":"%S/59"},"2":{"t":"rect","p":{"x":40,"y":20,"w":60,"h":30},"l":{"enabled":"true","outline":"true","dither":"lr"},"s":{},"n":{"align":"left","wordWrap":"false","font":"18px gotham-light"},"r":10,"d":{},"f":22015,"b":0,"c":"%S/59"},"3":{"t":"text","p":{"x":20,"y":60,"w":100,"h":50},"l":{"enabled":"true","outline":"true"},"s":{},"n":{"align":"left","wordWrap":"true","font":"18px gotham-light"},"r":10,"d":{},"f":16777215,"b":0,"c":"Hello World a bb ccc dddd eeeee"},"4":{"l":{"enabled":"false"}},"5":{"l":{"enabled":"false"}},"6":{"l":{"enabled":"false"}},"7":{"l":{"enabled":"false"}},"8":{"l":{"enabled":"false"}},"9":{"l":{"enabled":"false"}},"10":{"l":{"enabled":"false"}},"11":{"l":{"enabled":"false"}},"12":{"l":{"enabled":"false"}},"13":{"l":{"enabled":"false"}},"14":{"l":{"enabled":"false"}},"15":{"l":{"enabled":"false"}},"16":{"l":{"enabled":"false"}},"17":{"l":{"enabled":"false"}},"18":{"l":{"enabled":"false"}},"19":{"l":{"enabled":"false"}},"20":{"l":{"enabled":"false"}},"21":{"l":{"enabled":"false"}},"22":{"l":{"enabled":"false"}},"23":{"l":{"enabled":"false"}},"24":{"l":{"enabled":"false"}},"background_color":5592320}');
   // Send to the watchapp via AppMessage
   var dict = {
     'MainBGColor': configData.background_color,
-    'MainFGColor': configData.foreground_color,
     'TemperatureUnit': configData.temperature_checkbox,
-    'BGColor' : 0,
-    'FGColor' : 0,
-    'LayerSettings' : 0,
-    'ContentSettings' : 0,
-    'Radius' : 0,
-    'X' : 0,
-    'Y' : 0,
-    'W' : 0,
-    'H' : 0,
-    'Type' : 0,
-    'Font' : 0,
-    'Dynamic' : 0,
-    'Content' : 0
   };
+  
   console.log(e.response);
   console.log(decodeURIComponent(e.response));
   
@@ -146,8 +135,89 @@ Pebble.addEventListener('webviewclosed', function(e) {
     console.log('Config data sent successfully!');
   }, function(e) {
     console.log('Error sending config data!');
-  });     
+  });
   
-  console.log('BGColor Key: ' + Keys['BGColor']);
+  
+  
+  for (let i = 0; i <= numLayers; i++){
+    let layer = {};
+    function configToMessage(i, obj, key){
+      //console.log(configData[i], obj);
+      //console.log(configData[i][obj]);
+      layer[keys[key]+i] = configData[i][obj];
+    }
+    function subConfigToMessage(i, obj, sub, key){
+      //console.log(configData[i], obj);
+      //console.log(configData[i][obj], sub);
+      //console.log(configData[i][obj][sub]);
+      layer[keys[key]+i] = configData[i][obj][sub];
+    }
+    if ('l' in configData[i]){
+      if (configData[i].l["enabled"] == 'true'){
+        layer[keys['LayerSettings']+i] = 1;
+        if (configData[i].l["outline"] == 'true'){
+          layer[keys['LayerSettings']+i] += 2
+        }
+        if (configData[i].l["inverter"] == 'true'){
+          layer[keys['LayerSettings']+i] += 16
+        }
+        if (configData[i].l["dither"] == 'lr'){
+          layer[keys['LayerSettings']+i] += 4
+        }
+        if (configData[i].l["dither"] == 'ud'){
+          layer[keys['LayerSettings']+i] += 8
+        }
+        if (configData[i].l["dither"] == 'mix'){
+          layer[keys['LayerSettings']+i] += 12
+        }
+        configToMessage(i, "b", "BGColor");
+        configToMessage(i, "f", "FGColor");
+        configToMessage(i, "c", "Content");
+        configToMessage(i, "r", "Radius");
+        subConfigToMessage(i, "p", "x", "X");
+        subConfigToMessage(i, "p", "y", "Y");
+        subConfigToMessage(i, "p", "w", "W");
+        subConfigToMessage(i, "p", "h", "H");
+  
+        let type = 0;
+        switch (configData[i].t) {
+          case 'text':
+            type = 1;
+            break;
+          case 'image':
+            type = 2;
+            break;
+          case 'dynamic':
+            type = 3;
+            break;
+          case 'vector':
+            type = 4;
+            break;
+          case 'analog':
+            type = 5;
+            break;
+          case 'rect':
+            type = 6;
+            break;
+          default:
+            type = 6;
+        } 
+        layer[keys['Type']+i] = type;
+        
+      } else {
+        layer[keys['LayerSettings']+i] = 0;
+      }
+    } else {
+      layer[keys['LayerSettings']+i] = 0;
+    }
+     // Send to the watchapp
+    Pebble.sendAppMessage(layer, function() {
+      console.log('Layer ' + i + ' data sent successfully!');
+    }, function(e) {
+      console.log('Error sending layer ' + i + ' data!');
+    });
+  }
+  
+  console.log('BGColor Key: ' + keys['BGColor']);
   
 });

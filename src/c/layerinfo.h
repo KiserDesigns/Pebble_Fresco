@@ -5,6 +5,7 @@
 #define TYPE_TEXT    1 //done
 #define TYPE_IMAGE   2 
 #define TYPE_DYNAMIC 3
+#define TYPE_VECTOR  4
 #define TYPE_ANALOG  5
 #define TYPE_RECT    6 //done
 

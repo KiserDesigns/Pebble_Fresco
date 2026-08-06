@@ -240,18 +240,13 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
     settings.BackgroundColor = GColorFromHEX(bg_color_t->value->int32);
   }
 
-  Tuple *text_color_t = dict_find(iterator, MESSAGE_KEY_MainFGColor);
-  if (text_color_t) {
-    settings.ForegroundColor = GColorFromHEX(text_color_t->value->int32);
-  }
-
   Tuple *temp_unit_t = dict_find(iterator, MESSAGE_KEY_TemperatureUnit);
   if (temp_unit_t) {
     settings.TemperatureUnit = temp_unit_t->value->int32 == 1;
   }
 
   // Save and apply if any settings were changed
-  if (bg_color_t || text_color_t || temp_unit_t) {
+  if (bg_color_t || temp_unit_t) {
     prv_save_settings();
     prv_update_display();
 
@@ -263,6 +258,54 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
       app_message_outbox_send();
     }
   }
+  Tuple *temp;
+  for (int i = 0; i <= NUM_LAYERS; i++){
+    temp = dict_find(iterator, MESSAGE_KEY_BGColor + i);
+    if (temp){
+      layers[i].BackgroundColor = GColorFromHEX(temp->value->int32);
+    }
+    
+    temp = dict_find(iterator, MESSAGE_KEY_FGColor + i);
+    if (temp){
+      layers[i].ForegroundColor = GColorFromHEX(temp->value->int32);
+    }
+    
+    temp = dict_find(iterator, MESSAGE_KEY_Content + i);
+    if (temp){strcpy(layers[i].Content, temp->value->cstring);}
+    
+    temp = dict_find(iterator, MESSAGE_KEY_Radius + i);
+    if (temp){layers[i].Radius = temp->value->int32;}
+    
+    temp = dict_find(iterator, MESSAGE_KEY_X + i);
+    if (temp){layers[i].Rect.origin.x = temp->value->int32;}
+    
+    temp = dict_find(iterator, MESSAGE_KEY_Y + i);
+    if (temp){layers[i].Rect.origin.y = temp->value->int32;}
+    
+    temp = dict_find(iterator, MESSAGE_KEY_W + i);
+    if (temp){layers[i].Rect.size.w = temp->value->int32;}
+    
+    temp = dict_find(iterator, MESSAGE_KEY_H + i);
+    if (temp){layers[i].Rect.size.h = temp->value->int32;}
+    
+    temp = dict_find(iterator, MESSAGE_KEY_LayerSettings + i);
+    if (temp){layers[i].LayerSettings = temp->value->int32;}
+    
+    temp = dict_find(iterator, MESSAGE_KEY_Type + i);
+    if (temp){layers[i].Type = temp->value->int32;}
+  /*  configToMessage(i, "b", "BGColor");
+    configToMessage(i, "f", "FGColor");
+    configToMessage(i, "c", "Content");
+    configToMessage(i, "r", "Radius");
+    subConfigToMessage(i, "p", "x", "X");
+    subConfigToMessage(i, "p", "y", "Y");
+    subConfigToMessage(i, "p", "w", "W");
+    subConfigToMessage(i, "p", "h", "H");
+    layer[keys['LayerSettings']+i] = 1;
+    layer[keys['Type']+i] = 1; */
+  }
+  
+  
 }
 
 static void inbox_dropped_callback(AppMessageResult reason, void *context) {
