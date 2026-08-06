@@ -262,12 +262,22 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
   for (int i = 0; i <= NUM_LAYERS; i++){
     temp = dict_find(iterator, MESSAGE_KEY_BGColor + i);
     if (temp){
-      layers[i].BackgroundColor = GColorFromHEX(temp->value->int32);
+      int32_t color = temp->value->int32;
+      if (color > 0xFFFFFF){
+        layers[i].BackgroundColor = GColorClear;
+      } else {
+        layers[i].BackgroundColor = GColorFromHEX(color);
+      }
     }
     
     temp = dict_find(iterator, MESSAGE_KEY_FGColor + i);
     if (temp){
-      layers[i].ForegroundColor = GColorFromHEX(temp->value->int32);
+      int32_t color = temp->value->int32;
+      if (color > 0xFFFFFF){
+        layers[i].ForegroundColor = GColorClear;
+      } else {
+        layers[i].ForegroundColor = GColorFromHEX(color);
+      }
     }
     
     temp = dict_find(iterator, MESSAGE_KEY_Content + i);
