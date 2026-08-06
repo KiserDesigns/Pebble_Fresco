@@ -112,8 +112,8 @@ Pebble.addEventListener('appmessage',
 );
 
 Pebble.addEventListener('showConfiguration', function() {
-  var url = 'return_to=https://cloudpebble.repebble.com/ide/emulator/config?' + '?platform=' + Pebble.getActiveWatchInfo().platform;
-
+  //var url = 'return_to=https://cloudpebble.repebble.com/ide/emulator/config?' + '?platform=' + Pebble.getActiveWatchInfo().platform;
+  var url = 'https://frescostudio.net/' + '?platform=' + Pebble.getActiveWatchInfo().platform;
   Pebble.openURL(url);
 });
 
