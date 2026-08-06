@@ -16,7 +16,6 @@
 // Define our settings struct
 typedef struct PageSettings {
   GColor BackgroundColor;
-  GColor ForegroundColor;
   bool TemperatureUnit;
 } PageSettings;
 
@@ -39,7 +38,6 @@ static Layer *s_window_layer;
 // Set default settings
 static void prv_default_settings() {
   settings.BackgroundColor = GColorBlack;
-  settings.ForegroundColor = GColorWhite;
   settings.TemperatureUnit = false;
   
   layers[0].LayerSettings = DRAW_OUTLINE | LAYER_ENABLED;
@@ -71,12 +69,12 @@ static void prv_default_settings() {
   layers[2].Rect = GRect(0,0,PBL_DISPLAY_WIDTH,20);
   layers[2].DynamicMask = 0;
   layers[2].BackgroundColor = GColorWhite;
-  layers[2].ForegroundColor = GColorBlack;
+  layers[2].ForegroundColor = GColorClear;
   layers[2].Type = TYPE_RECT;
   layers[2].FontSettings = 0;
   strcpy(layers[2].Content, "");
   
-  layers[3].LayerSettings = DRAW_MIN | DRAW_HOUR | DRAW_SEC | DRAW_MAJOR_TICK | DRAW_MINOR_TICK| LAYER_ENABLED;
+  layers[3].LayerSettings = DRAW_MIN | DRAW_HOUR | DRAW_SEC | DRAW_MAJOR_TICK | DRAW_MINOR_TICK; // | LAYER_ENABLED;
   layers[3].ContentSettings = build_tick_settings(PBL_DISPLAY_WIDTH/2 - 10,PBL_IF_COLOR_ELSE(GColorBlue,GColorWhite),0,5,GColorWhite,0,1);
   layers[3].Radius = (1<<12) | (2<<6) | 3;
   layers[3].Rect = GRect(PBL_DISPLAY_WIDTH/2,PBL_DISPLAY_HEIGHT/2,PBL_DISPLAY_WIDTH/2 - 25,PBL_DISPLAY_WIDTH/2 - 40);
@@ -89,13 +87,13 @@ static void prv_default_settings() {
   
   layers[4].LayerSettings = LAYER_ENABLED | BIT_DEPTH_4;
   layers[4].ContentSettings = 0;
-  layers[4].Radius = 0;
+  layers[4].Radius = 1; //starting block
   layers[4].Rect = GRect(5,20,4,4);
-  layers[4].DynamicMask = 0;
+  layers[4].DynamicMask = 0; //starting byte
   layers[4].BackgroundColor = GColorClear;
   layers[4].ForegroundColor = GColorClear;
   layers[4].Type = TYPE_IMAGE;
-  layers[4].FontSettings = 4;
+  layers[4].FontSettings = 10; //scale
   layers[4].Content[0] = GColorWhite.argb;
   layers[4].Content[1] = GColorMagenta.argb;
   layers[4].Content[2] = GColorBlue.argb;
@@ -108,7 +106,7 @@ static void prv_default_settings() {
   persist_write_data(IMAGE_BLOCK_KEY_ITERATION*NUM_IMAGE_BLOCKS+1,image_block, sizeof(ImageBlock));
   
   /** **/
-  layers[5].LayerSettings = LAYER_ENABLED | DITHER_LR;
+  layers[5].LayerSettings = DITHER_LR; // | LAYER_ENABLED;
   layers[5].ContentSettings = 0;
   layers[5].Radius = 30;
   layers[5].Rect = GRect(0,20,PBL_DISPLAY_WIDTH,PBL_DISPLAY_HEIGHT-20);
@@ -184,21 +182,20 @@ static void bluetooth_callback(bool connected) {
 static void canvas_update_proc(Layer *layer, GContext *ctx) {
   GRect bounds = layer_get_bounds(layer);
   graphics_context_set_fill_color(ctx, settings.BackgroundColor);
+  //APP_LOG(APP_LOG_LEVEL_INFO, "background color %d", settings.BackgroundColor.argb);
   graphics_fill_rect(ctx, bounds, 1, GCornerNone);
   
-  
-  time_t temp = time(NULL);
-  struct tm *tick_time = localtime(&temp);
-  static char s_date_buffer[16];
-  strftime(s_date_buffer, sizeof(s_date_buffer), "%a %b %d", tick_time);
-  
+
   
   static char weather_layer_buffer[42];
   snprintf(weather_layer_buffer, sizeof(weather_layer_buffer), "%s %s", temperature_buffer, conditions_buffer);  
   
+    
+  time_t temp = time(NULL);
   
   for (int i=0; i<NUM_LAYERS; i++){
     if (layers[i].LayerSettings&LAYER_ENABLED){
+      //APP_LOG(APP_LOG_LEVEL_INFO, "drawing layer %d", i);
       draw_layer(ctx, &layers[i], temp); 
     }
   }       
@@ -219,9 +216,7 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
 
 
   if (temp_tuple && conditions_tuple) {
-
     int temp_value = (int)temp_tuple->value->int32;
-
     // Convert to Fahrenheit if setting is enabled
     if (settings.TemperatureUnit) {
       temp_value = (temp_value * 9 / 5) + 32;
@@ -229,7 +224,6 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
     } else {
       snprintf(temperature_buffer, sizeof(temperature_buffer), "%d°C", temp_value);
     }
-
     snprintf(conditions_buffer, sizeof(conditions_buffer), "%s", conditions_tuple->value->cstring);
     //text_layer_set_text(s_weather_layer, weather_layer_buffer);
   }
@@ -238,6 +232,7 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
   Tuple *bg_color_t = dict_find(iterator, MESSAGE_KEY_MainBGColor);
   if (bg_color_t) {
     settings.BackgroundColor = GColorFromHEX(bg_color_t->value->int32);
+    APP_LOG(APP_LOG_LEVEL_INFO, "New background color %d, from hex %x", settings.BackgroundColor.argb, bg_color_t->value->int32);
   }
 
   Tuple *temp_unit_t = dict_find(iterator, MESSAGE_KEY_TemperatureUnit);
@@ -249,6 +244,7 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
   if (bg_color_t || temp_unit_t) {
     prv_save_settings();
     prv_update_display();
+    APP_LOG(APP_LOG_LEVEL_INFO,"Saving Settings");
 
     // Refetch weather if the temperature unit changed so the display updates
     if (temp_unit_t) {
@@ -259,7 +255,7 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
     }
   }
   Tuple *temp;
-  for (int i = 0; i <= NUM_LAYERS; i++){
+  for (int i = 0; i < NUM_LAYERS; i++){
     temp = dict_find(iterator, MESSAGE_KEY_BGColor + i);
     if (temp){
       int32_t color = temp->value->int32;
@@ -303,16 +299,7 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
     
     temp = dict_find(iterator, MESSAGE_KEY_Type + i);
     if (temp){layers[i].Type = temp->value->int32;}
-  /*  configToMessage(i, "b", "BGColor");
-    configToMessage(i, "f", "FGColor");
-    configToMessage(i, "c", "Content");
-    configToMessage(i, "r", "Radius");
-    subConfigToMessage(i, "p", "x", "X");
-    subConfigToMessage(i, "p", "y", "Y");
-    subConfigToMessage(i, "p", "w", "W");
-    subConfigToMessage(i, "p", "h", "H");
-    layer[keys['LayerSettings']+i] = 1;
-    layer[keys['Type']+i] = 1; */
+    
   }
   
   

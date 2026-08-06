@@ -112,19 +112,19 @@ Pebble.addEventListener('appmessage',
 );
 
 Pebble.addEventListener('showConfiguration', function() {
-  var url = 'return_to=https://cloudpebble.repebble.com/ide/emulator/config?' + '?platform=' + Pebble.getActiveWatchInfo().platform;
-  //var url = 'https://frescostudio.net/' + '?platform=' + Pebble.getActiveWatchInfo().platform;
+  //var url = 'return_to=https://cloudpebble.repebble.com/ide/emulator/config?' + encodeURIComponent('{"background_color":0,"0":{"t":"rect","p":{"x":15,"y":15,"w":40,"h":40},"l":{"enabled":"true","outline":"true"},"s":{},"n":{"align":"left","wordWrap":"false","font":"18px gotham-light"},"r":20,"d":{},"f":65280,"b":11141120,"c":"%S/59"},"1":{"t":"rect","p":{"x":25,"y":25,"w":60,"h":20},"l":{"enabled":"true","outline":"true","inverter":"true"},"s":{},"n":{"align":"left","wordWrap":"false","font":"18px gotham-light"},"r":5,"d":{},"f":43690,"b":16777888,"c":"%S/59"},"2":{"t":"rect","p":{"x":40,"y":20,"w":60,"h":30},"l":{"enabled":"true","outline":"true","dither":"lr"},"s":{},"n":{"align":"left","wordWrap":"false","font":"18px gotham-light"},"r":10,"d":{},"f":22015,"b":16777888,"c":"%S/59"},"3":{"t":"text","p":{"x":20,"y":60,"w":100,"h":50},"l":{"enabled":"true","outline":"true"},"s":{},"n":{"align":"left","wordWrap":"true","font":"18px gotham-light"},"r":10,"d":{},"f":16777200,"b":16777888,"c":"Hello World a bb ccc dddd eeeee"},"4":{"l":{"enabled":"false"}},"5":{"l":{"enabled":"false"}},"6":{"l":{"enabled":"false"}},"7":{"l":{"enabled":"false"}},"8":{"l":{"enabled":"false"}},"9":{"l":{"enabled":"false"}},"10":{"l":{"enabled":"false"}},"11":{"l":{"enabled":"false"}},"12":{"l":{"enabled":"false"}},"13":{"l":{"enabled":"false"}},"14":{"l":{"enabled":"false"}},"15":{"l":{"enabled":"false"}},"16":{"l":{"enabled":"false"}},"17":{"l":{"enabled":"false"}},"18":{"l":{"enabled":"false"}},"19":{"l":{"enabled":"false"}},"20":{"l":{"enabled":"false"}},"21":{"l":{"enabled":"false"}},"22":{"l":{"enabled":"false"}},"23":{"l":{"enabled":"false"}},"24":{"l":{"enabled":"false"}}}&&&&')+'#2?';
+  var url = 'https://frescostudio.net/' + '?platform=' + Pebble.getActiveWatchInfo().platform;
   Pebble.openURL(url);
 });
 
 Pebble.addEventListener('webviewclosed', function(e) {
   // Decode the user's preferences
-  //var configData = JSON.parse(decodeURIComponent(e.response));
-  var configData = JSON.parse('{"0":{"t":"rect","p":{"x":15,"y":15,"w":40,"h":40},"l":{"enabled":"true","outline":"true"},"s":{},"n":{"align":"left","wordWrap":"false","font":"18px gotham-light"},"r":20,"d":{},"f":65280,"b":11141120,"c":"%S/59"},"1":{"t":"rect","p":{"x":25,"y":25,"w":60,"h":20},"l":{"enabled":"true","outline":"true","inverter":"true"},"s":{},"n":{"align":"left","wordWrap":"false","font":"18px gotham-light"},"r":5,"d":{},"f":43690,"b":16777888,"c":"%S/59"},"2":{"t":"rect","p":{"x":40,"y":20,"w":60,"h":30},"l":{"enabled":"true","outline":"true","dither":"lr"},"s":{},"n":{"align":"left","wordWrap":"false","font":"18px gotham-light"},"r":10,"d":{},"f":22015,"b":16777888,"c":"%S/59"},"3":{"t":"text","p":{"x":20,"y":60,"w":100,"h":50},"l":{"enabled":"true","outline":"true"},"s":{},"n":{"align":"left","wordWrap":"true","font":"18px gotham-light"},"r":10,"d":{},"f":5592405,"b":16777888,"c":"Hello World a bb ccc dddd eeeee"},"4":{"l":{"enabled":"false"}},"5":{"l":{"enabled":"false"}},"6":{"l":{"enabled":"false"}},"7":{"l":{"enabled":"false"}},"8":{"l":{"enabled":"false"}},"9":{"l":{"enabled":"false"}},"10":{"l":{"enabled":"false"}},"11":{"l":{"enabled":"false"}},"12":{"l":{"enabled":"false"}},"13":{"l":{"enabled":"false"}},"14":{"l":{"enabled":"false"}},"15":{"l":{"enabled":"false"}},"16":{"l":{"enabled":"false"}},"17":{"l":{"enabled":"false"}},"18":{"l":{"enabled":"false"}},"19":{"l":{"enabled":"false"}},"20":{"l":{"enabled":"false"}},"21":{"l":{"enabled":"false"}},"22":{"l":{"enabled":"false"}},"23":{"l":{"enabled":"false"}},"24":{"l":{"enabled":"false"}},"background_color":0}');
+  var configData = JSON.parse(decodeURIComponent(e.response).split('&')[0]);
+  //var configData = JSON.parse('{"background_color":0,"0":{"t":"rect","p":{"x":15,"y":15,"w":40,"h":40},"l":{"enabled":"true","outline":"true"},"s":{},"n":{"align":"left","wordWrap":"false","font":"18px gotham-light"},"r":20,"d":{},"f":65280,"b":11141120,"c":"%S/59"},"1":{"t":"rect","p":{"x":25,"y":25,"w":60,"h":20},"l":{"enabled":"true","outline":"true","inverter":"true"},"s":{},"n":{"align":"left","wordWrap":"false","font":"18px gotham-light"},"r":5,"d":{},"f":43690,"b":16777888,"c":"%S/59"},"2":{"t":"rect","p":{"x":40,"y":20,"w":60,"h":30},"l":{"enabled":"true","outline":"true","dither":"lr"},"s":{},"n":{"align":"left","wordWrap":"false","font":"18px gotham-light"},"r":10,"d":{},"f":22015,"b":16777888,"c":"%S/59"},"3":{"t":"text","p":{"x":20,"y":60,"w":100,"h":50},"l":{"enabled":"true","outline":"true"},"s":{},"n":{"align":"left","wordWrap":"true","font":"18px gotham-light"},"r":10,"d":{},"f":5592405,"b":16777888,"c":"Hello World a bb ccc dddd eeeee"},"4":{"l":{"enabled":"false"}},"5":{"l":{"enabled":"false"}},"6":{"l":{"enabled":"false"}},"7":{"l":{"enabled":"false"}},"8":{"l":{"enabled":"false"}},"9":{"l":{"enabled":"false"}},"10":{"l":{"enabled":"false"}},"11":{"l":{"enabled":"false"}},"12":{"l":{"enabled":"false"}},"13":{"l":{"enabled":"false"}},"14":{"l":{"enabled":"false"}},"15":{"l":{"enabled":"false"}},"16":{"l":{"enabled":"false"}},"17":{"l":{"enabled":"false"}},"18":{"l":{"enabled":"false"}},"19":{"l":{"enabled":"false"}},"20":{"l":{"enabled":"false"}},"21":{"l":{"enabled":"false"}},"22":{"l":{"enabled":"false"}},"23":{"l":{"enabled":"false"}},"24":{"l":{"enabled":"false"}}}');
   // Send to the watchapp via AppMessage
   var dict = {
-    'MainBGColor': configData.background_color,
-    'TemperatureUnit': configData.temperature_checkbox,
+    'MainBGColor': configData.background_color
+    //'TemperatureUnit': configData.temperature_checkbox,
   };
   
   console.log(e.response);
@@ -139,7 +139,7 @@ Pebble.addEventListener('webviewclosed', function(e) {
   
   
   
-  for (let i = 0; i <= numLayers; i++){
+  for (let i = 0; i < numLayers; i++){
     let layer = {};
     function configToMessage(i, obj, key){
       //console.log(configData[i], obj);
@@ -152,6 +152,7 @@ Pebble.addEventListener('webviewclosed', function(e) {
       //console.log(configData[i][obj][sub]);
       layer[keys[key]+i] = configData[i][obj][sub];
     }
+    console.log(i);
     if ('l' in configData[i]){
       if (configData[i].l["enabled"] == 'true'){
         layer[keys['LayerSettings']+i] = 1;
