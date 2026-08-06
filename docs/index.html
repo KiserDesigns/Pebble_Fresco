@@ -802,6 +802,29 @@ function defaultLayers() {
   layers[3].setLayerSetting("enabled", 'true');
   layers[3].setLayerSetting("outline", 'true');
   layers[3].setContent("Hello World a bb ccc dddd eeeee");
+
+  localLayers = localStorage.getItem("layers");
+  if (localLayers){
+    var content = LZString.decompressFromEncodedURIComponent(localLayers); // this is the content!
+        console.log( content );
+        let parseObject = JSON.parse(content);
+        let offset = 1;
+        if (parseObject[0]['bg'] == undefined){
+          offset = 0;
+        } else {
+          document.getElementById('project_name').value = parseObject[0]["name"];
+          background_color = parseObject[0]["bg"];
+          pickr.setColor(background_color);
+        }
+        for( let i=offset; i<Math.min(numLayers,parseObject.length); i++){
+          Object.assign(layers[i-offset], parseObject[i]);
+        }
+        for(i=parseObject.length-offset;i<numLayers;i++){
+          layers[i].setLayerSetting("enabled", "false");
+        }
+        populateList();
+        drawLayers(fast);
+  }
 }
 
 setInterval(drawLayers, 1000);
@@ -971,7 +994,7 @@ submitButton.addEventListener("click", function () {
       } else {
         layer['l'] = {"enabled":"false"};
       }
-      //options[i] = layer;
+      options[i] = layer;
     }
 
     console.log(
@@ -979,17 +1002,8 @@ submitButton.addEventListener("click", function () {
       //temperatureCheckbox.checked ? 1 : 0,
     );
     
-      // Determine the correct return URL (emulator vs real watch)
-      var return_to = getQueryParam("return_to", "pebblejs://close#");
 
-      // Encode and send the data when the page closes
-      if (inApp){
-      document.location = return_to + encodeURIComponent(JSON.stringify(options));
-      }
-      
-
-  
-  } else {
+    
   
     let new_layers = [];
 
@@ -1004,9 +1018,21 @@ submitButton.addEventListener("click", function () {
         }
       }
     }
-    download('Fresco '+project_name+' '+platform+' '+(new Date).getTime()+'.frs',
-      LZString.compressToEncodedURIComponent(JSON.stringify(new_layers))
-    );
+    
+    //save current layout to local storage
+    localStorage.setItem("layers",LZString.compressToEncodedURIComponent(JSON.stringify(new_layers)));
+    
+    if (inApp){
+      // Determine the correct return URL (emulator vs real watch)
+      var return_to = getQueryParam("return_to", "pebblejs://close#");
+      // Encode and send the data when the page closes
+      document.location = return_to + encodeURIComponent(JSON.stringify(options));
+    }
+    
+    if (!inApp) {
+      download('Fresco '+project_name+' '+platform+' '+(new Date).getTime()+'.frs',
+      LZString.compressToEncodedURIComponent(JSON.stringify(new_layers)));
+    }
   
   }
 
