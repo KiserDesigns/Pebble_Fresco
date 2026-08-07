@@ -167,6 +167,18 @@ class Layer {
     this.fg_color = "#00AAAA";
     this.bg_color = "#550000";
     this.content = "%S/59";
+    this.image_data = "";
+  }
+  setImageData(data){
+    this.image_data = data;
+    console.log(data);
+  }
+  getImageData(data){
+    if (this.image_data == ""){
+      return "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACoAAAAqCAYAAADFw8lbAAAAvElEQVR4AexWQQrAIAzr/P+fnb0vUErCKIatO6iJLinBtWNvVBGxUSFMjiNMjuc8qpxHtc7EiNcHZdtkRe9V9An8nBg5+fT9xagHYpKpi3OP3tuj7D9X8blH2crm7QnGSTdKFDhbT7eeTajis/VsZecoqoiSvCWh6u43R1F2L6n4qoqq9i/z+qBlqYoL5yiKYiTHu1GiwM1RtNgivy+zomwLrChdUUWUZLSh6u5n6+nWswlVfLaerewYRV8AAAD//2PtJJAAAAAGSURBVAMAfEwmEDBik64AAAAASUVORK5CYII="
+    } else {
+      return this.image_data;
+    }
   }
   setFontSetting(key, value){
     this.font_settings[key] = value;
@@ -414,13 +426,19 @@ class Layer {
         ctx.globalCompositeOperation = "source-over";
       }
     }
-    /**
-    if (layer->Type == TYPE_ANALOG){
-      draw_analog(ctx, layer, localtime(&time));
+    if (this.type == "image"){
+      let img = new Image();
+      img.src = this.getImageData();
+      let scale = this.font_settings["scale"];
+      if (scale == undefined){
+        scale = 1;
+        this.font_settings["scale"]="1";
+      } else {
+        scale = parseInt(scale);
+      }
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(img, this.x, this.y, img.width*scale, img.height*scale);
+      img = null;
     }
-    if (layer->Type == TYPE_IMAGE){
-      draw_image(ctx, layer);
-    }
-    **/
   }
 }

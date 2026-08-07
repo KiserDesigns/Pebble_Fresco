@@ -137,7 +137,7 @@ input[type="checkbox"] + label {
   
 </head>
 <body style="background-color: lightblue;">
-  <div style="height:90vh;display: flex;flex-direction: column; /* or row */max-width:60vh;">
+  <div style="height:90vh;display: flex;flex-direction: column;max-width:60vh;margin:auto;">
 
   <div style="display:flex;margin-bottom:0.0em;">
     <div style="width:50%;aspect-ratio : 1 / 1;position:relative;background-color:gray;">
@@ -265,6 +265,45 @@ input_height.addEventListener("input", function(e) {
   input_width.value = Math.max(1,Math.round(input_height.value*img.naturalWidth/img.naturalHeight));
   update();
 } );
+
+function getQueryParam(variable, defaultValue) {
+  var query = location.search.substring(1);
+  var vars = query.split("&");
+  for (var i = 0; i < vars.length; i++) {
+    var pair = vars[i].split("=");
+    if (pair[0] === variable) {
+      return decodeURIComponent(pair[1]);
+    }
+  }
+  return defaultValue || false;
+}
+
+const downloadButton = document.getElementById("download")
+
+let isEmbedded = getQueryParam("embed", "false")=="true";
+if (isEmbedded){
+  downloadButton.innerHTML = "Done";
+  cancelButton = document.createElement("button");
+  cancelButton.innerHTML = "Cancel";
+  cancelButton.style.color = "red";
+  downloadButton.insertAdjacentElement("afterend", cancelButton);
+  cancelButton.addEventListener("click", function(e){
+    parent.postMessage("close", "*");
+  });
+}
+
+
+downloadButton.addEventListener("click", function(e){
+  var link = document.createElement('a');
+  link.download = 'image-to-pebble.png';
+  link.href = document.getElementById('image_output').toDataURL();
+  if (isEmbedded) {
+    parent.postMessage(link.href, "*");
+    console.log("post");
+  } else {
+    link.click();
+  }
+});
 
 
 var img = new Image();
@@ -638,12 +677,6 @@ function render(){
   ctx_out.putImageData(outputData, 0, 0);
 }
 
-document.getElementById("download").addEventListener("click", function(e){
-  var link = document.createElement('a');
-  link.download = 'image-to-pebble.png';
-  link.href = document.getElementById('image_output').toDataURL()
-  link.click();
-});
 
 //closestColor([255,0,0]);
 

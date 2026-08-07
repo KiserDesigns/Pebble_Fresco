@@ -149,10 +149,19 @@ button.action {
   padding: inherit;
   z-index: 8888;
   pointer-events: none;
+  display: none;
 }
 @keyframes fade {
 0%, 100% { opacity: 80%; }
 50% { opacity: 20%; }
+}
+
+.image-converter {
+  position:absolute;
+  width:100%;
+  height:100%;
+  border: 1px red solid;
+  z-index: 10000;
 }
 
   </style>
@@ -160,7 +169,7 @@ button.action {
 
   
 </head>
-<body style="max-width:80vh;margin-left:auto;margin-right:auto;">
+<body style="max-width:80vh;margin-left:auto;margin-right:auto;position:relative;">
   <div class="font_preload" style="position:absolute;opacity: 0">
     <span style="font-family:gotham-light;" ></span> 
     <span style="font-family:gotham-medium;" ></span>
@@ -176,6 +185,9 @@ button.action {
     <span style="font-family:roboto-cond;" ></span>  
     <span style="font-family:roboto-bold;" ></span>  
     <span style="font-family:droid-bold;"></span>
+  </div>
+  <div class='image-converter' id="image-converter">
+    <iframe class='image-converter' id="iframeid" src="./image-converter/index.html?embed=true"></iframe>
   </div>
   <div style="display:flex;flex-direction:column;height:100%;max-height:100%;margin:0;">
   <div class="flex">
@@ -208,8 +220,6 @@ button.action {
     </div>
     <div class="grow scroller" id="layer_container"></div>
   </div>
-  <div >
-  </div>
   <div id="settings_button" class="flex center">
     <div class="pad">
       <button class="square action" style="height:40px" onclick="let v=document.getElementById('main_info');v.style.visibility=v.style.visibility=='hidden'?'visible':'hidden';">&#9881;</button>
@@ -238,10 +248,11 @@ button.action {
     <div class="flex center">
       Name:&nbsp;<input class="grow" type="text" id="layer_name"
         onchange="layers[selected_layer].setName(this.value);document.getElementById('b'+selected_layer).innerHTML=this.value;"></input>
-      Layer Type:<select id="layer_type"
+      Layer Type:<select id="layer_type" style="width:70px;"
         onchange="layers[selected_layer].setType(this.value);drawLayers(fast);openLayer(selected_layer)">
         <option value="rect">&#9633; / &#9675;</option>
-        <option value="text">&#127280;&#127281;&#127282;</option></select>
+        <option value="text">&#127280;&#127281;&#127282;</option>
+        <option value="image">Image</option></select>
     </div>
     <div class="flex center">
       (X,&nbsp;Y):&nbsp;(<input class="grow" type="number" id="layer_x"
@@ -250,40 +261,42 @@ button.action {
       <input class="grow" type="number" id="layer_y" style="text-align:right;"
         onchange="layers[selected_layer].setY(this.value);drawLayers(fast);"></input>)
     </div>
-    <div class="flex center">
-      (W,&nbsp;H):&nbsp;(<input class="grow" type="number" id="layer_w"
-        onchange="layers[selected_layer].setW(this.value);drawLayers(fast);"></input>
-      <button id="whTrack" class="square track" style="height:40px;">&#129306;</button>
-      <input class="grow" type="number" id="layer_h" style="text-align:right;"
-        onchange="layers[selected_layer].setH(this.value);drawLayers(fast);"></input>)
-    </div>
-    <div class="flex center">
-      Radius:&nbsp;<input class="half-wide" type="number" id="layer_radius"
-      onchange="layers[selected_layer].setRadius(this.value);drawLayers(fast);"></input>
-      <button id="rTrack" class="square track" style="height:40px;">&#129306;</button>
-      <div class="grow"></div>
-      Inverter?:<select id="layer_inverter"
-      onchange="setLayerSetting(selected_layer, 'inverter', this.value);drawLayers(fast);">
-        <option value="true">Yes</option>
-        <option value="false">No</option></select>
-    </div>
-    <div class="flex center">
-      Background Color:&nbsp;<input class="bg-color-picker"></input>
-      <div class="grow"></div>
-      Draw Outline:<select id="layer_outline"
-        onchange="setLayerSetting(selected_layer, 'outline', this.value);drawLayers(fast);">
-        <option value="true">Yes</option>
-        <option value="false">No</option></select>
-    </div>
-    <div class="flex center">
-      Foreground Color:&nbsp;<input class="fg-color-picker""></input>
-      <div class="grow"></div>
-      Gradient Fill:<select id="layer_dither"
-        onchange="setLayerSetting(selected_layer, 'dither', this.value);drawLayers(fast);">
-        <option value="false">No</option>
-        <option value="lr">&#8646;</option>
-        <option value="ud">&#8645;</option>
-        <option value="mix">&#8281;</option></select>
+    <div id="rect_text_settings">
+      <div class="flex center">
+        (W,&nbsp;H):&nbsp;(<input class="grow" type="number" id="layer_w"
+          onchange="layers[selected_layer].setW(this.value);drawLayers(fast);"></input>
+        <button id="whTrack" class="square track" style="height:40px;">&#129306;</button>
+        <input class="grow" type="number" id="layer_h" style="text-align:right;"
+          onchange="layers[selected_layer].setH(this.value);drawLayers(fast);"></input>)
+      </div>
+      <div class="flex center">
+        Radius:&nbsp;<input class="half-wide" type="number" id="layer_radius"
+        onchange="layers[selected_layer].setRadius(this.value);drawLayers(fast);"></input>
+        <button id="rTrack" class="square track" style="height:40px;">&#129306;</button>
+        <div class="grow"></div>
+        Inverter?:<select id="layer_inverter"
+        onchange="setLayerSetting(selected_layer, 'inverter', this.value);drawLayers(fast);">
+          <option value="true">Yes</option>
+          <option value="false">No</option></select>
+      </div>
+      <div class="flex center">
+        Background Color:&nbsp;<input class="bg-color-picker"></input>
+        <div class="grow"></div>
+        Draw Outline:<select id="layer_outline"
+          onchange="setLayerSetting(selected_layer, 'outline', this.value);drawLayers(fast);">
+          <option value="true">Yes</option>
+          <option value="false">No</option></select>
+      </div>
+      <div class="flex center">
+        Foreground Color:&nbsp;<input class="fg-color-picker""></input>
+        <div class="grow"></div>
+        Gradient Fill:<select id="layer_dither"
+          onchange="setLayerSetting(selected_layer, 'dither', this.value);drawLayers(fast);">
+          <option value="false">No</option>
+          <option value="lr">&#8646;</option>
+          <option value="ud">&#8645;</option>
+          <option value="mix">&#8281;</option></select>
+      </div>
     </div>
     <div id="text_settings">
       <hr>
@@ -324,6 +337,33 @@ button.action {
         <div class="grow"></div>
       </div>
     </div>
+    <div id="image_settings">
+      <hr>
+      <table style="width:100%;">
+        <tr style="width:100%;">
+          <td style="white-space: nowrap;">
+            <div>Image Content:</div>
+            <div>Scale:<br>
+              <button class="square action" style="height:40px;"
+                onclick="var s=parseInt(image_scale.value);if(s>1){image_scale.value=s-1};setImageScale(image_scale.value);drawLayers(fast);">
+                -</button>
+              <input id="image_scale" value="1" style="width:40px;text-align:center;"
+              onchange="setImageScale(image_scale.value);drawLayers(fast);">
+              <button class="square action" style="height:40px;"
+                onclick="var s=parseInt(image_scale.value);if(s<100){image_scale.value=s+1};setImageScale(image_scale.value);drawLayers(fast);">
+                +</button>
+            </div>
+            <div class="flex center pad">
+              <button onclick="image_converter.style.display='block';document.getElementById('iframeid').src = document.getElementById('iframeid').src">
+                Upload New</button>
+            </div>
+          </td>
+          <td class="pad" style="width:100%;">
+            <image id="image_content" style="width:100%;max-height:200px;object-fit: contain;image-rendering: pixelated;"></image>
+          </td>
+        </tr>
+      </table>
+    </div>
     <hr>
     <div class="flex">
       <button onclick="duplicateLayer(selected_layer);">
@@ -355,6 +395,7 @@ const canvas_container = document.getElementById("canvas_container");
 const layer_container = document.getElementById("layer_container");
 const layer_info = document.getElementById("layer_info");
 const outline = document.getElementById("outline");
+const image_scale = document.getElementById("image_scale");
 
 //const background_color = document.getElementById("background_color_input");
 
@@ -365,6 +406,8 @@ const outline = document.getElementById("outline");
 
 document.getElementById('text_settings').style.display = 'none';
 document.getElementById('layer_info').style.display = 'none';
+document.getElementById('image-converter').style.display = 'none';
+document.getElementById('image_settings').style.display = 'none';
 outline.style.display = 'none';
 
 let background_color = '#000000';
@@ -389,7 +432,34 @@ defaultLayers();
 populateList();
 //drawLayers();
 
-var selected_layer = 0;
+var selected_layer = -1;
+
+const image_converter = document.getElementById("image-converter");
+
+window.addEventListener("message", e => {
+  const key = e.message ? 'message' : 'data';
+  //console.log(e.origin, e[key]);
+  image_converter.style.display = 'none';
+  if (e[key]=="close"){
+    return;
+  } else {
+  layers[selected_layer].setImageData(e[key]);
+  document.getElementById("image_content").src = e[key];
+  openLayer(selected_layer);
+  drawLayers(fast);
+  }
+},false);
+
+function setImageScale(scale){
+  scale = parseInt(scale);
+  if (scale > 100){
+    scale = 100;
+  }
+  if (scale < 1){
+    scale = 1;
+  }
+  setFontSetting(selected_layer, "scale", scale);
+}
 
 function openLayer(i) {
   selected_layer = i;
@@ -405,19 +475,6 @@ function openLayer(i) {
   document.getElementById('layer_y').value = layers[i].getPos()["y"];
   document.getElementById('layer_w').value = layers[i].getPos()["w"];
   document.getElementById('layer_h').value = layers[i].getPos()["h"];
-  document.getElementById('layer_radius').value = layers[i].getRadius()
-  document.getElementById('layer_outline').value = layers[i].getLayerSetting('outline');
-  document.getElementById('layer_dither').value = layers[i].getLayerSetting('dither');
-  document.getElementById('layer_inverter').value = layers[i].getLayerSetting('inverter');
-  bg_pickr.setColor(layers[i].getBgColor());
-  fg_pickr.setColor(layers[i].getFgColor());
-
-  outline.style.top = layers[i].getPos()["y"] + 'px';
-  outline.style.left = layers[i].getPos()["x"] + 'px';
-  outline.style.width = layers[i].getPos()["w"] + 'px';
-  outline.style.height = layers[i].getPos()["h"] + 'px';
-  outline.style.borderRadius = layers[i].getRadius() + 'px';
-  outline.style.display = 'block';
 
   layer_info.style.display = 'block'
 
@@ -432,17 +489,62 @@ function openLayer(i) {
   } else {
     document.getElementById('text_settings').style.display = 'none';
   } 
+  if(layers[i].getType() == "rect" || layers[i].getType() == "text"){
+    document.getElementById("rect_text_settings").style.display =  'block';
+    document.getElementById('layer_radius').value = layers[i].getRadius()
+    document.getElementById('layer_outline').value = layers[i].getLayerSetting('outline');
+    document.getElementById('layer_dither').value = layers[i].getLayerSetting('dither');
+    document.getElementById('layer_inverter').value = layers[i].getLayerSetting('inverter');
+    bg_pickr.setColor(layers[i].getBgColor());
+    fg_pickr.setColor(layers[i].getFgColor());
+    
+  } else {
+    document.getElementById("rect_text_settings").style.display =  'none';
+  }
+  if(layers[i].getType() == "image"){
+    document.getElementById("image_settings").style.display =  'block';
+    document.getElementById("image_content").src = layers[i].getImageData();
+    image_scale.value = layers[i].getFontSetting("scale");
+    if (image_scale.value == "undefined"){
+      image_scale.value = 1;
+      setImageScale("1");
+    }
+    
+  } else {
+    document.getElementById("image_settings").style.display =  'none';
+  }
+
+  outline.style.display = 'none';
     
   for(var child=layer_container.firstChild; child!==null; child=child.nextSibling) {
     let j = child.id;
     if (i == j){
       child.style.backgroundColor = "lightslategray";
       child.style.color = "white";
+      drawOutline(i);
     } else if (j != 'add_button') {
       child.style.backgroundColor = "rgb(124, 180, 199)";
       child.style.color = "black";
     }
   }
+}
+
+function drawOutline(i){
+  outline.style.top = layers[i].getPos()["y"] + 'px';
+  outline.style.left = layers[i].getPos()["x"] + 'px';
+  outline.style.width = layers[i].getPos()["w"] + 'px';
+  outline.style.height = layers[i].getPos()["h"] + 'px';
+  outline.style.display = 'block';
+  outline.style.borderRadius = layers[i].getRadius() + 'px';
+
+  if(layers[i].getType() == "image"){
+    let scale = parseInt(image_scale.value);
+    outline.style.width = (scale * document.getElementById("image_content").naturalWidth) + 'px';
+    outline.style.height = (scale * document.getElementById("image_content").naturalHeight) + 'px';
+    
+    outline.style.borderRadius = 0;
+  }
+
 }
 
 function addLayer(){
@@ -844,11 +946,7 @@ function drawLayers(drawFast=false) {
       if (layers[i].getLayerSetting("enabled")=='true'){
         layers[i].draw(ctx, drawFast);
         if (i == selected_layer) {
-          outline.style.top = layers[i].getPos()["y"] + 'px';
-          outline.style.left = layers[i].getPos()["x"] + 'px';
-          outline.style.width = layers[i].getPos()["w"] + 'px';
-          outline.style.height = layers[i].getPos()["h"] + 'px';
-          outline.style.borderRadius = layers[i].getRadius() + 'px';
+          drawOutline(i);
         }
       }
     }
