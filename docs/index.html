@@ -924,7 +924,7 @@ function defaultLayers() {
           background_color = parseObject[0]["bg"];
           pickr.setColor(background_color);
         }
-        for( let i=offset; i<Math.min(numLayers,parseObject.length); i++){
+        for( let i=offset; i<Math.min(numLayers+1,parseObject.length); i++){
           Object.assign(layers[i-offset], parseObject[i]);
         }
         for(i=parseObject.length-offset;i<numLayers;i++){
@@ -1113,13 +1113,12 @@ submitButton.addEventListener("click", function () {
 
     let project_name = document.getElementById('project_name').value;
     new_layers.push({"name":project_name, "bg":background_color});
+    reorderListData();
+    populateList();
     //console.log(JSON.stringify(layers));
-    for(var child=layer_container.firstChild; child!==null; child=child.nextSibling) {
-      let i = parseInt(child.id);
-      if (child.id != 'add_button') {
-        if (layers[i].getLayerSetting("enabled") == "true"){
-          new_layers.push(layers[i]);
-        }
+    for(let i=0; i<numLayers; i++) {
+      if (layers[i].getLayerSetting("enabled") == "true"){
+        new_layers.push(layers[i]);
       }
     }
     
@@ -1171,7 +1170,7 @@ importButton.addEventListener("click", function () {
           background_color = parseObject[0]["bg"];
           pickr.setColor(background_color);
         }
-        for( let i=offset; i<Math.min(numLayers,parseObject.length); i++){
+        for( let i=offset; i<Math.min(numLayers+1,parseObject.length); i++){
           Object.assign(layers[i-offset], parseObject[i]);
         }
         for(i=parseObject.length-offset;i<numLayers;i++){
