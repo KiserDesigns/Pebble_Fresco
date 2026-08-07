@@ -61,6 +61,12 @@ GFont font(uint8_t fontsettings){
     #else
     return fonts_get_system_font(FONT_KEY_LECO_42_NUMBERS);
     #endif
+  case 26:
+    return fonts_get_system_font(FONT_KEY_BITHAM_18_LIGHT_SUBSET);
+  case 27:
+    return fonts_get_system_font(FONT_KEY_BITHAM_34_LIGHT_SUBSET);
+  case 28:
+    return fonts_get_system_font(FONT_KEY_GOTHIC_09);
     
   default: return fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD);
   }

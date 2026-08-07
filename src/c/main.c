@@ -255,6 +255,16 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
     }
   }
   Tuple *temp;
+
+  temp = dict_find(iterator, MESSAGE_KEY_SENDDONE);
+  if (temp){
+    APP_LOG(APP_LOG_LEVEL_INFO,"Got Complete Layer Data, Saving");
+    for (int i=0;i<NUM_LAYERS;i++){
+      prv_save_layer(i);
+    }
+    prv_update_display();
+  }
+
   for (int i = 0; i < NUM_LAYERS; i++){
     temp = dict_find(iterator, MESSAGE_KEY_BGColor + i);
     if (temp){
@@ -299,9 +309,11 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
     
     temp = dict_find(iterator, MESSAGE_KEY_Type + i);
     if (temp){layers[i].Type = temp->value->int32;}
+
+    temp = dict_find(iterator, MESSAGE_KEY_Font + i);
+    if (temp){layers[i].FontSettings = temp->value->int32;}
     
   }
-  
   
 }
 
@@ -351,7 +363,7 @@ static void init() {
   });
   window_stack_push(s_main_window, true);
 
-  tick_timer_service_subscribe(SECOND_UNIT, tick_handler);
+  tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
 
   battery_state_service_subscribe(battery_callback);
   battery_callback(battery_state_service_peek());

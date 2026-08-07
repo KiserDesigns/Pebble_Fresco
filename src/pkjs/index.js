@@ -119,7 +119,8 @@ Pebble.addEventListener('showConfiguration', function() {
 
 Pebble.addEventListener('webviewclosed', function(e) {
   // Decode the user's preferences
-  var configData = JSON.parse(decodeURIComponent(e.response));
+  console.log(e.response);
+  var configData = JSON.parse(e.response);
   //var configData = JSON.parse('{"background_color":11141120,"0":{"t":"rect","p":{"x":15,"y":15,"w":40,"h":40},"l":{"enabled":"true","outline":"true"},"s":{},"n":{"align":"left","wordWrap":"false","font":"18px gotham-light"},"r":20,"d":{},"f":65280,"b":11141120,"c":"%S/59"},"1":{"t":"rect","p":{"x":25,"y":25,"w":60,"h":20},"l":{"enabled":"true","outline":"true","inverter":"true"},"s":{},"n":{"align":"left","wordWrap":"false","font":"18px gotham-light"},"r":5,"d":{},"f":43690,"b":16777888,"c":"%S/59"},"2":{"t":"rect","p":{"x":40,"y":20,"w":60,"h":30},"l":{"enabled":"true","outline":"true","dither":"lr"},"s":{},"n":{"align":"left","wordWrap":"false","font":"18px gotham-light"},"r":10,"d":{},"f":22015,"b":16777888,"c":"%S/59"},"3":{"t":"text","p":{"x":20,"y":60,"w":100,"h":50},"l":{"enabled":"true","outline":"true"},"s":{},"n":{"align":"left","wordWrap":"true","font":"18px gotham-light"},"r":10,"d":{},"f":5592405,"b":16777888,"c":"Hello World a bb ccc dddd eeeee"},"4":{"l":{"enabled":"false"}},"5":{"l":{"enabled":"false"}},"6":{"l":{"enabled":"false"}},"7":{"l":{"enabled":"false"}},"8":{"l":{"enabled":"false"}},"9":{"l":{"enabled":"false"}},"10":{"l":{"enabled":"false"}},"11":{"l":{"enabled":"false"}},"12":{"l":{"enabled":"false"}},"13":{"l":{"enabled":"false"}},"14":{"l":{"enabled":"false"}},"15":{"l":{"enabled":"false"}},"16":{"l":{"enabled":"false"}},"17":{"l":{"enabled":"false"}},"18":{"l":{"enabled":"false"}},"19":{"l":{"enabled":"false"}},"20":{"l":{"enabled":"false"}},"21":{"l":{"enabled":"false"}},"22":{"l":{"enabled":"false"}},"23":{"l":{"enabled":"false"}},"24":{"l":{"enabled":"false"}}}');
   // Send to the watchapp via AppMessage
   var dict = {
@@ -138,7 +139,12 @@ Pebble.addEventListener('webviewclosed', function(e) {
     console.log('Error sending config data!');
   });
   
-  return;
+  //return;
+
+  let layerStatus = [];
+  for (let i=0;i<numLayers;i++){
+    layerStatus.push(0);
+  }
   
   for (let i = 0; i < numLayers; i++){
     let layer = {};
@@ -165,13 +171,118 @@ Pebble.addEventListener('webviewclosed', function(e) {
         }
         if (configData[i].l["dither"] == 'lr'){
           layer[keys['LayerSettings']+i] += 4
-        }
+        } else 
         if (configData[i].l["dither"] == 'ud'){
           layer[keys['LayerSettings']+i] += 8
-        }
+        } else 
         if (configData[i].l["dither"] == 'mix'){
           layer[keys['LayerSettings']+i] += 12
         }
+        layer[keys['Font']+i] = 0;
+        if (configData[i].n["wordWrap"] == 'true'){
+          layer[keys['Font']+i] += 128;
+        }
+        if (configData[i].n["align"] == 'left'){
+          layer[keys['Font']+i] += 32;
+        } else 
+        if (configData[i].n["align"] == 'right'){
+          layer[keys['Font']+i] += 96;
+        } else 
+        if (configData[i].n["align"] == 'center'){
+          layer[keys['Font']+i] += 64;
+        }
+
+        let font = "";
+        console.log(configData[i].n["font"]);
+        switch (configData[i].n["font"]) {
+          case "14px gothic-14":
+            font = 1;
+            break;
+          case "14px gothic-bold-14":
+            font = 2;
+            break;
+          case "18px gothic":
+            font = 3;
+            break;
+          case "18px gothic-bold":
+            font = 4;
+            break;
+          case "24px gothic":
+            font = 5;
+            break;
+          case "24px gothic-bold":
+            font = 6;
+            break;
+          case "28px gothic-14":
+            font = 7;
+            break;
+          case "28px gothic-bold-14":
+            font = 8;
+            break;
+          case "30px gotham-black":
+            font = 9;
+            break;
+          case "34px gotham-medium":
+            font = 10;
+            break;
+          case "42px gotham-bold":
+            font = 11;
+            break;
+          case "42px gotham-light":
+            font = 12;
+            break;
+          case "42px gotham-medium":
+            font = 13;
+            break;
+          case "21px roboto-cond":
+            font = 14;
+            break;
+          case "49px roboto-bold":
+            font = 15;
+            break;
+          case "28px droid-bold":
+            font = 16;
+            break;
+          case "20px leco-bold":
+            font = 17;
+            break;
+          case "26px leco-bold":
+            font = 18;
+            break;
+          case "28px leco-light":
+            font = 19;
+            break;
+          case "32px leco-bold":
+            font = 20;
+            break;
+          case "36px leco-bold":
+            font = 21;
+            break;
+          case "38px leco-bold":
+            font = 22;
+            break;
+          case "42px leco-regular":
+            font = 23;
+            break;
+          case "60px leco-regular":
+            font = 24;
+            break;
+          case "60px leco-bold":
+            font = 25;
+            break;
+          case "18px gotham-light":
+            font = 26;
+            break;
+          case "34px gotham-light":
+            font = 27;
+            break;
+          case "9px gothic":
+            font = 28;
+            break;
+          default: font = 4;
+        }
+        layer[keys['Font']+i] += font;
+        console.log(font, layer[keys['Font']+i]);
         configToMessage(i, "b", "BGColor");
         configToMessage(i, "f", "FGColor");
         configToMessage(i, "c", "Content");
@@ -215,8 +326,39 @@ Pebble.addEventListener('webviewclosed', function(e) {
      // Send to the watchapp
     Pebble.sendAppMessage(layer, function() {
       console.log('Layer ' + i + ' data sent successfully!');
+      layerStatus[i] = 1;
+      let sum = 0;
+      for (let j = 0; j < numLayers; j++) {
+        sum += layerStatus[j];
+      }
+      if (sum == numLayers){
+        console.log('DONE SENDING LAYER INFO');
+        Pebble.sendAppMessage({'SENDDONE':1}, function() {
+          console.log('Sent DONE command');
+        }, function(e) {
+          console.log('Error sending done command');
+        });
+      }
     }, function(e) {
-      console.log('Error sending layer ' + i + ' data!');
+      console.log('Error sending layer ' + i + ' data, sending once more');
+      Pebble.sendAppMessage(layer, function() {
+        console.log('Layer ' + i + ' data sent successfully!');
+        layerStatus[i] = 1;
+        let sum = 0;
+        for (let j = 0; j < numLayers; j++) {
+          sum += layerStatus[j];
+        }
+        if (sum == numLayers){
+          console.log('DONE SENDING LAYER INFO');
+          Pebble.sendAppMessage({'SENDDONE':1}, function() {
+            console.log('Sent DONE command');
+          }, function(e) {
+            console.log('Error sending done command');
+          });
+        }
+      }, function(e) {
+        console.log('Error sending layer ' + i + ' data, QUITTING!');
+      });
     });
   }
   

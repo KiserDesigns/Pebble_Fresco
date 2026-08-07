@@ -704,6 +704,9 @@ function setFontSizeStyle(i){
       (size == '14' || size == '28')){
         style = style + "-14";
       }
+  if (style == 'leco-bold' && parseInt(size)<60){
+    style = 'leco-regular';
+  }
   setFontSetting(i, "font", size + "px " + style);
 }
 function getFontSize(i){
