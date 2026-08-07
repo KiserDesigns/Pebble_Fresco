@@ -704,8 +704,8 @@ function setFontSizeStyle(i){
       (size == '14' || size == '28')){
         style = style + "-14";
       }
-  if (style == 'leco-bold' && parseInt(size)<60){
-    style = 'leco-regular';
+  if (style == 'leco-bold' && parseInt(size)==60){
+    style = 'leco-black';
   }
   setFontSetting(i, "font", size + "px " + style);
 }
@@ -716,6 +716,9 @@ function getFontStyle(i){
   let fontStyle = (layers[i].getFontSetting("font")).split(' ')[1];
   if (fontStyle.slice(-3) == "-14"){
     fontStyle = fontStyle.slice(0, -3);
+  }
+  if (fontStyle == 'leco-black'){
+    fontStyle = 'leco-bold';
   }
   return fontStyle;
 }
