@@ -68,7 +68,7 @@ function locationSuccess(pos) {
           console.log('Weather info sent to Pebble successfully!');
         },
         function(e) {
-          console.log('Error sending weather info to Pebble!');
+          console.log('Error sending weather info to Pebble!', e);
         }
       );
     }
@@ -136,7 +136,7 @@ Pebble.addEventListener('webviewclosed', function(e) {
   Pebble.sendAppMessage(dict, function() {
     console.log('Config data sent successfully!');
   }, function(e) {
-    console.log('Error sending config data!');
+    console.log('Error sending config data!: ', e);
   });
   
   //return;
@@ -341,24 +341,27 @@ Pebble.addEventListener('webviewclosed', function(e) {
       }
     }, function(e) {
       console.log('Error sending layer ' + i + ' data, sending once more');
-      Pebble.sendAppMessage(layer, function() {
-        console.log('Layer ' + i + ' data sent successfully!');
-        layerStatus[i] = 1;
-        let sum = 0;
-        for (let j = 0; j < numLayers; j++) {
-          sum += layerStatus[j];
-        }
-        if (sum == numLayers){
-          console.log('DONE SENDING LAYER INFO');
-          Pebble.sendAppMessage({'SENDDONE':1}, function() {
-            console.log('Sent DONE command');
-          }, function(e) {
-            console.log('Error sending done command');
-          });
-        }
-      }, function(e) {
-        console.log('Error sending layer ' + i + ' data, QUITTING!');
-      });
+      setTimeout(function(){
+        Pebble.sendAppMessage(layer, function() {
+          console.log('Layer ' + i + ' data sent successfully!');
+          layerStatus[i] = 1;
+          let sum = 0;
+          for (let j = 0; j < numLayers; j++) {
+            sum += layerStatus[j];
+          }
+          if (sum == numLayers){
+            console.log('DONE SENDING LAYER INFO');
+            Pebble.sendAppMessage({'SENDDONE':1}, function() {
+              console.log('Sent DONE command');
+            }, function(e) {
+              console.log('Error sending done command');
+            });
+          }
+        }, function(e) {
+        console.log('Error sending layer ' + i + ' data, QUITTING!:', e);
+        });
+
+      }, 500);
     });
   }
   
