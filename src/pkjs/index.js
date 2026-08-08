@@ -267,7 +267,7 @@ Pebble.addEventListener('webviewclosed', function(e) {
           case "60px leco-regular":
             font = 24;
             break;
-          case "60px leco-bold":
+          case "60px leco-black":
             font = 25;
             break;
           case "18px gotham-light":
