@@ -381,6 +381,7 @@ button.action {
 <script src="./lz-string.min.js"></script>
 <script src="./pickr.min.js"></script>
 <script src="./colorPicker.js"></script>
+<script src="./cloud.js"></script>
 
   <script>
     // Get a handle to the button's HTML element
@@ -398,6 +399,8 @@ const outline = document.getElementById("outline");
 const image_scale = document.getElementById("image_scale");
 
 //const background_color = document.getElementById("background_color_input");
+
+
 
 //background_color.addEventListener("input", function () {
 //  this.value = quantizeColor(this.value);
@@ -914,7 +917,7 @@ function defaultLayers() {
   localLayers = localStorage.getItem("layers");
   if (localLayers){
     var content = LZString.decompressFromEncodedURIComponent(localLayers); // this is the content!
-        console.log( content );
+        //console.log( content );
         let parseObject = JSON.parse(content);
         let offset = 1;
         if (parseObject[0]['bg'] == undefined){

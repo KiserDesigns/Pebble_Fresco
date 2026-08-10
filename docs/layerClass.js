@@ -171,9 +171,9 @@ class Layer {
   }
   setImageData(data){
     this.image_data = data;
-    console.log(data);
+    //console.log(data);
   }
-  getImageData(data){
+  getImageData(){
     if (this.image_data == ""){
       return "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACoAAAAqCAYAAADFw8lbAAAAvElEQVR4AexWQQrAIAzr/P+fnb0vUErCKIatO6iJLinBtWNvVBGxUSFMjiNMjuc8qpxHtc7EiNcHZdtkRe9V9An8nBg5+fT9xagHYpKpi3OP3tuj7D9X8blH2crm7QnGSTdKFDhbT7eeTajis/VsZecoqoiSvCWh6u43R1F2L6n4qoqq9i/z+qBlqYoL5yiKYiTHu1GiwM1RtNgivy+zomwLrChdUUWUZLSh6u5n6+nWswlVfLaerewYRV8AAAD//2PtJJAAAAAGSURBVAMAfEwmEDBik64AAAAASUVORK5CYII="
     } else {
