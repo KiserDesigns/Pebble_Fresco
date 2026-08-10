@@ -68,7 +68,7 @@ function uploadLayout(){
     
     let id = encodeURIComponent(uid());
     let metadata = encodeURIComponent(project_name);
-    let screenshot = getCompressedCanvasDataURI(preview, 10000);
+    let screenshot = getCompressedCanvasDataURI(preview, 8000);
 
     let layers = LZString.compressToEncodedURIComponent(JSON.stringify(getLayersWhileUploadingImages()));
 
@@ -99,7 +99,7 @@ function uploadImage(data){
     const dataE = '695953714';
     
     const id = uid();
-    let chunkedData = splitStringArray(data, 10000);
+    let chunkedData = splitStringArray(data, 6000);
 
     for (let i = 0; i<chunkedData.length; i++){
         let index = i.toString();
@@ -119,7 +119,7 @@ function uploadImage(data){
 
 function getCompressedCanvasDataURI(canvas, targetBytes) {
   // Binary search for the right quality
-  let lo = 0.05, hi = 0.8, best = null;
+  let lo = 0.05, hi = 0.95, best = encodeURIComponent(canvas.toDataURL('image/jpeg', 0.01));
   let mid = (lo + hi) / 2;
 
   while (hi - lo > 0.02) {
@@ -133,6 +133,6 @@ function getCompressedCanvasDataURI(canvas, targetBytes) {
     }
   }
   console.log(mid, decodeURIComponent(best));
-  return best;
+  return best
 }
 
