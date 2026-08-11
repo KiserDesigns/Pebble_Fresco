@@ -62,32 +62,42 @@ async function getLayersWhileUploadingImages() {
 
 async function uploadLayout(){
     console.log('uploading');
-    const formKey = '1FAIpQLSeZbMJrXacx0B17woFNmXeYH9mMvUfJIZhvihT9vmEt_xwp2Q';
+    document.getElementById('submit_publish').disabled = true;
+
+
+    const screenFormKey = '1FAIpQLSeZbMJrXacx0B17woFNmXeYH9mMvUfJIZhvihT9vmEt_xwp2Q';
     const identE = '780599992';
-    const layersE = '1015359788';
+    //const layersE = '1015359788';
     const screenE = '1015839762'
     const metaE = '1109142805';
 
-    
-    let publish_name = document.getElementById('publish_name').value;
-    let publish_author = document.getElementById('publish_author').value;
-    let publish_description = document.getElementById('publish_description').value;
-
-    document.getElementById('submit_publish').disabled = true;
-    
     let id = encodeURIComponent(uid());
-    let metadata = encodeURIComponent(JSON.stringify({
-        'name': publish_name,
-        'author': publish_author,
-        'description': publish_description
-    }));
+    
     let screenshot = getCompressedCanvasDataURI(preview, 6000);
+
+    let metadata = encodeURIComponent(JSON.stringify({
+        'name': document.getElementById('publish_name').value,
+        'author': document.getElementById('publish_author').value,
+        'description': document.getElementById('publish_description').value
+    }));
+
+    let screenResponse = `https://docs.google.com/forms/d/e/${screenFormKey}/formResponse?entry.${identE}=${id}&entry.${screenE}=${screenshot}&entry.${metaE}=${metadata}`;
+    try {
+        await fetchForm(screenResponse);
+    } catch(err) {
+        //console.log(err);
+    }  
+    
+    
+    const layerFormKey = '1FAIpQLSdt6ZxARwCOoAglISWbIkOQcGJ7PUrHZ2wGdf4PBbH7VN_A0w'
+    const identFormE = '812687514';
+    const layersE = '1521661986';
 
     let layers = LZString.compressToEncodedURIComponent(JSON.stringify(await getLayersWhileUploadingImages()));
 
-    let formResponse = `https://docs.google.com/forms/d/e/${formKey}/formResponse?entry.${identE}=${id}&entry.${layersE}=${layers}&entry.${screenE}=${screenshot}&entry.${metaE}=${metadata}`;
+    let layerResponse = `https://docs.google.com/forms/d/e/${layerFormKey}/formResponse?entry.${identFormE}=${id}&entry.${layersE}=${layers}`;
     try {
-        await fetchForm(formResponse);
+        await fetchForm(layerResponse);
     } catch(err) {
         //console.log(err);
     }
