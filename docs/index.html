@@ -34,7 +34,7 @@ canvas {
   box-sizing: border-box;
 }
 
-input, select {
+input, select, textarea {
   font-family: gotham-light, sans-serif;
   font-size: 16px;
   min-width: 40px;
@@ -58,6 +58,10 @@ select {
   height: 40px;
 }
 
+.fullwide {
+  width: 100%;
+}
+
 .wide {
   width: 95%;
 }
@@ -73,6 +77,10 @@ button {
 button:not(.pcr-last-color){
   padding: 12px 6px;
 }
+button:active:not(.pcr-last-color) {
+  background-color: rgb(124, 180, 199); /* Even darker green */
+  transform: scale(0.98); /* Slightly shrink on click */
+}
 
 .center {
   align-items: center;
@@ -86,6 +94,9 @@ button:not(.pcr-last-color){
 }
 .flex {
   display: flex;
+}
+.column {
+  flex-direction: column;
 }
 .scroller {
   min-height: 0;
@@ -163,15 +174,20 @@ button.action {
   border: 1px red solid;
   z-index: 10000;
 }
-
+.overlay {
+  position:absolute;
+  width:100%;
+  height:100%;
+  background-color:#80808080;
+  z-index: 10000;
+}
 .publish-modal {
   position:absolute;
   width:80%;
   height:80vh;
   top:10vh;
   left:10%;
-  border:1px solid red;
-  z-index:10000;
+  background-color:lightblue;
 }
 
   </style>
@@ -196,25 +212,73 @@ button.action {
     <span style="font-family:roboto-bold;" ></span>  
     <span style="font-family:droid-bold;"></span> 
   </div>-->
-  <div class="publish-modal">
-
+  <div id="publish-overlay" class="overlay" style="display:none;">
+    <div id="publish-modal" class="publish-modal flex column scroller" style="align-items:center;">
+      <div>
+        <img id="publish-canvas" style="outline:1vh solid #808080;margin:2vh"></img>
+      </div>
+      <div class="grow flex column" style="align-items:left;width:80%;">
+        Project Name:
+        <input class="fullwide" id="publish_name" type="text" value="">
+        Author:
+        <input class="fullwide" id="publish_author" type="text" value="">
+        Description:
+        <textarea id="publish_description" class="fullwide" rows="6"
+                  style="resize:none;" placeholder="Type your description here..."></textarea>
+        <div class="flex">
+          <div class="grow"></div>
+          <div class="flex center pad">
+            <button id="cancel_publish" onclick="document.getElementById('publish-overlay').style.display = 'none';"   style="color:red">Cancel</button>
+          </div>
+          <div class="grow"></div>
+          <div class="grow"></div>
+          <div class="flex center pad">
+            <button id="submit_publish" onclick="uploadLayout()">Publish</button>
+          </div>
+          <div class="grow"></div>
+        </div>
+      </div>
+    </div>
   </div>
   <div class='image-converter' id="image-converter" style="display:none">
     <iframe class='image-converter' id="iframeid" src="./image-converter/index.html?embed=true"></iframe>
   </div>
-  <div style="display:flex;flex-direction:column;height:100%;max-height:100%;margin:0;">
+  <div class="flex column" style="height:100%;max-height:100%;margin:0;">
   <div class="flex">
-    <div class="flex center pad">
-      <button id='submit_button'>Save</button>
+    <div class="center pad">
+      <button id="save_button" onclick="saveLocalStorage();let v=document.getElementById('save_menu');v.style.visibility=v.style.visibility=='hidden'?'visible':'hidden';">Save</button>
+      <div style="position:relative">
+        <div id="save_menu" class="pad flex column" style="position:absolute;top:0;left:0;background-color: rgb(124, 180, 199);;visibility:hidden;z-index:9999;">
+          <button id="submit_button" style="margin-bottom:1vh;">Export&nbsp;File</button>
+          <button id="save_1" onclick="saveSlot('1')" style="margin-bottom:1vh;">Save&nbsp;to&nbsp;Slot&nbsp;1</button>
+          <button id="save_2" onclick="saveSlot('2')" style="margin-bottom:1vh;">Save&nbsp;to&nbsp;Slot&nbsp;2</button>
+          <button id="save_3" onclick="saveSlot('3')" style="margin-bottom:1vh;">Save&nbsp;to&nbsp;Slot&nbsp;3</button>
+          <button id="save_4" onclick="saveSlot('4')" style="margin-bottom:1vh;">Save&nbsp;to&nbsp;Slot&nbsp;4</button>
+          <button id="save_5" onclick="saveSlot('5')" >Save&nbsp;to&nbsp;Slot&nbsp;5</button>
+        </div>
+      </div>
     </div>
-    <div class="flex center grow" style="margin-right:1vh">
-      <button id='publish_button'>Publish</button>
+    <div class="grow"></div>
+    <div class="flex center" style="margin-right:1vh">
+      <button id="publish_button" onclick="showPublish();">Publish</button>
     </div>
-    <div class="flex center grow">
-      <button id='browse_button'>Browse</button>
+    <div class="grow"></div>
+    <div class="flex center">
+      <button id="browse_button">Browse</button>
     </div>
-    <div class="flex center pad">
-      <button id='import_button'>Import</button>
+    <div class="grow"></div>
+    <div class="center pad">
+      <button id="load_button" onclick="let v=document.getElementById('load_menu');v.style.visibility=v.style.visibility=='hidden'?'visible':'hidden';">Load</button>
+      <div style="position:relative">
+        <div id="load_menu" class="pad flex column" style="justify-content:right;position:absolute;top:0;right:0;background-color: rgb(124, 180, 199);;visibility:hidden;z-index:9999;">
+          <button id="import_button" style="margin-bottom:1vh;">Import&nbsp;File</button>
+          <button id="load_1" onclick="loadLocal('slot1')" style="margin-bottom:1vh;">Load&nbsp;Slot&nbsp;1</button>
+          <button id="load_2" onclick="loadLocal('slot2')" style="margin-bottom:1vh;">Load&nbsp;Slot&nbsp;2</button>
+          <button id="load_3" onclick="loadLocal('slot3')" style="margin-bottom:1vh;">Load&nbsp;Slot&nbsp;3</button>
+          <button id="load_4" onclick="loadLocal('slot4')" style="margin-bottom:1vh;">Load&nbsp;Slot&nbsp;4</button>
+          <button id="load_5" onclick="loadLocal('slot5')" >Load&nbsp;Slot&nbsp;5</button>
+        </div>
+      </div>
     </div>
   </div>
   <div class="flex">
@@ -255,7 +319,7 @@ button.action {
       </div>
     </div>
     <div class="flex center">
-      Background:&nbsp;<input id='background_color_input' type='color' class="main-color-picker" value='#000000'>
+      Background:&nbsp;<input id="background_color_input" type='color' class="main-color-picker" value='#000000'>
     </div>
     <div class="pad">
       Project Name:<input class="wide" id="project_name" type="text" value="New Project">
@@ -932,27 +996,27 @@ function defaultLayers() {
   layers[3].setLayerSetting("outline", 'true');
   layers[3].setContent("Hello World a bb ccc dddd eeeee");
 
-  localLayers = localStorage.getItem("layers");
+  loadLocal('layers');
+  
+}
+
+function loadLocal(key){
+  localLayers = localStorage.getItem(key);
   if (localLayers){
     var content = LZString.decompressFromEncodedURIComponent(localLayers); // this is the content!
-        //console.log( content );
-        let parseObject = JSON.parse(content);
-        let offset = 1;
-        if (parseObject[0]['bg'] == undefined){
-          offset = 0;
-        } else {
-          document.getElementById('project_name').value = parseObject[0]["name"];
-          background_color = parseObject[0]["bg"];
-          pickr.setColor(background_color);
-        }
-        for( let i=offset; i<Math.min(numLayers+1,parseObject.length); i++){
-          Object.assign(layers[i-offset], parseObject[i]);
-        }
-        for(i=parseObject.length-offset;i<numLayers;i++){
-          layers[i].setLayerSetting("enabled", "false");
-        }
-        populateList();
-        drawLayers(fast);
+    //console.log( content );
+    let parseObject = JSON.parse(content);
+    document.getElementById('project_name').value = parseObject[0]["name"];
+    background_color = parseObject[0]["bg"];
+    pickr.setColor(background_color);
+    for( let i=1; i<Math.min(numLayers+1,parseObject.length); i++){
+      Object.assign(layers[i-1], parseObject[i]);
+    }
+    for(i=parseObject.length-1;i<numLayers;i++){
+      layers[i].setLayerSetting("enabled", "false");
+    }
+    populateList();
+    drawLayers(fast);
   }
 }
 
@@ -1056,6 +1120,7 @@ function getPlatform() {
   if (platform != "none") {
     platform_element.value = platform;
     platform_element.disabled = true;
+    document.getElementById('submit_button').innerHTML = "Save&nbsp;to&nbsp;Watch"
     inApp = true;
   } else {
     platform = platform_element.value;
@@ -1089,64 +1154,60 @@ function getPlatform() {
 }
 platform_element.addEventListener("input", getPlatform);
 
+
+function saveLocalStorage(){
+  let new_layers = [];
+
+  let project_name = document.getElementById('project_name').value;
+  new_layers.push({"name":project_name, "bg":background_color});
+  reorderListData();
+  populateList();
+  //console.log(JSON.stringify(layers));
+  for(let i=0; i<numLayers; i++) {
+    if (layers[i].getLayerSetting("enabled") == "true"){
+      new_layers.push(layers[i]);
+    }
+  }
+  
+  //save current layout to local storage
+  localStorage.setItem("layers",LZString.compressToEncodedURIComponent(JSON.stringify(new_layers)));
+
+  return new_layers;
+}
+
 // Add a 'click' listener
 submitButton.addEventListener("click", function () {
-  // Get the config data from the UI elements
-  //var background_color = document.getElementById("background_color_input");
-  //var temperatureCheckbox = document.getElementById("temperature_checkbox");
-
-  if (true){
-  // Make a data object to be sent, coercing value types to integers
-    var options = {
-      background_color: parseInt(background_color.substr(1, 6), 16)
-      //temperature_checkbox: temperatureCheckbox.checked ? 1 : 0,
-    };
-    for (let i = 0; i<numLayers; i++){
-      var layer = {};
-      if(layers[i].getLayerSetting("enabled") == "true"){
-      layer['t'] = layers[i].getType();
-      layer['p'] = layers[i].getPos();
-      layer['l'] = layers[i].getLayerSettings();
-      layer['s'] = layers[i].getContentSettings();
-      layer['n'] = layers[i].getFontSettings();
-      layer['r'] = layers[i].getRadius();
-      layer['d'] = layers[i].getDynamics();
-      layer['f'] = parseInt(layers[i].getFgColor().substr(1, 6), 16);
-      if (layers[i].getFgColor()[7]=="0"){layer['f']+=16777888;}
-      layer['b'] = parseInt(layers[i].getBgColor().substr(1, 6), 16);
-      if (layers[i].getBgColor()[7]=="0"){layer['b']+=16777888;}
-      layer['c'] = layers[i].getContent();
-      } else {
-        layer['l'] = {"enabled":"false"};
-      }
-      options[i] = layer;
-    }
-
-    console.log(
-      JSON.stringify(options)
-      //temperatureCheckbox.checked ? 1 : 0,
-    );
-    
-
-    
-  
-    let new_layers = [];
-
-    let project_name = document.getElementById('project_name').value;
-    new_layers.push({"name":project_name, "bg":background_color});
-    reorderListData();
-    populateList();
-    //console.log(JSON.stringify(layers));
-    for(let i=0; i<numLayers; i++) {
-      if (layers[i].getLayerSetting("enabled") == "true"){
-        new_layers.push(layers[i]);
-      }
-    }
-    
-    //save current layout to local storage
-    localStorage.setItem("layers",LZString.compressToEncodedURIComponent(JSON.stringify(new_layers)));
     
     if (inApp){
+      var options = {
+        background_color: parseInt(background_color.substr(1, 6), 16)
+        //temperature_checkbox: temperatureCheckbox.checked ? 1 : 0,
+      };
+      for (let i = 0; i<numLayers; i++){
+        var layer = {};
+        if(layers[i].getLayerSetting("enabled") == "true"){
+        layer['t'] = layers[i].getType();
+        layer['p'] = layers[i].getPos();
+        layer['l'] = layers[i].getLayerSettings();
+        layer['s'] = layers[i].getContentSettings();
+        layer['n'] = layers[i].getFontSettings();
+        layer['r'] = layers[i].getRadius();
+        layer['d'] = layers[i].getDynamics();
+        layer['f'] = parseInt(layers[i].getFgColor().substr(1, 6), 16);
+        if (layers[i].getFgColor()[7]=="0"){layer['f']+=16777888;}
+        layer['b'] = parseInt(layers[i].getBgColor().substr(1, 6), 16);
+        if (layers[i].getBgColor()[7]=="0"){layer['b']+=16777888;}
+        layer['c'] = layers[i].getContent();
+        } else {
+          layer['l'] = {"enabled":"false"};
+        }
+        options[i] = layer;
+      }
+
+      console.log(
+        JSON.stringify(options)
+        //temperatureCheckbox.checked ? 1 : 0,
+      );
       // Determine the correct return URL (emulator vs real watch)
       var return_to = getQueryParam("return_to", "pebblejs://close#");
       // Encode and send the data when the page closes
@@ -1154,13 +1215,33 @@ submitButton.addEventListener("click", function () {
     }
     
     if (!inApp) {
-      download('Fresco '+project_name+' '+platform+' '+(new Date).getTime()+'.frs',
+      new_layers = saveLocalStorage();
+      download('Fresco '+ document.getElementById('project_name').value +' '+platform+' '+(new Date).getTime()+'.frs',
       LZString.compressToEncodedURIComponent(JSON.stringify(new_layers)));
     }
-  
-  }
+
+    document.getElementById('save_menu').style.visibility ='hidden';
 
 });
+
+function saveSlot(slot='1'){
+  
+  let new_layers = [];
+  let project_name = document.getElementById('project_name').value;
+  new_layers.push({"name":project_name, "bg":background_color});
+  reorderListData();
+  populateList();
+  //console.log(JSON.stringify(layers));
+  for(let i=0; i<numLayers; i++) {
+    if (layers[i].getLayerSetting("enabled") == "true"){
+      new_layers.push(layers[i]);
+    }
+  }
+  //save current layout to local storage
+  localStorage.setItem("slot"+slot,LZString.compressToEncodedURIComponent(JSON.stringify(new_layers)));
+
+  document.getElementById('save_menu').style.visibility ='hidden';
+}
 
 importButton.addEventListener("click", function () {
   var input = document.createElement('input');

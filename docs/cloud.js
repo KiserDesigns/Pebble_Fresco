@@ -37,7 +37,7 @@ function getList() {
         });
 }
 
-function getLayersWhileUploadingImages() {
+async function getLayersWhileUploadingImages() {
     let new_layers = [];
     let project_name = document.getElementById('project_name').value;
     new_layers.push({"name":project_name, "bg":background_color});
@@ -49,7 +49,7 @@ function getLayersWhileUploadingImages() {
       if (layers[i].getLayerSetting("enabled") == "true"){
         Object.assign(layer,layers[i]);
         if (layer.getType() == 'image'){
-            let imageID = uploadImage(layer.getImageData());
+            let imageID = await uploadImage(layer.getImageData());
             layer.setImageData(imageID);
         } else {
             layer.setImageData("")
@@ -60,7 +60,7 @@ function getLayersWhileUploadingImages() {
     return new_layers;
 }
 
-function uploadLayout(){
+async function uploadLayout(){
     console.log('uploading');
     const formKey = '1FAIpQLSeZbMJrXacx0B17woFNmXeYH9mMvUfJIZhvihT9vmEt_xwp2Q';
     const identE = '780599992';
@@ -69,23 +69,44 @@ function uploadLayout(){
     const metaE = '1109142805';
 
     
-    let project_name = document.getElementById('project_name').value;
+    let publish_name = document.getElementById('publish_name').value;
+    let publish_author = document.getElementById('publish_author').value;
+    let publish_description = document.getElementById('publish_description').value;
+
+    document.getElementById('submit_publish').disabled = true;
     
     let id = encodeURIComponent(uid());
-    let metadata = encodeURIComponent(project_name);
+    let metadata = encodeURIComponent(JSON.stringify({
+        'name': publish_name,
+        'author': publish_author,
+        'description': publish_description
+    }));
     let screenshot = getCompressedCanvasDataURI(preview, 8000);
 
-    let layers = LZString.compressToEncodedURIComponent(JSON.stringify(getLayersWhileUploadingImages()));
+    let layers = LZString.compressToEncodedURIComponent(JSON.stringify(await getLayersWhileUploadingImages()));
 
     let formResponse = `https://docs.google.com/forms/d/e/${formKey}/formResponse?entry.${identE}=${id}&entry.${layersE}=${layers}&entry.${screenE}=${screenshot}&entry.${metaE}=${metadata}`;
     try {
-        fetch(formResponse, {
-            method: "POST"
-            });
+        await fetchForm(formResponse);
     } catch(err) {
         //console.log(err);
     }
-    //uploadImages(id);
+
+    document.getElementById('submit_publish').disabled = false;
+    document.getElementById('publish-overlay').style.display = 'none';
+}
+
+async function fetchForm(url){
+    try {
+        const response = await fetch(url, {method: "POST"});
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response;
+        console.log(data);
+    } catch (error) {
+        console.error('Fetch error:', error);
+    }
 }
 
 function splitStringArray(str, chunkSize) {
@@ -97,7 +118,7 @@ function splitStringArray(str, chunkSize) {
   );
 }
 
-function uploadImage(data){
+async function uploadImage(data){
     const formKey = '1FAIpQLSc6_iso3eW9bnEh3l3h53AbjqTLUpquQ1ORbqNwtCj35W6BgQ';
     const identE = '2026018919';
     const indexE = '232507166';
@@ -112,9 +133,7 @@ function uploadImage(data){
         let formResponse = `https://docs.google.com/forms/d/e/${formKey}/formResponse?entry.${identE}=${id}&entry.${indexE}=${index}&entry.${dataE}=${data}`;
         console.log(id, index);
         try {
-            fetch(formResponse, {
-                method: "POST"
-                });
+            await fetchForm(formResponse);
         } catch(err) {
             //console.log(err);
         }
@@ -124,6 +143,7 @@ function uploadImage(data){
 
 function getCompressedCanvasDataURI(canvas, targetBytes) {
   // Binary search for the right quality
+  drawLayers(fast);
   let lo = 0.05, hi = 0.95, best = encodeURIComponent(canvas.toDataURL('image/jpeg', 0.01));
   let mid = (lo + hi) / 2;
 
@@ -141,3 +161,21 @@ function getCompressedCanvasDataURI(canvas, targetBytes) {
   return best
 }
 
+function showPublish() {
+    document.getElementById('publish-overlay').style.display = "block";
+    const publish_canvas = document.getElementById('publish-canvas');
+
+    publish_canvas.width = plat_w;
+    publish_canvas.height = plat_h;
+    publish_canvas.style.width = plat_w + "px";
+    publish_canvas.style.height = plat_h + "px";
+
+
+    publish_canvas.src = decodeURIComponent(getCompressedCanvasDataURI(preview, 8000));
+    if (plat_w == plat_h){
+        publish_canvas.style.borderRadius='50%';
+    } else {
+        publish_canvas.style.borderRadius='0%';
+    }
+    document.getElementById('publish_name').value = document.getElementById('project_name').value;
+}
