@@ -206,8 +206,8 @@ async function showBrowse() {
         let meta = JSON.parse(list[i][2]);
         let le = document.createElement('div');
         le.classList.add("browse-list")
-        le.style.height = '120px';
-        le.innerHTML = `<div style="margin-right:1vh;"><img height=100% src=${list[i][1]}></img></div>
+        le.style.height = '140px';
+        le.innerHTML = `<div style="margin-right:1vh;min-width:120px;max-width:120px;" class="flex center"><img height=100% src=${list[i][1]}></img></div>
         <div class="flex column grow">
             <div class="flex">
                 <div class="grow flex column">
