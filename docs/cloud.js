@@ -81,7 +81,7 @@ async function uploadLayout(){
         'author': publish_author,
         'description': publish_description
     }));
-    let screenshot = getCompressedCanvasDataURI(preview, 8000);
+    let screenshot = getCompressedCanvasDataURI(preview, 6000);
 
     let layers = LZString.compressToEncodedURIComponent(JSON.stringify(await getLayersWhileUploadingImages()));
 
