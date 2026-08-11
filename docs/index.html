@@ -1018,6 +1018,7 @@ function loadLocal(key){
     populateList();
     drawLayers(fast);
   }
+  document.getElementById('load_menu').style.visibility ='hidden';
 }
 
 setInterval(drawLayers, 1000);
@@ -1285,6 +1286,8 @@ importButton.addEventListener("click", function () {
   }
 
   input.click();
+
+  document.getElementById('load_menu').style.visibility ='hidden';
 });
 
 function downloadString(text, fileType, fileName) {
