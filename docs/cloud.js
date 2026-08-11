@@ -15,24 +15,22 @@ fetch('http://localhost:8000/private.key')
   .then((data) => {
     //console.log(data);
     sheetsAPIkey = data; 
-    getList();
   })
   .catch(error => {
     console.error('Fetch failed:', error);
-    getList();
   });
 
 
 
 const workbookID = '13ApODkHcHU0TTMHAAgqz8HAmvdN7NKeAYJSPOyRjSOI';
-const sheetID = '981474759';
 
-function getList() {
+async function getList() {
     let sheet = "MainList";
-    fetch('https://sheets.googleapis.com/v4/spreadsheets/'+workbookID+'/values/'+sheet+'!B1:B?key='+sheetsAPIkey)
+    return await fetch('https://sheets.googleapis.com/v4/spreadsheets/'+workbookID+'/values/'+sheet+'!B2:D?key='+sheetsAPIkey)
         .then(response => response.text())
         .then((data) => {
-            console.log(data);
+            //console.log(data);
+            return data;
             //TODO save this list somewhere to view uploaded projects
         });
 }
@@ -188,4 +186,81 @@ function showPublish() {
         publish_canvas.style.borderRadius='0%';
     }
     document.getElementById('publish_name').value = document.getElementById('project_name').value;
+}
+
+
+document.getElementById('browse_button').addEventListener("click",function(){
+    debugger;
+    showBrowse();
+});
+
+async function showBrowse() {
+    document.getElementById('browse-overlay').style.display = "block";
+    let browseArea = document.getElementById('browse-area');
+    
+    browseArea.innerHTML = '<div class="flex center grow">Downloading Published Frescos...</div>';
+    let list = JSON.parse(await getList()).values;
+    browseArea.innerHTML = '';
+    for(let i = 0; i<list.length; i++){
+        //console.log(list[i]);
+        let meta = JSON.parse(list[i][2]);
+        let le = document.createElement('div');
+        le.classList.add("browse-list")
+        le.style.height = '120px';
+        le.innerHTML = `<div style="margin-right:1vh;"><img height=100% src=${list[i][1]}></img></div>
+        <div class="flex column grow">
+            <div class="flex">
+                <div class="grow flex column">
+                    <div style="font-size:20px;">${meta['name']}</div>
+                    <div class="pad">by: ${meta['author']}</div>
+                </div>
+                <div>
+                    <button onclick="loadOnline('${list[i][0]}');this.disabled=true;">Load</button>
+                </div>
+            </div>
+            <div style="overflow:hidden;font-family:gotham-light;">${meta['description']}</div>
+        </div>`;
+        browseArea.appendChild(le);
+    }
+}
+
+async function loadOnline(ident){
+    let sheet = "LayerData";
+    let identList = await fetch('https://sheets.googleapis.com/v4/spreadsheets/'+workbookID+'/values/'+sheet+'!B2:B?key='+sheetsAPIkey)
+        .then(response => response.text())
+        .then((data) => {
+            //console.log(data);
+            return data;
+            //TODO save this list somewhere to view uploaded projects
+        });
+    debugger;
+    identList = JSON.parse(identList).values;
+    for (let i = 0; i < identList.length; i++){
+        if (identList[i][0] == ident){
+            await fetch('https://sheets.googleapis.com/v4/spreadsheets/'+workbookID+'/values/'+sheet+'!C'+(i+2).toString()+'?key='+sheetsAPIkey)
+                .then(response => response.text())
+                .then((data) => {
+                    //console.log(data);
+                    let content = LZString.decompressFromEncodedURIComponent(JSON.parse(data).values[0][0]);
+                    //console.log(content);
+
+                    let parseObject = JSON.parse(content);
+                    document.getElementById('project_name').value = parseObject[0]["name"];
+                    background_color = parseObject[0]["bg"];
+                    pickr.setColor(background_color);
+                    for( let i=1; i<Math.min(numLayers+1,parseObject.length); i++){
+                        Object.assign(layers[i-1], parseObject[i]);
+                    }
+                    for(i=parseObject.length-1;i<numLayers;i++){
+                        layers[i].setLayerSetting("enabled", "false");
+                    }
+                    document.getElementById('browse-overlay').style.display = "none";
+                    populateList();
+                    drawLayers(fast);
+                    //TODO save this list somewhere to view uploaded projects
+                }
+            );
+        }
+    }
+    //console.log(identList);
 }

@@ -189,6 +189,21 @@ button.action {
   left:10%;
   background-color:lightblue;
 }
+.browse-modal {
+  position:absolute;
+  width:94%;
+  height:94vh;
+  top:3vh;
+  left:3%;
+  background-color:lightblue;
+}
+.browse-list {
+  padding: 1vh;
+  display: flex;
+  border-style: solid;
+  border-width: 2px 0 2px 0; /* top right bottom left */
+  border-color: rgb(124, 180, 199)
+}
 
   </style>
 <link rel="stylesheet" href="./monolith.min.css"/> <!-- 'monolith' theme -->
@@ -223,8 +238,8 @@ button.action {
         Author:
         <input class="fullwide" id="publish_author" type="text" value="">
         Description:
-        <textarea id="publish_description" class="fullwide" rows="6"
-                  style="resize:none;" placeholder="Type your description here..."></textarea>
+        <textarea id="publish_description" class="fullwide" rows="2"
+                  style="resize:none;" placeholder="A short description here..."></textarea>
         <div class="flex">
           <div class="grow"></div>
           <div class="flex center pad">
@@ -234,6 +249,21 @@ button.action {
           <div class="grow"></div>
           <div class="flex center pad">
             <button id="submit_publish" onclick="uploadLayout()">Publish</button>
+          </div>
+          <div class="grow"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="browse-overlay" class="overlay" style="display:none;">
+    <div id="browse-modal" class="browse-modal flex column" style="align-items:center;">
+      <div id="browse-area" class="fullwide grow flex column scroller">
+
+      </div>
+      <div class="fullwide">
+        <div class="flex">
+          <div class="flex center pad">
+            <button id="cancel_browse" onclick="document.getElementById('browse-overlay').style.display = 'none';">Close</button>
           </div>
           <div class="grow"></div>
         </div>
