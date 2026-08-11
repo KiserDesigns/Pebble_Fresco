@@ -164,6 +164,16 @@ button.action {
   z-index: 10000;
 }
 
+.publish-modal {
+  position:absolute;
+  width:80%;
+  height:80vh;
+  top:10vh;
+  left:10%;
+  border:1px solid red;
+  z-index:10000;
+}
+
   </style>
 <link rel="stylesheet" href="./monolith.min.css"/> <!-- 'monolith' theme -->
 
@@ -186,27 +196,24 @@ button.action {
     <span style="font-family:roboto-bold;" ></span>  
     <span style="font-family:droid-bold;"></span> 
   </div>-->
+  <div class="publish-modal">
+
+  </div>
   <div class='image-converter' id="image-converter" style="display:none">
     <iframe class='image-converter' id="iframeid" src="./image-converter/index.html?embed=true"></iframe>
   </div>
   <div style="display:flex;flex-direction:column;height:100%;max-height:100%;margin:0;">
   <div class="flex">
-    <div class="center pad">
+    <div class="flex center pad">
       <button id='submit_button'>Save</button>
     </div>
-    <div class="center grow flex">
-      Platform:&nbsp;
-      <select id="platform">
-        <option value="aplite">Classic Pebble</option>
-        <option value="basalt">Pebble Time</option>
-        <option value="chalk">Time Round</option>
-        <option value="diorite">Pebble 2</option>
-        <option value="emery" selected>Pebble Time 2</option>
-        <option value="flint">Pebble 2 Duo</option>
-        <option value="gabbro">Pebble Round 2</option>
-      </select>
+    <div class="flex center grow" style="margin-right:1vh">
+      <button id='publish_button'>Publish</button>
     </div>
-    <div class="center pad">
+    <div class="flex center grow">
+      <button id='browse_button'>Browse</button>
+    </div>
+    <div class="flex center pad">
       <button id='import_button'>Import</button>
     </div>
   </div>
@@ -225,6 +232,17 @@ button.action {
       <button class="square action" style="height:40px" onclick="let v=document.getElementById('main_info');v.style.visibility=v.style.visibility=='hidden'?'visible':'hidden';">&#9881;</button>
       <div style="position:relative">
         <div id="main_info" class="pad" style="position:absolute;top:0;left:0;background-color: rgb(124, 180, 199);;visibility:hidden;z-index:9999;">
+          Platform:&nbsp;
+          <select id="platform">
+            <option value="aplite">Classic Pebble</option>
+            <option value="basalt">Pebble Time</option>
+            <option value="chalk">Time Round</option>
+            <option value="diorite">Pebble 2</option>
+            <option value="emery" selected>Pebble Time 2</option>
+            <option value="flint">Pebble 2 Duo</option>
+            <option value="gabbro">Pebble Round 2</option>
+          </select>
+          <br>
           Spoof Date/Time:
           <br><input  type="datetime-local" id="datetime">
           <br>Battery&nbsp;%:&nbsp;<input class="half-wide" type="number" id="battery" value="80">
