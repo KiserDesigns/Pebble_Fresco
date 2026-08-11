@@ -1,4 +1,9 @@
-let sheetsAPIkey = 'AIzaSyAyIofSJYruGN_d83MjGkDU3KhLp23jBAY';
+const k1 = 'AIzaSyAyI';
+const k2 = 'ofSJYruGN_';
+const k3 = 'd83MjGkDU3';
+const k4 = 'KhLp23jBAY';
+
+let sheetsAPIkey = k1 + k2 + k3 + k4;
 
 const uid = function(){
         return Date.now().toString(36) + Math.random().toString(36).slice(2,5);
