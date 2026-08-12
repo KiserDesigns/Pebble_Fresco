@@ -111,7 +111,7 @@ async function fetchForm(url){
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response;
-        console.log(data);
+        //console.log(data);
     } catch (error) {
         console.error('Fetch error:', error);
     }
@@ -165,7 +165,7 @@ function getCompressedCanvasDataURI(canvas, targetBytes) {
       hi = mid;  // Need lower quality
     }
   }
-  console.log(mid, decodeURIComponent(best));
+  console.log(mid, best.length);
   return best
 }
 
@@ -251,7 +251,7 @@ async function loadOnline(ident){
                     .then(response => response.text())
                     .then((data) => {
                         let parseObject = JSON.parse(data).values[0];
-                        console.log(parseObject);
+                        console.log(parseObject[0]);
                         imgdata[parseInt(parseObject[0])] = parseObject[1];
                     }
                 );
