@@ -1207,7 +1207,7 @@ function saveLocalStorage(){
 }
 
 // Add a 'click' listener
-submitButton.addEventListener("click", function () {
+submitButton.addEventListener("click", async function () {
     
     if (inApp){
       var options = {
@@ -1232,8 +1232,16 @@ submitButton.addEventListener("click", function () {
         } else {
           layer['l'] = {"enabled":"false"};
         }
+        if (layer['t'] == "image"){
+          document.getElementById('submit_button').innerHTML = "Uploading Images";
+          let imageUrlListJSON = JSON.stringify(await uploadTempData(layers[i].getImageData()));
+          //console.log(imageUrlListJSON);
+          layer['i'] = imageUrlListJSON;
+          
+        }
         options[i] = layer;
       }
+      document.getElementById('submit_button').innerHTML = "Save&nbsp;to&nbsp;Watch"
 
       console.log(
         JSON.stringify(options)

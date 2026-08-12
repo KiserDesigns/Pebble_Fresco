@@ -264,3 +264,27 @@ async function loadOnline(ident){
     }
     //console.log(identList);
 }
+
+async function uploadTempData(data){
+    
+    let urls = [];
+    let chunkedData = splitStringArray(data, 6000);
+
+    for (let i = 0; i<chunkedData.length; i++){
+        let index = i.toString();
+        let key = 'fresco'+uid();
+        let data = {};
+        data[index] = encodeURIComponent(chunkedData[i]);
+        let upload = await fetch('https://kv.valkeyrie.com/'+key, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+        });
+        //console.log(upload);
+        urls.push('https://kv.valkeyrie.com/'+key);
+    }
+    return urls;
+
+}
