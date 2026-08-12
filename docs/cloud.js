@@ -245,19 +245,33 @@ async function loadOnline(ident){
 
     async function loadOnlineImage(image, layer){
         let imgdata = [];
+        let min_i = 999999;
+        let max_i = -1;
         for (let i = 0; i < imageList.length; i++){
             if (imageList[i][0] == image){
-                await fetch('https://sheets.googleapis.com/v4/spreadsheets/'+workbookID+'/values/'+imageSheet+'!C'+(i+2).toString()+':D'+(i+2).toString()+'?key='+sheetsAPIkey)
-                    .then(response => response.text())
-                    .then((data) => {
-                        let parseObject = JSON.parse(data).values[0];
-                        console.log(parseObject[0]);
-                        imgdata[parseInt(parseObject[0])] = parseObject[1];
-                    }
-                );
+                if (i<min_i){
+                    min_i = i;
+                }
+                if (i>max_i){
+                    max_i = i;
+                }
             }
         }
-        dataURI = ""
+        let fetchData = await fetch('https://sheets.googleapis.com/v4/spreadsheets/'+workbookID+'/values/'+imageSheet+'!B'+(min_i+2).toString()+':D'+(max_i+2).toString()+'?key='+sheetsAPIkey)
+            .then(response => response.text())
+            .then((data) => {
+                //console.log(JSON.parse(data).values)
+                return JSON.parse(data).values;
+            }
+        );
+        console.log(layer, image);
+        for (let i = 0; i < fetchData.length; i++){
+            if (fetchData[i][0] == image){
+                console.log(fetchData[i][1]);
+                imgdata[parseInt(fetchData[i][1])] = fetchData[i][2];
+            }
+        }
+        let dataURI = ""
         for (let i = 0; i<imgdata.length; i++){
             dataURI = dataURI + imgdata[i];
         }
