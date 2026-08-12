@@ -190,7 +190,7 @@ function showPublish() {
 
 
 document.getElementById('browse_button').addEventListener("click",function(){
-    debugger;
+    //debugger;
     showBrowse();
 });
 
@@ -233,7 +233,38 @@ async function loadOnline(ident){
             return data;
             //TODO save this list somewhere to view uploaded projects
         });
-    debugger;
+
+    let imageSheet = "ImageData";
+    let imageList = await fetch('https://sheets.googleapis.com/v4/spreadsheets/'+workbookID+'/values/'+imageSheet+'!B2:B?key='+sheetsAPIkey)
+        .then(response => response.text())
+        .then((data) => {
+            //console.log(data);
+            return JSON.parse(data).values;
+            //TODO save this list somewhere to view uploaded projects
+        });
+
+    async function loadOnlineImage(image, layer){
+        let imgdata = [];
+        for (let i = 0; i < imageList.length; i++){
+            if (imageList[i][0] == image){
+                await fetch('https://sheets.googleapis.com/v4/spreadsheets/'+workbookID+'/values/'+imageSheet+'!C'+(i+2).toString()+':D'+(i+2).toString()+'?key='+sheetsAPIkey)
+                    .then(response => response.text())
+                    .then((data) => {
+                        let parseObject = JSON.parse(data).values[0];
+                        console.log(parseObject);
+                        imgdata[parseInt(parseObject[0])] = parseObject[1];
+                    }
+                );
+            }
+        }
+        dataURI = ""
+        for (let i = 0; i<imgdata.length; i++){
+            dataURI = dataURI + imgdata[i];
+        }
+        layers[layer].setImageData(dataURI);
+    }
+
+    //debugger;
     identList = JSON.parse(identList).values;
     for (let i = 0; i < identList.length; i++){
         if (identList[i][0] == ident){
@@ -250,6 +281,9 @@ async function loadOnline(ident){
                     pickr.setColor(background_color);
                     for( let i=1; i<Math.min(numLayers+1,parseObject.length); i++){
                         Object.assign(layers[i-1], parseObject[i]);
+                        if (layers[i-1].getType()=='image'){
+                            loadOnlineImage(layers[i-1].getImageData(), i-1);
+                        }
                     }
                     for(i=parseObject.length-1;i<numLayers;i++){
                         layers[i].setLayerSetting("enabled", "false");

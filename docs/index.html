@@ -1233,7 +1233,8 @@ submitButton.addEventListener("click", async function () {
           layer['l'] = {"enabled":"false"};
         }
         if (layer['t'] == "image"){
-          document.getElementById('submit_button').innerHTML = "Uploading Images";
+          document.getElementById('submit_button').innerHTML = "Uploading Images for Layer " + i.toString();
+          document.getElementById('submit_button').disabled = true;
           let imageUrlListJSON = JSON.stringify(await uploadTempData(layers[i].getImageData()));
           //console.log(imageUrlListJSON);
           layer['i'] = imageUrlListJSON;
@@ -1241,7 +1242,8 @@ submitButton.addEventListener("click", async function () {
         }
         options[i] = layer;
       }
-      document.getElementById('submit_button').innerHTML = "Save&nbsp;to&nbsp;Watch"
+      document.getElementById('submit_button').innerHTML = "Save&nbsp;to&nbsp;Watch";
+      document.getElementById('submit_button').disabled = false;
 
       console.log(
         JSON.stringify(options)
