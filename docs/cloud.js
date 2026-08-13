@@ -6,18 +6,21 @@ const k4 = 'KhLp23jBAY';
 let sheetsAPIkey = k1 + k2 + k3 + k4;
 
 const uid = function(){
-        return Date.now().toString(36) + Math.random().toString(36).slice(2,5);
-        // milliseconds encoded in base 36 and then a random string (slice(2,5) to get rid of the '0.')
-    }
+    return Date.now().toString(36) + Math.random().toString(36).slice(2,5);
+    // milliseconds encoded in base 36 and then a random string (slice(2,5) to get rid of the '0.')
+}
+
 
 fetch('http://localhost:8000/private.key')
   .then(response => response.text())
   .then((data) => {
     //console.log(data);
     sheetsAPIkey = data; 
+    downloadBrowseList();
   })
   .catch(error => {
     console.error('Fetch failed:', error);
+    downloadBrowseList();
   });
 
 
@@ -195,23 +198,34 @@ document.getElementById('browse_button').addEventListener("click",function(){
     showBrowse();
 });
 
+let browseListData = {};
+
 async function showBrowse() {
     document.getElementById('browse-overlay').style.display = "block";
+    //downloadBrowseList();
+    populateBrowseList();
+}
+
+async function downloadBrowseList(){
     let browseArea = document.getElementById('browse-area');
-    
     browseArea.innerHTML = '<div class="flex center grow">Downloading Published Frescos...</div>';
-    let list = JSON.parse(await getList()).values;
+    browseListData = JSON.parse(await getList()).values;
+    populateBrowseList();
+}
+
+function populateBrowseList() {
+    let browseArea = document.getElementById('browse-area');
     browseArea.innerHTML = '';
     let platform_special = (platform == 'chalk') || (platform == 'emery') || (platform == 'gabbro');
-    for(let i = 0; i<list.length; i++){
-        //console.log(list[i]);
-        let meta = JSON.parse(list[i][2]);
+    for(let i = 0; i<browseListData.length; i++){
+        //console.log(browseListData[i]);
+        let meta = JSON.parse(browseListData[i][2]);
         let is_special = (meta['platform'] == 'chalk') || (meta['platform'] == 'emery') || (meta['platform'] == 'gabbro');
         if((!platform_special && !is_special) || (meta['platform'] == platform)){
             let le = document.createElement('div');
             le.classList.add("browse-list")
             le.style.height = '140px';
-            le.innerHTML = `<div style="margin-right:1vh;min-width:120px;max-width:120px;" class="flex center"><img height=100% src=${list[i][1]}></img></div>
+            le.innerHTML = `<div style="margin-right:1vh;min-width:120px;max-width:120px;" class="flex center"><img height=100% src=${browseListData[i][1]}></img></div>
             <div class="flex column grow">
                 <div class="flex">
                     <div class="grow flex column">
@@ -219,7 +233,7 @@ async function showBrowse() {
                         <div class="pad">by: ${meta['author']}</div>
                     </div>
                     <div>
-                        <button onclick="loadOnline('${list[i][0]}');this.disabled=true;">Load</button>
+                        <button onclick="loadOnline('${browseListData[i][0]}');this.disabled=true;">Load</button>
                     </div>
                 </div>
                 <div style="overflow:hidden;font-family:gotham-light;">${meta['description']}</div>
@@ -227,7 +241,7 @@ async function showBrowse() {
             browseArea.appendChild(le);
         }
     }
-}
+};
 
 async function loadOnline(ident){
     let sheet = "LayerData";
