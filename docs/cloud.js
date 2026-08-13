@@ -211,20 +211,27 @@ async function downloadBrowseList(){
     let browseArea = document.getElementById('browse-area');
     browseArea.innerHTML = '<div class="flex center grow">Downloading Published Frescos...</div>';
     browseListData = JSON.parse(await getList()).values;
-    //populateBrowseList();
+    populateBrowseList();
 }
 
 function populateBrowseList() {
     let browseArea = document.getElementById('browse-area');
     browseArea.innerHTML = '';
     let browse_platform = document.getElementById("browse-platform").value;
-    if (browse_platform != platform){
-        document.getElementById("browse-platform").style.outline = "solid 0.5vh orange";
+    if (browse_platform == 'all'){
+        document.getElementById("browse-platform").style.outline = "solid 0.5vh transparent";
     } else {
-        document.getElementById("browse-platform").style.outline = "solid 0.5vh green";
+        if (isCompatible(browse_platform, platform)){
+            document.getElementById("browse-platform").style.outline = "solid 0.5vh green";
+        } else {
+            document.getElementById("browse-platform").style.outline = "solid 0.5vh orange";
+        }
     }
 
     function isCompatible(downloaded_platform, browse_platform){
+        if (browse_platform == 'all'){
+            browse_platform = platform;
+        }
         if (downloaded_platform == browse_platform){
             return true;
         }
@@ -242,12 +249,13 @@ function populateBrowseList() {
     for(let i = 0; i<browseListData.length; i++){
         //console.log(browseListData[i]);
         let meta = JSON.parse(browseListData[i][2]);
+        let round = meta['platform']=='chalk'||meta['platform']=='gabbro';
         if(isCompatible(meta['platform'], browse_platform) || (browse_platform == 'all')){
             let le = document.createElement('div');
             le.classList.add("browse-list")
             le.style.height = '140px';
             le.innerHTML = `<div style="margin-right:1vh;min-width:120px;max-width:120px;" class="flex center">
-            <img height=100% src=${browseListData[i][1]} style="border-radius:${meta['platform']=='chalk'||meta['platform']=='gabbro'?'50%':0}"></img></div>
+            <img height=100% src=${browseListData[i][1]} style="border-radius:${round?'50%':0}"></img></div>
             <div class="flex column grow">
                 <div class="flex">
                     <div class="grow flex column">
@@ -255,7 +263,8 @@ function populateBrowseList() {
                         <div class="pad">by: ${meta['author']}</div>
                     </div>
                     <div>
-                        <button onclick="loadOnline('${browseListData[i][0]}');this.disabled=true;">Load</button>
+                        <button onclick="loadOnline('${browseListData[i][0]}');this.disabled=true;"
+                              style="outline:0.5vh solid ${isCompatible(meta['platform'], platform)?'green':'orange'}">Load</button>
                     </div>
                 </div>
                 <div style="overflow:hidden;font-family:gotham-light;">${meta['description']}</div>
@@ -346,7 +355,7 @@ async function loadOnline(ident){
                     document.getElementById('browse-overlay').style.display = "none";
                     populateList();
                     drawLayers(fast);
-                    //TODO save this list somewhere to view uploaded projects
+                    openLayer(-1);
                 }
             );
         }

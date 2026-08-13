@@ -786,7 +786,7 @@ document.addEventListener('pointerup', (e) => {
   xyTrack.style.backgroundColor = "";
   whTrack.style.backgroundColor = "";
   rTrack.style.backgroundColor = "";
-  console.log('Tracking stopped.');
+  //console.log('Tracking stopped.');
 });
 
 document.addEventListener('pointercancel', (e) => {
@@ -796,7 +796,7 @@ document.addEventListener('pointercancel', (e) => {
   xyTrack.style.backgroundColor = "";
   whTrack.style.backgroundColor = "";
   rTrack.style.backgroundColor = "";
-  console.log('Tracking stopped.');
+  //console.log('Tracking stopped.');
 });
 
 function dragHysteresis(d) {
@@ -1121,7 +1121,7 @@ function sizePreview(scale = 1) {
 
   layer_container.style.maxHeight = "calc(" + plat_h * scale + "px + 2vh)";
 
-  console.log(layer_container.style.maxHeight);
+  //console.log(layer_container.style.maxHeight);
 
   if (platform == "chalk" || platform == "gabbro") {
     mask_ctx.rect(0, 0, plat_w, plat_h);
@@ -1197,7 +1197,7 @@ function getPlatform() {
       plat_h = 168;
       break;
   }
-  console.log(platform, plat_w, plat_h);
+  //console.log(platform, plat_w, plat_h);
   sizePreview();
   drawLayers(fast);
 }
