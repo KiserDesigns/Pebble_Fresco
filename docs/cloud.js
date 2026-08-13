@@ -202,6 +202,7 @@ let browseListData = {};
 
 async function showBrowse() {
     document.getElementById('browse-overlay').style.display = "block";
+    document.getElementById("browse-platform").value = platform;
     //downloadBrowseList();
     populateBrowseList();
 }
@@ -210,18 +211,38 @@ async function downloadBrowseList(){
     let browseArea = document.getElementById('browse-area');
     browseArea.innerHTML = '<div class="flex center grow">Downloading Published Frescos...</div>';
     browseListData = JSON.parse(await getList()).values;
-    populateBrowseList();
+    //populateBrowseList();
 }
 
 function populateBrowseList() {
     let browseArea = document.getElementById('browse-area');
     browseArea.innerHTML = '';
-    let platform_special = (platform == 'chalk') || (platform == 'emery') || (platform == 'gabbro');
+    let browse_platform = document.getElementById("browse-platform").value;
+    if (browse_platform != platform){
+        document.getElementById("browse-platform").style.outline = "solid 0.5vh orange";
+    } else {
+        document.getElementById("browse-platform").style.outline = "solid 0.5vh green";
+    }
+
+    function isCompatible(downloaded_platform, browse_platform){
+        if (downloaded_platform == browse_platform){
+            return true;
+        }
+        if (browse_platform == 'flint'){ //has more storage than aplite/diorite
+            if (downloaded_platform == 'aplite'){
+                return true;
+            }
+        }
+        if (browse_platform == 'basalt'){ //has more colors than aplite/diorite
+            if (downloaded_platform == 'aplite'){
+                return true;
+            }
+        }
+    }
     for(let i = 0; i<browseListData.length; i++){
         //console.log(browseListData[i]);
         let meta = JSON.parse(browseListData[i][2]);
-        let is_special = (meta['platform'] == 'chalk') || (meta['platform'] == 'emery') || (meta['platform'] == 'gabbro');
-        if((!platform_special && !is_special) || (meta['platform'] == platform)){
+        if(isCompatible(meta['platform'], browse_platform) || (browse_platform == 'all')){
             let le = document.createElement('div');
             le.classList.add("browse-list")
             le.style.height = '140px';

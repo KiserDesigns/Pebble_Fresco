@@ -257,19 +257,32 @@ button.action {
   </div>
   <div id="browse-overlay" class="overlay" style="display:none;">
     <div id="browse-modal" class="browse-modal flex column" style="align-items:center;">
-      <div id="browse-area" class="fullwide grow flex column scroller">
-
-      </div>
       <div class="fullwide">
         <div class="flex">
           <div class="flex center pad">
             <button id="cancel_browse" onclick="document.getElementById('browse-overlay').style.display = 'none';">Close</button>
           </div>
           <div class="grow"></div>
+          <div class="flex center">
+            Platform:&nbsp;
+            <select id="browse-platform" onchange="populateBrowseList();">
+              <option value="all">- Show All -</option>
+              <option value="aplite">Pebble [OG/2]</option>
+              <option value="basalt">Pebble Time</option>
+              <option value="chalk">Time Round</option>
+              <option value="emery" selected>Pebble Time 2</option>
+              <option value="flint">Pebble 2 Duo</option>
+              <option value="gabbro">Pebble Round 2</option>
+            </select>
+          </div>
+          <div class="grow"></div>
           <div class="flex center pad">
             <button id="refresh_browse" onclick="downloadBrowseList();">Refresh</button>
           </div>
         </div>
+      </div>
+      <div id="browse-area" class="fullwide grow flex column scroller">
+
       </div>
     </div>
   </div>
@@ -331,10 +344,9 @@ button.action {
         <div id="main_info" class="pad" style="position:absolute;top:0;left:0;background-color: rgb(124, 180, 199);;visibility:hidden;z-index:9999;">
           Platform:&nbsp;
           <select id="platform">
-            <option value="aplite">Classic Pebble</option>
+            <option value="aplite">Pebble [OG/2]</option>
             <option value="basalt">Pebble Time</option>
             <option value="chalk">Time Round</option>
-            <option value="diorite">Pebble 2</option>
             <option value="emery" selected>Pebble Time 2</option>
             <option value="flint">Pebble 2 Duo</option>
             <option value="gabbro">Pebble Round 2</option>
@@ -1152,6 +1164,9 @@ function getPlatform() {
   // Get the platform from the URL:
   platform = getQueryParam("platform", "none");
   if (platform != "none") {
+    if (platform == 'diorite'){
+      platform = 'aplite'; //Lump Aplite and Diorite together, have the same persistent memory size and screen
+    }
     platform_element.value = platform;
     platform_element.disabled = true;
     document.getElementById('submit_button').innerHTML = "Save&nbsp;to&nbsp;Watch"
