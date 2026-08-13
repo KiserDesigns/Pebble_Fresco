@@ -379,7 +379,7 @@ function sendPebbleAppMessageResilient(data, successCallback, failCallback, atte
       return true;
     }, function(e) {
       console.log(data, 'send failed, attempt ', attempt+1);
-      return setTimeout(sendPebbleAppMessageResilient(data, attempt+1),200*attempt*attempt);
+      return setTimeout(sendPebbleAppMessageResilient(data, function(){return true;}, function(){return false;}, attempt+1),200*attempt*attempt);
     });
   } else {
     console.log(data, 'send failed, quitting');
