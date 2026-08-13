@@ -246,7 +246,8 @@ function populateBrowseList() {
             let le = document.createElement('div');
             le.classList.add("browse-list")
             le.style.height = '140px';
-            le.innerHTML = `<div style="margin-right:1vh;min-width:120px;max-width:120px;" class="flex center"><img height=100% src=${browseListData[i][1]}></img></div>
+            le.innerHTML = `<div style="margin-right:1vh;min-width:120px;max-width:120px;" class="flex center">
+            <img height=100% src=${browseListData[i][1]} style="border-radius:${meta['platform']=='chalk'||meta['platform']=='gabbro'?'50%':0}"></img></div>
             <div class="flex column grow">
                 <div class="flex">
                     <div class="grow flex column">
