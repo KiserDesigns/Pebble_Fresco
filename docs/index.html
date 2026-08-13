@@ -1235,7 +1235,8 @@ submitButton.addEventListener("click", async function () {
         if (layer['t'] == "image"){
           document.getElementById('submit_button').innerHTML = "Uploading Images for Layer " + i.toString();
           document.getElementById('submit_button').disabled = true;
-          let imageUrlListJSON = JSON.stringify(await uploadTempData(layers[i].getImageData()));
+          let quantized_image = quantizeImage(layers[i].getImageData());
+          let imageUrlListJSON = JSON.stringify(await uploadTempData(quantized_image));
           //console.log(imageUrlListJSON);
           layer['i'] = imageUrlListJSON;
           
@@ -1264,6 +1265,19 @@ submitButton.addEventListener("click", async function () {
     document.getElementById('save_menu').style.visibility ='hidden';
 
 });
+
+async function quantizeImage(imageDataURI){
+    let img = new Image();
+    img.src = imageDataURI;
+    let imageBitmap = await createImageBitmap(img);
+
+    let quantizedImage = "";
+    for (let y = 0; y < img.height; y++){
+      for (let x = 0; x < img.width; x++){
+
+      }
+    }
+}
 
 function saveSlot(slot='1'){
   
