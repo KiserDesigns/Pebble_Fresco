@@ -1215,39 +1215,38 @@ submitButton.addEventListener("click", async function () {
         //temperature_checkbox: temperatureCheckbox.checked ? 1 : 0,
       };
       for (let i = 0; i<numLayers; i++){
-        var layer = {};
+        let layer = {};
         if(layers[i].getLayerSetting("enabled") == "true"){
-        layer['t'] = layers[i].getType();
-        layer['p'] = layers[i].getPos();
-        layer['l'] = layers[i].getLayerSettings();
-        layer['s'] = layers[i].getContentSettings();
-        layer['n'] = layers[i].getFontSettings();
-        layer['r'] = layers[i].getRadius();
-        layer['d'] = layers[i].getDynamics();
-        layer['f'] = parseInt(layers[i].getFgColor().substr(1, 6), 16);
-        if (layers[i].getFgColor()[7]=="0"){layer['f']+=16777888;}
-        layer['b'] = parseInt(layers[i].getBgColor().substr(1, 6), 16);
-        if (layers[i].getBgColor()[7]=="0"){layer['b']+=16777888;}
-        layer['c'] = layers[i].getContent();
+          layer['t'] = layers[i].getType();
+          layer['p'] = layers[i].getPos();
+          layer['l'] = layers[i].getLayerSettings();
+          layer['s'] = layers[i].getContentSettings();
+          layer['n'] = layers[i].getFontSettings();
+          layer['r'] = layers[i].getRadius();
+          layer['d'] = layers[i].getDynamics();
+          layer['f'] = parseInt(layers[i].getFgColor().substr(1, 6), 16);
+          if (layers[i].getFgColor()[7]=="0"){layer['f']+=16777888;}
+          layer['b'] = parseInt(layers[i].getBgColor().substr(1, 6), 16);
+          if (layers[i].getBgColor()[7]=="0"){layer['b']+=16777888;}
+          layer['c'] = layers[i].getContent();
+          if (layer['t'] == "image"){
+            document.getElementById('submit_button').innerHTML = "Uploading Images for Layer " + i.toString();
+            document.getElementById('submit_button').disabled = true;
+            let quantized_image = await quantizeImage(layers[i].getImageData());
+            let imageUrlListJSON = JSON.stringify(await uploadTempData(quantized_image));
+            //console.log(imageUrlListJSON);
+            layer['i'] = imageUrlListJSON;
+          }
         } else {
           layer['l'] = {"enabled":"false"};
         }
-        if (layer['t'] == "image"){
-          document.getElementById('submit_button').innerHTML = "Uploading Images for Layer " + i.toString();
-          document.getElementById('submit_button').disabled = true;
-          let quantized_image = quantizeImage(layers[i].getImageData());
-          let imageUrlListJSON = JSON.stringify(await uploadTempData(quantized_image));
-          console.log(imageUrlListJSON);
-          layer['i'] = imageUrlListJSON;
-          
-        }
+        
         options[i] = layer;
       }
       document.getElementById('submit_button').innerHTML = "Save&nbsp;to&nbsp;Watch";
       document.getElementById('submit_button').disabled = false;
 
-      console.log(
-        JSON.stringify(options)
+      console.log(options
         //temperatureCheckbox.checked ? 1 : 0,
       );
       // Determine the correct return URL (emulator vs real watch)
@@ -1278,7 +1277,7 @@ async function quantizeImage(imageDataURI){
     ctx.drawImage(img,0,0,img.width,img.height);
 
     const imageData = ctx.getImageData(0,0,img.width,img.height);
-    console.log(imageData);
+    //console.log(imageData);
     let quantizedImage = "";
     for (let y = 0; y < img.height; y++){
         for (let x = 0; x < img.width; x++){
@@ -1294,7 +1293,7 @@ async function quantizeImage(imageDataURI){
           imgStr = imgStr + chars[index];
         }
     }
-    console.log(imgStr);
+    //console.log(imgStr);
     return imgStr;
 }
 
