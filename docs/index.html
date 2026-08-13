@@ -1237,7 +1237,7 @@ submitButton.addEventListener("click", async function () {
           document.getElementById('submit_button').disabled = true;
           let quantized_image = quantizeImage(layers[i].getImageData());
           let imageUrlListJSON = JSON.stringify(await uploadTempData(quantized_image));
-          //console.log(imageUrlListJSON);
+          console.log(imageUrlListJSON);
           layer['i'] = imageUrlListJSON;
           
         }
@@ -1269,21 +1269,33 @@ submitButton.addEventListener("click", async function () {
 async function quantizeImage(imageDataURI){
     let img = new Image();
     img.src = imageDataURI;
-    //let imageBitmap = await createImageBitmap(img);
+    const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-._"
+    let imgStr = "";
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
     canvas.width = img.width;
     canvas.height = img.height;
-    ctx.drawImage(img,0,0,img.width,img.height)
+    ctx.drawImage(img,0,0,img.width,img.height);
 
     const imageData = ctx.getImageData(0,0,img.width,img.height);
     console.log(imageData);
     let quantizedImage = "";
     for (let y = 0; y < img.height; y++){
         for (let x = 0; x < img.width; x++){
-            console.log(imageData.data[(x+img.width*y)*4]);
+          r = Math.floor(imageData.data[(x+img.width*y)*4]/64);
+          g = Math.floor(imageData.data[(x+img.width*y)*4+1]/64);
+          b = Math.floor(imageData.data[(x+img.width*y)*4+2]/64);
+          a = Math.floor(imageData.data[(x+img.width*y)*4+3]/64);
+          if (a < 2) {
+            index = 64;
+          } else {
+            index = 16*r+4*g+b;
+          }
+          imgStr = imgStr + chars[index];
         }
     }
+    console.log(imgStr);
+    return imgStr;
 }
 
 function saveSlot(slot='1'){
