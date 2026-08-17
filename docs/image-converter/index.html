@@ -214,17 +214,17 @@ input[type="checkbox"] + label {
     </div>
     <div style="display:flex;align-items: center;margin-top: 0.5em;">
       <label for="input_width" class="big-font">W:</label>
-            <button class="decrementer" onpointerdown="incSib(this.nextElementSibling, -15, -255, 255)"><</button>
-      <button class="decrementer" onpointerdown="incSib(this, -1, 0, 260)" style="margin-left:0">-</button>
+            <button class="decrementer" onpointerdown="incSib(this.nextElementSibling, -15, 1, 260)"><</button>
+      <button class="decrementer" onpointerdown="incSib(this, -1, 1, 260)" style="margin-left:0">-</button>
       <input type="number" name="input_width" id="input_width" value="100" style="flex:1;" min="1">
-      <button class="incrementer" onpointerdown="incSib(this, 1, 0, 260)" style="margin-right:0">+</button>
-            <button class="incrementer" onpointerdown="incSib(this.previousElementSibling, 15, -255, 255)">></button>
+      <button class="incrementer" onpointerdown="incSib(this, 1, 1, 260)" style="margin-right:0">+</button>
+            <button class="incrementer" onpointerdown="incSib(this.previousElementSibling, 15, 1, 260)">></button>
       <label for="input_height" class="big-font">H:</label>
-            <button class="decrementer" onpointerdown="incSib(this.nextElementSibling, -15, -255, 255)"><</button>
-      <button class="decrementer" onpointerdown="incSib(this, -1, 0, 260)" style="margin-left:0">-</button>
+            <button class="decrementer" onpointerdown="incSib(this.nextElementSibling, -15, 1, 260)"><</button>
+      <button class="decrementer" onpointerdown="incSib(this, -1, 1, 260)" style="margin-left:0">-</button>
       <input type="number" name="input_height" id="input_height" value="100" style="flex:1;" min="1">
-      <button class="incrementer" onpointerdown="incSib(this, 1, 0, 260)" style="margin-right:0">+</button>
-            <button class="incrementer" onpointerdown="incSib(this.previousElementSibling, 15, -255, 255)">></button>
+      <button class="incrementer" onpointerdown="incSib(this, 1, 1, 260)" style="margin-right:0">+</button>
+            <button class="incrementer" onpointerdown="incSib(this.previousElementSibling, 15, 1, 260)">></button>
     </div>
     <div style="display:flex;flex-grow: 1;margin-top:0.5em;">
       <div class="left-width" style="display:flex;align-items: top;flex:1;">
