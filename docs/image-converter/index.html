@@ -54,7 +54,7 @@ input, select, button {
   min-width: 10px;
   appearance: none;
   height: 1.8em;
-  border: 1px solid gray;
+  border: 0px solid gray;
   border-radius:0;
   background-color: white;
 
@@ -83,7 +83,7 @@ input[type="file"]::file-selector-button {
   border-radius:0;
   height: 1.8em;
   display: inline-block;
-  padding: 6px 12px;
+  padding: min(1vh, 1.6vw);
   cursor: pointer;
   background-color: whitesmoke;
 }
@@ -102,14 +102,13 @@ button:active{
 
 .decrementer {
   aspect-ratio:3/4;
-  border-radius:0;
   margin-right:0;
-  border: 1px solid gray;
+  border-right: 1px solid gray;
 }
 .incrementer {
   aspect-ratio:3/4;
   margin-left:0;
-  border: 1px solid gray;
+  border-left: 1px solid gray;
 }
 
 select {
