@@ -8,9 +8,26 @@
   <title>Image to Pebble</title>
 
   <style>
+body {
+  background-color: lightblue;
+  height: 100vh; /* Use vh as a fallback for browsers that do not support Custom Properties */
+  height: calc(var(--vh, 1vh) * 100);
+  margin: 0;
+  padding: 0;
+  font-family: gotham-medium, sans-serif;
+  font-size: min(2.5vh, 4vw);
+}
+
 *:not(body, html) {
   border: solid 0px red;
   box-sizing: border-box;
+}
+
+.left-width {
+  width: 48%;
+}
+.right-width {
+  width: 52%;
 }
 
 canvas {
@@ -32,40 +49,78 @@ canvas {
 
 input, select, button {
   font-size: min(3vh, 4.8vw);
-  margin: 0.2em;
+  margin-left: 0.2em;
+  margin-right: 0.2em;
   min-width: 10px;
-  height: 30px;
+  appearance: none;
+  height: 1.8em;
+  border: 1px solid gray;
+  border-radius:0;
+  background-color: white;
+
 }
 
 input[type="number"] {
-  height: 30px;
   margin-left:0;
   margin-right:0;
+  text-align: center;
 }
 
 input[type="file"] {
+  font-size: min(2.5vh, 4vw);
+  border: 0;
+  border-radius:0;
+  height: 1.8em;
+  display: inline-block;
+  cursor: pointer;
+  background-color: white;
+  width: 80%;
 }
 
-input[type="range"] {
-  width: 90%;
-  //aspect-ratio: 10 / 1;
+input[type="file"]::file-selector-button {
+  font-size: min(2.5vh, 4vw);
+  border: 1px solid gray;
+  border-radius:0;
+  height: 1.8em;
+  display: inline-block;
+  padding: 6px 12px;
+  cursor: pointer;
+  background-color: whitesmoke;
 }
 
+input[type="file"]::file-selector-button:active{
+  background-color: lightgray;
+}
+
+button {
+  background-color: whitesmoke;
+}
+
+button:active{
+  background-color: lightgray;
+}
 
 .decrementer {
-  aspect-ratio:1/1;
+  aspect-ratio:3/4;
   border-radius:0;
   margin-right:0;
   border: 1px solid gray;
 }
 .incrementer {
-  aspect-ratio:1/1;
-  border-radius:0;
+  aspect-ratio:3/4;
   margin-left:0;
   border: 1px solid gray;
 }
 
 select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+      background-color: white;
+      background-image: url(data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMTAwMCAxMDAwIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPg0KICA8cGF0aCBmaWxsPSJncmF5IiBkPSJNMTAsMjMyLjdsNDkwLDUzNC41bDQ5MC01MzQuNUgxMHoiIC8+DQo8L3N2Zz4=);
+      background-repeat: no-repeat;
+      background-position: right;
+      background-size: min(2vh, 3.2vw);
 }
 
 .big-font {
@@ -144,7 +199,7 @@ input[type="checkbox"] + label {
   
 </head>
 <body style="background-color: lightblue;">
-  <div style="height:90vh;display: flex;flex-direction: column;max-width:60vh;margin:auto;">
+  <div style="height:100%;display: flex;flex-direction: column;max-width:62.5vh;margin:auto;">
 
   <div style="display:flex;margin-bottom:0.0em;">
     <div style="width:50%;aspect-ratio : 1 / 1;position:relative;background-color:gray;">
@@ -154,51 +209,52 @@ input[type="checkbox"] + label {
       <canvas id="image_output" ></canvas>
     </div>
   </div>
-  <div style="flex-grow: 1;">
-    <label for="image_upload">Upload an Image:</label>
-    <input type="file" name="image_upload" id="image_upload" accept="image/*">
-    <br>
-    <div style="display:flex;align-items: center;margin-top: 0.4em;">
-      <label for="input_width" style="">Width:</label>
-      <button class="decrementer" onpointerdown="incSib(this, -1, 0, 260)">-</button>
-      <input type="number" name="input_width" id="input_width" value="100" style="flex:1;" min="1">
-      <button class="incrementer" onpointerdown="incSib(this, 1, 0, 260)">+</button>
-      <label for="input_height" style="">Height:</label>
-      <button class="decrementer" onpointerdown="incSib(this, -1, 0, 260)">-</button>
-      <input type="number" name="input_height" id="input_height" value="100" style="flex:1;" min="1">
-      <button class="incrementer" onpointerdown="incSib(this, 1, 0, 260)">+</button>
+  <div style="display:flex;flex-grow: 1;display:flex;flex-direction:column;">
+    <div style="display:flex;width:100%;justify-content:center;">
+      <input type="file" name="image_upload" id="image_upload" accept="image/*">
     </div>
-    <div style="display:flex;margin-top:0.5em;">
-      <div style="display:flex;width:60%;align-items: top;">
-        <div style="flex:1;display:flex;flex-direction: column;">
-          <div style="display:flex">
-            Brightness: 
-            <div>
-              <label>
-                <input id="rangeBrightness" type="range" min="-255" max="255" value="0" step="15"/>
-              </label>
-            </div>
-            <span id="valueBrightness">0</span>
+    <div style="display:flex;align-items: center;margin-top: 0.5em;">
+      <label for="input_width" class="big-font">W:</label>
+            <button class="decrementer" onpointerdown="incSib(this.nextElementSibling, -15, -255, 255)"><</button>
+      <button class="decrementer" onpointerdown="incSib(this, -1, 0, 260)" style="margin-left:0">-</button>
+      <input type="number" name="input_width" id="input_width" value="100" style="flex:1;" min="1">
+      <button class="incrementer" onpointerdown="incSib(this, 1, 0, 260)" style="margin-right:0">+</button>
+            <button class="incrementer" onpointerdown="incSib(this.previousElementSibling, 15, -255, 255)">></button>
+      <label for="input_height" class="big-font">H:</label>
+            <button class="decrementer" onpointerdown="incSib(this.nextElementSibling, -15, -255, 255)"><</button>
+      <button class="decrementer" onpointerdown="incSib(this, -1, 0, 260)" style="margin-left:0">-</button>
+      <input type="number" name="input_height" id="input_height" value="100" style="flex:1;" min="1">
+      <button class="incrementer" onpointerdown="incSib(this, 1, 0, 260)" style="margin-right:0">+</button>
+            <button class="incrementer" onpointerdown="incSib(this.previousElementSibling, 15, -255, 255)">></button>
+    </div>
+    <div style="display:flex;flex-grow: 1;margin-top:0.5em;">
+      <div class="left-width" style="display:flex;align-items: top;flex:1;">
+        <div style="flex:1;display:flex;flex-direction: column;width:100%">
+          <div style="display:flex;align-items: center;margin-top: 0.5em;">
+            <label for="rangeBrightness" class="big-font">&#x263C;</label>
+            <button class="decrementer" onpointerdown="incSib(this.nextElementSibling, -15, -255, 255)"><</button>
+            <button class="decrementer" onpointerdown="incSib(this, -1, -255, 255)" style="margin-left:0">-</button>
+            <input type="number" name="rangeBrightness" id="rangeBrightness" value="0" style="flex:1;" min="1">
+            <button class="incrementer" onpointerdown="incSib(this, 1, -255, 255)" style="margin-right:0">+</button>
+            <button class="incrementer" onpointerdown="incSib(this.previousElementSibling, 15, -255, 255)">></button>
           </div>
-          <div style="display:flex">
-            Contrast: 
-            <div>
-              <label>
-                <input id="rangeContrast" type="range" min="-255" max="255" value="0" step="15"/>
-              </label>
-            </div>
-            <span id="valueContrast">0</span>
+          <div style="display:flex;align-items: center;margin-top: 0.5em;">
+            <label for="rangeContrast" class="big-font">&#x25D0;</label>
+            <button class="decrementer" onpointerdown="incSib(this.nextElementSibling, -15, -255, 255)"><</button>
+            <button class="decrementer" onpointerdown="incSib(this, -1, -255, 255)" style="margin-left:0">-</button>
+            <input type="number" name="rangeContrast" id="rangeContrast" value="0" style="flex:1;" min="1">
+            <button class="incrementer" onpointerdown="incSib(this, 1, -255, 255)" style="margin-right:0">+</button>
+            <button class="incrementer" onpointerdown="incSib(this.previousElementSibling, 15, -255, 255)">></button>
           </div>
-          <div style="display:flex">
-            Saturation: 
-            <div>
-              <label>
-                <input id="rangeSaturation" type="range" min="-255" max="255" value="0" step="15"/>
-              </label>
-            </div>
-            <span id="valueSaturation">0</span>
+          <div style="display:flex;align-items: center;margin-top: 0.5em;">
+            <label for="rangeSaturation" class="big-font">&#x25CD;</label>
+            <button class="decrementer" onpointerdown="incSib(this.nextElementSibling, -15, -255, 255)"><</button>
+            <button class="decrementer" onpointerdown="incSib(this, -1, -255, 255)" style="margin-left:0">-</button>
+            <input type="number" name="rangeSaturation" id="rangeSaturation" value="0" style="flex:1;" min="1">
+            <button class="incrementer" onpointerdown="incSib(this, 1, -255, 255)" style="margin-right:0">+</button>
+            <button class="incrementer" onpointerdown="incSib(this.previousElementSibling, 15, -255, 255)">></button>
           </div>
-          <div style="display:flex;align-items: center;">
+          <div style="display:flex;align-items: center;margin-top: 0.5em;">
             <label for="max_colors">Max Colors:</label>
             <select name="max_colors" id="max_colors" style="flex:1;">
               <option value="2">2</option>
@@ -207,11 +263,8 @@ input[type="checkbox"] + label {
               <option value="64">64</option>
             </select>
           </div>
-          <div>
-            <button id="find_colors">Find Colors</button>
-            <span class="big-font" id="colors_used">10/16</span>
-          </div>
-          <div style="display:flex;align-items: center;">
+          
+          <div style="display:flex;align-items: center;margin-top: 0.5em;">
             <label for="dithering">Dithering:</label>
             <select name="dithering" id="dithering" value="bayer" style="flex:1;">
               <option value="floyd">Floyd</option>
@@ -219,7 +272,7 @@ input[type="checkbox"] + label {
               <option value="none">None</option>
             </select>
           </div>
-          <div style="display:flex;align-items: center;">
+          <div style="display:flex;align-items: center;margin-top: 0.5em;">
             <label for="color_space">Color Space:</label>
             <select name="color_space" id="color_space" value="rgb" style="flex:1;">
               <option value="rgb" selected>RGB</option>
@@ -238,8 +291,12 @@ input[type="checkbox"] + label {
           </div>
         </div>
       </div>
-      <div style="width:40%;">
+      <div class="right-width">
         <table class="checkbox-grid" id="checkbox_grid"></table>
+        <div style="margin-top:0.5em;">
+            <button id="find_colors">Find Colors</button>
+            <span class="big-font" id="colors_used">10/16</span>
+        </div>
       </div>
     </div>
   </div>
@@ -335,11 +392,10 @@ downloadButton.addEventListener("click", function(e){
 var img = new Image();
 
 const colors = [
-  ["000","555","aaa","fff"],
-  ["500","550","050","055","005","505"],
-  ["a00","aa0","0a0","0aa","00a","a0a"],
-  ["a55","aa5","5a5","5aa","55a","a5a"],
-  ["f00","ff0","0f0","0ff","00f","f0f"],
+  ["500","550","050","055","005","505","000"],
+  ["a00","aa0","0a0","0aa","00a","a0a","555"],
+  ["a55","aa5","5a5","5aa","55a","a5a","aaa"],
+  ["f00","ff0","0f0","0ff","00f","f0f","fff"],
   ["f55","ff5","5f5","5ff","55f","f5f"],
   ["faa","ffa","afa","aff","aaf","faf"],
   ["fa5","af5","5fa","5af","a5f","f5a"],
@@ -458,10 +514,10 @@ document.getElementById("rangeContrast").addEventListener("input", updateSliders
 document.getElementById("rangeSaturation").addEventListener("input", updateSliders);
 
 function updateSliders(e) {
-  document.getElementById('valueSaturation').innerHTML = (document.getElementById("rangeSaturation").value);
-  document.getElementById('valueContrast').innerHTML = (document.getElementById("rangeContrast").value);
-  document.getElementById('valueBrightness').innerHTML = (document.getElementById("rangeBrightness").value);
-  update();
+//  document.getElementById('valueSaturation').innerHTML = (document.getElementById("rangeSaturation").value);
+//  document.getElementById('valueContrast').innerHTML = (document.getElementById("rangeContrast").value);
+//  document.getElementById('valueBrightness').innerHTML = (document.getElementById("rangeBrightness").value);
+  update(0);
 }
 
 countChecks();
@@ -546,7 +602,7 @@ function indexOfMax(arr) {
 
 var render_timer = false;
 
-function update(e) {
+function update(delay=500) {
   let width = input_width.value;
   let height = input_height.value;
   let brightness = parseInt(document.getElementById("rangeBrightness").value);
@@ -607,7 +663,7 @@ function update(e) {
   if (render_timer){
     clearTimeout(render_timer);
   }
-  render_timer = setTimeout(render, 500);
+  render_timer = setTimeout(render, delay);
 }
 
 var dither;
@@ -773,6 +829,24 @@ function rgb2lab(rgb){
   z = (z > 0.008856) ? Math.pow(z, 1/3) : (7.787 * z) + 16/116;
   return [(116 * y) - 16, 500 * (x - y), 200 * (y - z)]
 }
+
+
+//-------------------------------------
+//   Manage changing viewport heights.
+//   We-work when testing on Mobile.
+
+// First we get the viewport height and we multiple it by 1% to get a value for a vh unit
+let vh = window.innerHeight * 0.01;
+// Then we set the value in the --vh custom property to the root of the document
+document.documentElement.style.setProperty("--vh", `${vh}px`);
+
+// We listen to the resize event
+window.addEventListener("resize", () => {
+  // We execute the same script as before
+  let vh = window.innerHeight * 0.01;
+  document.documentElement.style.setProperty("--vh", `${vh}px`);
+  //console.log(vh);
+});
 
   </script>
 </body>
