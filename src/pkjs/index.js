@@ -63,7 +63,7 @@ function locationSuccess(pos) {
       };
 
       // Send to Pebble
-      Pebble.sendAppMessage(dictionary,
+      sendPebbleAppMessageResilient(dictionary,
         function(e) {
           console.log('Weather info sent to Pebble successfully!');
         },
@@ -96,7 +96,7 @@ Pebble.addEventListener('ready',
     getWeather();
     
     // tell watch it's ready
-    Pebble.sendAppMessage({'JSReady': 1});
+    sendPebbleAppMessageResilient({'JSReady': 1});
   }
 );
 
@@ -117,51 +117,55 @@ Pebble.addEventListener('showConfiguration', function() {
   Pebble.openURL(url);
 });
 
+let layerStatus = [];
+
 Pebble.addEventListener('webviewclosed', function(e) {
   // Decode the user's preferences
   console.log(e.response);
-  var configData = JSON.parse(e.response);
+  var configData = {};
+  try {
+    configData =JSON.parse(e.response);
+  } catch (error) {
+    configData =JSON.parse(decodeURIComponent(e.response));
+  }
   //var configData = JSON.parse('{"background_color":11141120,"0":{"t":"rect","p":{"x":15,"y":15,"w":40,"h":40},"l":{"enabled":"true","outline":"true"},"s":{},"n":{"align":"left","wordWrap":"false","font":"18px gotham-light"},"r":20,"d":{},"f":65280,"b":11141120,"c":"%S/59"},"1":{"t":"rect","p":{"x":25,"y":25,"w":60,"h":20},"l":{"enabled":"true","outline":"true","inverter":"true"},"s":{},"n":{"align":"left","wordWrap":"false","font":"18px gotham-light"},"r":5,"d":{},"f":43690,"b":16777888,"c":"%S/59"},"2":{"t":"rect","p":{"x":40,"y":20,"w":60,"h":30},"l":{"enabled":"true","outline":"true","dither":"lr"},"s":{},"n":{"align":"left","wordWrap":"false","font":"18px gotham-light"},"r":10,"d":{},"f":22015,"b":16777888,"c":"%S/59"},"3":{"t":"text","p":{"x":20,"y":60,"w":100,"h":50},"l":{"enabled":"true","outline":"true"},"s":{},"n":{"align":"left","wordWrap":"true","font":"18px gotham-light"},"r":10,"d":{},"f":5592405,"b":16777888,"c":"Hello World a bb ccc dddd eeeee"},"4":{"l":{"enabled":"false"}},"5":{"l":{"enabled":"false"}},"6":{"l":{"enabled":"false"}},"7":{"l":{"enabled":"false"}},"8":{"l":{"enabled":"false"}},"9":{"l":{"enabled":"false"}},"10":{"l":{"enabled":"false"}},"11":{"l":{"enabled":"false"}},"12":{"l":{"enabled":"false"}},"13":{"l":{"enabled":"false"}},"14":{"l":{"enabled":"false"}},"15":{"l":{"enabled":"false"}},"16":{"l":{"enabled":"false"}},"17":{"l":{"enabled":"false"}},"18":{"l":{"enabled":"false"}},"19":{"l":{"enabled":"false"}},"20":{"l":{"enabled":"false"}},"21":{"l":{"enabled":"false"}},"22":{"l":{"enabled":"false"}},"23":{"l":{"enabled":"false"}},"24":{"l":{"enabled":"false"}}}');
   // Send to the watchapp via AppMessage
   var dict = {
     'MainBGColor': configData.background_color
-    //'MainBGColor': 11141120
     //'TemperatureUnit': configData.temperature_checkbox,
   };
   
-  //console.log(e.response);
-  //console.log(decodeURIComponent(e.response));
   
   // Send to the watchapp
-  Pebble.sendAppMessage(dict, function() {
+  sendPebbleAppMessageResilient(dict, function() {
     console.log('Config data sent successfully!');
   }, function(e) {
     console.log('Error sending config data!: ', e);
   });
   
-  //return;
+  
+  
 
-  let layerStatus = [];
+  layerStatus = [];
   for (let i=0;i<numLayers;i++){
     layerStatus.push(0);
   }
   
   for (let i = 0; i < numLayers; i++){
     let layer = {};
+    let send_this_layer = true;
+    
     function configToMessage(i, obj, key){
-      //console.log(configData[i], obj);
-      //console.log(configData[i][obj]);
       layer[keys[key]+i] = configData[i][obj];
     }
     function subConfigToMessage(i, obj, sub, key){
-      //console.log(configData[i], obj);
-      //console.log(configData[i][obj], sub);
-      //console.log(configData[i][obj][sub]);
       layer[keys[key]+i] = configData[i][obj][sub];
     }
+    
     console.log(i);
-    if ('l' in configData[i]){
-      if (configData[i].l["enabled"] == 'true'){
+    if (!('l' in configData[i])){  layer[keys['LayerSettings']+i] = 0; } else {
+    if (configData[i].l["enabled"] != 'true'){ layer[keys['LayerSettings']+i] = 0; } else {
+      //the layer has a LayerSettings key, and it is enabled
         layer[keys['LayerSettings']+i] = 1;
         if (configData[i].l["outline"] == 'true'){
           layer[keys['LayerSettings']+i] += 2
@@ -192,7 +196,7 @@ Pebble.addEventListener('webviewclosed', function(e) {
           layer[keys['Font']+i] += 64;
         }
 
-        let font = "";
+        let font = 0;
         console.log(configData[i].n["font"]);
         switch (configData[i].n["font"]) {
           case "14px gothic-14":
@@ -316,55 +320,86 @@ Pebble.addEventListener('webviewclosed', function(e) {
             type = 6;
         } 
         layer[keys['Type']+i] = type;
-        
-      } else {
-        layer[keys['LayerSettings']+i] = 0;
+        if (type == 2) {
+          makeImageLayerAndSendLayer(i, layer);
+          sendThisLayer = false;
+        }
       }
-    } else {
-      layer[keys['LayerSettings']+i] = 0;
     }
-     // Send to the watchapp
-    Pebble.sendAppMessage(layer, function() {
-      console.log('Layer ' + i + ' data sent successfully!');
-      layerStatus[i] = 1;
-      let sum = 0;
-      for (let j = 0; j < numLayers; j++) {
-        sum += layerStatus[j];
-      }
-      if (sum == numLayers){
-        console.log('DONE SENDING LAYER INFO');
-        Pebble.sendAppMessage({'SENDDONE':1}, function() {
-          console.log('Sent DONE command');
-        }, function(e) {
-          console.log('Error sending done command');
-        });
-      }
-    }, function(e) {
-      console.log('Error sending layer ' + i + ' data, sending once more');
-      setTimeout(function(){
-        Pebble.sendAppMessage(layer, function() {
-          console.log('Layer ' + i + ' data sent successfully!');
-          layerStatus[i] = 1;
-          let sum = 0;
-          for (let j = 0; j < numLayers; j++) {
-            sum += layerStatus[j];
-          }
-          if (sum == numLayers){
-            console.log('DONE SENDING LAYER INFO');
-            Pebble.sendAppMessage({'SENDDONE':1}, function() {
-              console.log('Sent DONE command');
-            }, function(e) {
-              console.log('Error sending done command');
-            });
-          }
-        }, function(e) {
-        console.log('Error sending layer ' + i + ' data, QUITTING!:', e);
-        });
-
-      }, 500);
-    });
+    //attempt to send this layer;
+    sendLayer(i, layer);
+   
   }
   
   console.log('BGColor Key: ' + keys['BGColor']);
   
 });
+
+
+function makeImageLayerAndSendLayer(i, layer) {
+  
+  
+  //for now, just fake that the layer data was sent correctly
+      sendLayer(i, layer);
+      return;
+  
+  //TODO make layer data for the image, make and send image data chunks
+  subConfigToMessage(i, "n", "scale", "Font"); //image scale store in FontSettings as int
+  console.log(configData[i].i);
+  let urls = JSON.parse(configData[i].i);
+  let imageData = [];
+  for (let index = 0; index < urls.length; index++){
+    xhrRequest(urls[index], 'GET',
+               function(responseText) {
+                 var json = JSON.parse(responseText);
+                 console.log(JSON.stringify(json));
+                 let imagePart = Object.keys(json)[0];
+                 imageData[imagePart] = json[imagePart];
+               }
+              );
+  }
+  let imageString = "";
+  for (let index = 0; index < imageData.length; index++){
+    imageString += imageData[index];
+  }
+  console.log(imageString);
+}
+
+function sendLayer(layerIndex, layerData){
+  sendPebbleAppMessageResilient(layerData, successfullySentLayer(layerIndex), function(){
+    console.log("error sending layer", layerIndex);
+  });
+}
+
+function sendPebbleAppMessageResilient(data, successCallback, failCallback, attempt=0){
+  if (attempt < 5) {
+    return Pebble.sendAppMessage(data, function() {
+      console.log(data, 'sent successfully!');
+      if (successCallback) { successCallback(); }
+      return true;
+    }, function(e) {
+      console.log(data, 'send failed, attempt ', attempt+1);
+      return setTimeout(sendPebbleAppMessageResilient(data, function(){return true;}, function(){return false;}, attempt+1),200*attempt*attempt);
+    });
+  } else {
+    console.log(data, 'send failed, quitting');
+    if (failCallback) { failCallback(); }
+    return false;
+  }
+}
+
+function successfullySentLayer(i){
+  layerStatus[i] = 1;
+  let sum = 0;
+  for (let j = 0; j < numLayers; j++) {
+    sum += layerStatus[j];
+  }
+  if (sum == numLayers){
+    console.log('DONE SENDING LAYER INFO');
+    sendPebbleAppMessageResilient({'SENDDONE':1}, function() {
+      console.log('Sent DONE command');
+    }, function(e) {
+      console.log('Error sending done command');
+    });
+  }
+}
