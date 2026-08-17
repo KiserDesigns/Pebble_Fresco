@@ -8,9 +8,9 @@
   <title>Image to Pebble</title>
 
   <style>
-    * {
-  //border: 1px solid red;
-  font-size: min(2vh, 3.2vw);
+*:not(body, html) {
+  border: solid 0px red;
+  box-sizing: border-box;
 }
 
 canvas {
@@ -30,35 +30,42 @@ canvas {
     -ms-interpolation-mode: nearest-neighbor;   /* IE                            */
 }
 
-input {
+input, select, button {
+  font-size: min(3vh, 4.8vw);
+  margin: 0.2em;
   min-width: 10px;
-  margin-left: 0.2em;
-  margin-right: 0.2em;
+  height: 30px;
 }
 
 input[type="number"] {
-  font-size: min(3vh, 4.8vw);
+  height: 30px;
+  margin-left:0;
+  margin-right:0;
 }
 
 input[type="file"] {
-  font-size: min(3vh, 4.8vw);
 }
 
 input[type="range"] {
   width: 90%;
-  margin-left: 0.2em;
-  margin-right: 0.2em;
-  aspect-ratio: 10 / 1;
+  //aspect-ratio: 10 / 1;
 }
 
-button {
-  font-size: min(3vh, 4.8vw);
-  margin: 0.2em;
+
+.decrementer {
+  aspect-ratio:1/1;
+  border-radius:0;
+  margin-right:0;
+  border: 1px solid gray;
+}
+.incrementer {
+  aspect-ratio:1/1;
+  border-radius:0;
+  margin-left:0;
+  border: 1px solid gray;
 }
 
 select {
-  font-size: min(3vh, 4.8vw);
-  margin: 0.2em;
 }
 
 .big-font {
@@ -141,7 +148,7 @@ input[type="checkbox"] + label {
 
   <div style="display:flex;margin-bottom:0.0em;">
     <div style="width:50%;aspect-ratio : 1 / 1;position:relative;background-color:gray;">
-      <canvas id="image_input" /></canvas>
+      <canvas id="image_input" ></canvas>
     </div>
     <div style="width:50%;aspect-ratio : 1 / 1;position:relative;background-color:gray;">
       <canvas id="image_output" ></canvas>
@@ -153,36 +160,43 @@ input[type="checkbox"] + label {
     <br>
     <div style="display:flex;align-items: center;margin-top: 0.4em;">
       <label for="input_width" style="">Width:</label>
+      <button class="decrementer" onpointerdown="incSib(this, -1, 0, 260)">-</button>
       <input type="number" name="input_width" id="input_width" value="100" style="flex:1;" min="1">
+      <button class="incrementer" onpointerdown="incSib(this, 1, 0, 260)">+</button>
       <label for="input_height" style="">Height:</label>
+      <button class="decrementer" onpointerdown="incSib(this, -1, 0, 260)">-</button>
       <input type="number" name="input_height" id="input_height" value="100" style="flex:1;" min="1">
+      <button class="incrementer" onpointerdown="incSib(this, 1, 0, 260)">+</button>
     </div>
     <div style="display:flex;margin-top:0.5em;">
-      <div style="display:flex;width:50%;align-items: top;">
+      <div style="display:flex;width:60%;align-items: top;">
         <div style="flex:1;display:flex;flex-direction: column;">
-          <div>
-            Brightness: <span id="valueBrightness">0</span>
+          <div style="display:flex">
+            Brightness: 
             <div>
               <label>
                 <input id="rangeBrightness" type="range" min="-255" max="255" value="0" step="15"/>
               </label>
             </div>
+            <span id="valueBrightness">0</span>
           </div>
-          <div>
-            Contrast: <span id="valueContrast">0</span>
+          <div style="display:flex">
+            Contrast: 
             <div>
               <label>
                 <input id="rangeContrast" type="range" min="-255" max="255" value="0" step="15"/>
               </label>
             </div>
+            <span id="valueContrast">0</span>
           </div>
-          <div>
-            Saturation: <span id="valueSaturation">0</span>
+          <div style="display:flex">
+            Saturation: 
             <div>
               <label>
                 <input id="rangeSaturation" type="range" min="-255" max="255" value="0" step="15"/>
               </label>
             </div>
+            <span id="valueSaturation">0</span>
           </div>
           <div style="display:flex;align-items: center;">
             <label for="max_colors">Max Colors:</label>
@@ -224,7 +238,7 @@ input[type="checkbox"] + label {
           </div>
         </div>
       </div>
-      <div style="width:50%;">
+      <div style="width:40%;">
         <table class="checkbox-grid" id="checkbox_grid"></table>
       </div>
     </div>
@@ -237,6 +251,18 @@ input[type="checkbox"] + label {
 
 
   <script>
+
+function incSib(el, inc, min=0, max=260){
+  var element;
+  if (inc>0){
+    element = el.previousElementSibling;
+  } else {
+    element = el.nextElementSibling;
+  }
+  element.value = Math.min(max,Math.max(min,parseInt(element.value) + inc));
+  element.dispatchEvent(new Event('input'));
+}
+
     const image_input = document.getElementById('image_input');
 const ctx_in = image_input.getContext('2d', { willReadFrequently: true });
 const image_output = document.getElementById('image_output');
