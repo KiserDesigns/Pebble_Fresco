@@ -127,6 +127,34 @@ select {
   font-size: min(3vh, 4.8vw);
 }
 
+.crop-grab {
+  width:min(5vh, 8vw);
+  height:min(5vh, 8vw);
+  position:absolute;
+}
+.top-left {
+  cursor:nw-resize;
+  top:0;
+  left:0;
+  box-shadow: -3px -3px 0px -2px black,
+              -5px -5px 0px 0px white;
+}
+.top-right {
+  cursor:ne-resize;
+  top:0;
+  right:0;
+  box-shadow: 3px -3px 0px -2px black,
+}
+  bottom:0;
+              -5px 5px 0px 0px white;
+}
+.bottom-right {
+  cursor:se-resize;
+  bottom:0;
+  right:0;
+  box-shadow: 3px 3px 0px -2px black,
+              5px 5px 0px 0px white;
+}
 .checkbox-grid {
   width:100%;
 }
@@ -206,10 +234,10 @@ input[type="checkbox"] + label {
       <canvas id="image_input" ></canvas>
       <div id="outliner" style="position:absolute;outline:1px solid white;width:100px;height:100px;">
         <div style="width:100%;height:100%;outline:1px solid black;outline-offset:1px;position:relative;">
-          <div style="position:absolute;top:0;left:0;box-shadow: -5px -5px 0px 0px white;width:30px;height:30px;"></div>
-          <div style="position:absolute;top:0;right:0;box-shadow: 5px -5px 0px 0px white;width:30px;height:30px;"></div>
-          <div style="position:absolute;bottom:0;left:0;box-shadow: -5px 5px 0px 0px white;width:30px;height:30px;"></div>
-          <div style="position:absolute;bottom:0;right:0;box-shadow: 5px 5px 0px 0px white;width:30px;height:30px;"></div>
+          <div id="crop-ne" class="crop-grab top-right"></div>
+          <div id="crop-sw" class="crop-grab bottom-left"></div>
+          <div id="crop-nw" class="crop-grab top-left"></div>
+          <div id="crop-se" class="crop-grab bottom-right"></div>
         </div>
       </div>
     </div>
@@ -351,16 +379,6 @@ fileElem.addEventListener("change", handleFiles);
 const input_width = document.getElementById("input_width");
 const input_height = document.getElementById("input_height");
 
-input_width.addEventListener("input", function(e) {
-  input_height.value = Math.max(1,Math.round(input_width.value*img.naturalHeight/img.naturalWidth));
-  update();
-} );
-
-input_height.addEventListener("input", function(e) {
-  input_width.value = Math.max(1,Math.round(input_height.value*img.naturalWidth/img.naturalHeight));
-  update();
-} );
-
 function getQueryParam(variable, defaultValue) {
   var query = location.search.substring(1);
   var vars = query.split("&");
@@ -417,7 +435,7 @@ const colors = [
 ];
 
 var cropX, cropY, cropW, cropH;
-
+var loaded = false;
 
 
 function initCrop(){
@@ -429,12 +447,116 @@ function initCrop(){
 }
 
 function updateOutlinerPosition(){
-  outliner.style.top = (image_input.offsetTop+image_input.offsetHeight*cropY/image_input.height).toString()+'px';
-  outliner.style.left = (image_input.offsetLeft+image_input.offsetWidth*cropX/image_input.width).toString()+'px';
-  outliner.style.width = (image_input.offsetWidth*cropW/image_input.width).toString()+'px';
-  outliner.style.height = (image_input.offsetHeight*cropH/image_input.height).toString()+'px';
+  //console.log('outliner');
+  outliner.style.left = (image_input.offsetLeft+image_input.offsetWidth*Math.round(cropX)/image_input.width).toString()+'px';
+  outliner.style.top = (image_input.offsetTop+image_input.offsetHeight*Math.round(cropY)/image_input.height).toString()+'px';
+  outliner.style.width = (image_input.offsetWidth*Math.round(cropW)/image_input.width).toString()+'px';
+  outliner.style.height = (image_input.offsetHeight*Math.round(cropH)/image_input.height).toString()+'px';
+}
+
+function updateCropValues(){
+  //cropX = (outliner.style.left - image_input.offsetLeft)/image_input.offsetWidth*image_input.width;
+  //cropY = (outliner.style.top - image_input.offsetTop)/image_input.offsetHeight*image_input.height;
+  //cropW = (outliner.style.width)/image_input.offsetWidth*image_input.width;
+  //cropH = (outliner.style.height)/image_input.offsetHeight*image_input.height;
+
 
 }
+
+
+
+function dragCropHandle(elmnt) {
+  var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+
+  var old_width, old_height;
+  var old_cropW, old_cropH;
+  
+  elmnt.onpointerdown = dragMouseDown;
+
+  function dragMouseDown(e) {
+    e = e || window.event;
+    e.preventDefault();
+    // get the mouse cursor position at startup:
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    old_width = input_width.value;
+    old_height = input_height.value;
+    old_cropW = cropW;
+    old_cropH = cropH;
+    document.onpointerup = closeDragElement;
+    // call a function whenever the cursor moves:
+    document.onpointermove = elementDrag;
+  }
+
+  function elementDrag(e) {
+    e = e || window.event;
+    e.preventDefault();
+    // calculate the new cursor position:
+    pos1 = (pos3 - e.clientX)*image_input.width/image_input.offsetWidth;
+    pos2 = (pos4 - e.clientY)*image_input.height/image_input.offsetHeight;
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    // set the element's new position:
+    if (elmnt.classList[1].includes('top')){
+      cropY -= pos2;
+      if (cropY < 0){
+        pos2 += cropY;
+        cropY = 0;
+      }
+      cropH += pos2;
+      if (cropH < 0){
+        cropY += pos2;
+      }
+    } else {
+      cropH -= pos2;
+    }
+    if (cropH < 0){
+      cropH = 0;
+    }
+    if (cropY + cropH > img.naturalHeight){
+      cropH = img.naturalHeight-cropY;
+    }
+    if (elmnt.classList[1].includes('left')){
+      cropX -= pos1;
+      if (cropX < 0){
+        pos1 += cropX;
+        cropX = 0;
+      }
+      cropW += pos1;
+      if (cropW < 0){
+        cropX += pos1;
+      }
+    } else {
+      cropW -= pos1;
+    }
+    if (cropW < 0){
+      cropW = 0;
+    }
+    if (cropX + cropW > img.naturalWidth){
+      cropW = img.naturalWidth-cropX;
+    }
+
+    updateOutlinerPosition();
+
+    let new_w = Math.max(1,Math.round(cropW * old_width/old_cropW));
+    let new_h = Math.max(1,Math.round(cropH * old_height/old_cropH));
+
+    
+    input_width.value = new_w;
+    input_height.value = new_h;
+    input_width.dispatchEvent(new Event('input'));
+    //updateCropValues();
+    //update();
+
+  }
+
+  function closeDragElement() {
+    /* stop moving when pointer button is released:*/
+    document.onpointerup = null;
+    document.onpointermove = null;
+  }
+}
+
 
 function handleFiles() {
     if ( this.files && this.files[0] ) {
@@ -445,30 +567,59 @@ function handleFiles() {
            img.onload = function() {
             var naturalHeight = img.naturalHeight;
             var naturalWidth = img.naturalWidth;
-            var width = 100;
-            var height = 100;
+            var maxWidth = Math.min(1920,naturalWidth);
+            var maxHeight = Math.min(1920,naturalHeight);
             console.log(naturalWidth, naturalHeight);
             if (naturalWidth>naturalHeight){
-                height = Math.round(100*naturalHeight/naturalWidth);
+                maxHeight = Math.round(maxWidth*naturalHeight/naturalWidth);
             } else {
-                width = Math.round(100*naturalWidth/naturalHeight);
+                maxWidth = Math.round(maxHeight*naturalWidth/naturalHeight);
+            }
+            image_input.width = maxWidth;//Math.max(input_width.value, input_height.value);
+            image_input.height = maxHeight;
+            image_input.style.width = Math.floor(90/Math.max(1,maxHeight/maxWidth))+"%";
+            console.log(maxWidth, maxHeight);
+            ctx_in.drawImage(img, 0, 0, maxWidth, maxHeight);
+
+            var width = 100;
+            var height = 100;
+
+            if (naturalWidth>naturalHeight){
+                height = Math.round(height*naturalHeight/naturalWidth);
+            } else {
+                width = Math.round(width*naturalWidth/naturalHeight);
             }
             input_height.value = height;
             input_width.value = width;
-            document.getElementById("rangeBrightness").value = 0;
-            document.getElementById("rangeContrast").value = 0;
-            document.getElementById("rangeSaturation").value = 0;
 
-            image_input.width = img.naturalWidth;//Math.max(input_width.value, input_height.value);
-            image_input.height = img.naturalHeight;
-            image_input.style.width = Math.floor(90/Math.max(1,img.naturalHeight/img.naturalWidth))+"%";
-            
 
-            ctx_in.drawImage(img, 0, 0);
-            //updateSliders();
-            findColors();
-            initCrop();
-            update();
+            img.src = image_input.toDataURL();
+            img.onload = function() {
+                document.getElementById("rangeBrightness").value = 0;
+                document.getElementById("rangeContrast").value = 0;
+                document.getElementById("rangeSaturation").value = 0;
+                getDither();
+                findColors();
+                initCrop();
+                update();
+            }; 
+
+            loaded = true;
+            //Make the DIV element draggagle:
+            dragCropHandle(document.getElementById("crop-nw"),);
+            dragCropHandle(document.getElementById("crop-ne"));
+            dragCropHandle(document.getElementById("crop-sw"));
+            dragCropHandle(document.getElementById("crop-se"));
+
+            input_width.addEventListener("input", function(e) {
+              input_height.value = Math.max(1,Math.round(input_width.value*Math.round(cropH)/Math.round(cropW)));
+              update();
+            } );
+
+            input_height.addEventListener("input", function(e) {
+              input_width.value = Math.max(1,Math.round(input_height.value*Math.round(cropW)/Math.round(cropH)));
+              update();
+            } );
 
            };
         };       
@@ -538,8 +689,10 @@ function countChecks() {
   } else {
     output.style = "color:green"
   }
-  update();
+  try {update();}
+  catch {}
 }
+
 document.getElementById("max_colors").addEventListener("input", function(e) {
   findColors();
   countChecks()
@@ -591,7 +744,7 @@ function findColors(e) {
 
     let dr, dg, db = 0;
 
-    for (let i = 0; i < data.length; i+=(4*Math.floor(data.length/4000))) {
+    for (let i = 0; i < data.length; i+=(4*Math.max(1,Math.floor(data.length/4000)))) {
       let r, g, b, a;
       let noise = 30;
       r = data[i] + (2*noise*Math.random() - noise);
@@ -643,17 +796,27 @@ function indexOfMax(arr) {
 
 var render_timer = false;
 
+function getDither(){
+  dither = document.getElementById("dithering").value[0]+document.getElementById("color_space").value[0];
+}
+
+getDither();
+
 function update(delay=500) {
+  if (!loaded){
+    return;
+  }
   let width = input_width.value;
   let height = input_height.value;
   let brightness = parseInt(document.getElementById("rangeBrightness").value);
   let contrast = parseInt(document.getElementById("rangeContrast").value)/255;
   let saturation = parseInt(document.getElementById("rangeSaturation").value);
-  dither = document.getElementById("dithering").value[0]+document.getElementById("color_space").value[0];
   let sat_max = (saturation < 0) ? 255 : 128;
+  getDither();
   ctx_in.drawImage(img, 0, 0);
   image_output.width = width;
   image_output.height = height;
+  image_output.style.width = Math.floor(90/Math.max(1,height/width))+"%";
   
   
   let inputData = ctx_in.getImageData(0, 0, img.naturalWidth, img.naturalHeight);
@@ -703,7 +866,7 @@ function update(delay=500) {
   }
   ctx_in.putImageData(inputData, 0, 0);
   createImageBitmap(image_input).then(bitmap => {
-    ctx_out.drawImage(bitmap, cropX, cropY, cropW,cropH, 0, 0, input_width.value, input_height.value);
+    ctx_out.drawImage(bitmap, Math.round(cropX), Math.round(cropY), Math.round(cropW),Math.round(cropH), 0, 0, input_width.value, input_height.value);
     if (render_timer){
       clearTimeout(render_timer);
     }
@@ -719,7 +882,7 @@ function render(){
   let height = input_height.value;
   //image_output.width = width;
   //image_output.height = height;//Math.max(width,height);
-  image_output.style.width = Math.floor(90/Math.max(1,height/width))+"%";
+  //image_output.style.width = Math.floor(90/Math.max(1,height/width))+"%";
   let inputData = ctx_out.getImageData(0, 0, width, height);
   let outputData = ctx_out.getImageData(0, 0, width, height);
   const data = inputData.data;
@@ -889,12 +1052,13 @@ let vh = window.innerHeight * 0.01;
 document.documentElement.style.setProperty("--vh", `${vh}px`);
 
 // We listen to the resize event
-window.addEventListener("resize", () => {
+window.onresize = () => {
   // We execute the same script as before
   let vh = window.innerHeight * 0.01;
   document.documentElement.style.setProperty("--vh", `${vh}px`);
+  updateOutlinerPosition();
   //console.log(vh);
-});
+};
 
   </script>
 </body>
