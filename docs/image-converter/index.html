@@ -552,11 +552,18 @@ function dragCropHandle(elmnt) {
     
     input_width.value = new_w;
     input_height.value = new_h;
-    input_width.dispatchEvent(new Event('input'));
+
+    if (crop_timer){
+      clearTimeout(crop_timer);
+    }
+    crop_timer = setTimeout(crop_change, 300);
+   
     //updateCropValues();
     //update();
 
   }
+
+  
 
   function closeDragElement() {
     /* stop moving when pointer button is released:*/
@@ -564,6 +571,15 @@ function dragCropHandle(elmnt) {
     document.onpointermove = null;
   }
 }
+
+let crop_timer = null;
+
+function crop_change(){
+  clearTimeout(crop_timer);
+  input_width.dispatchEvent(new Event('input'));
+}
+
+  
 
 
 function handleFiles() {
