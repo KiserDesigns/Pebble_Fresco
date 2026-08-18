@@ -29,7 +29,6 @@ body {
 .right-width {
   width: 52%;
 }
-
 canvas {
     padding: 0;
     margin: auto;
@@ -46,6 +45,8 @@ canvas {
     image-rendering: pixelated;                 /* Awesome future-browsers       */
     -ms-interpolation-mode: nearest-neighbor;   /* IE                            */
 }
+
+
 
 input, select, button {
   touch-action: manipulation;
@@ -203,6 +204,14 @@ input[type="checkbox"] + label {
   <div style="display:flex;margin-bottom:0.0em;">
     <div style="width:50%;aspect-ratio : 1 / 1;position:relative;background-color:gray;">
       <canvas id="image_input" ></canvas>
+      <div id="outliner" style="position:absolute;outline:1px solid white;width:100px;height:100px;">
+        <div style="width:100%;height:100%;outline:1px solid black;outline-offset:1px;position:relative;">
+          <div style="position:absolute;top:0;left:0;box-shadow: -5px -5px 0px 0px white;width:30px;height:30px;"></div>
+          <div style="position:absolute;top:0;right:0;box-shadow: 5px -5px 0px 0px white;width:30px;height:30px;"></div>
+          <div style="position:absolute;bottom:0;left:0;box-shadow: -5px 5px 0px 0px white;width:30px;height:30px;"></div>
+          <div style="position:absolute;bottom:0;right:0;box-shadow: 5px 5px 0px 0px white;width:30px;height:30px;"></div>
+        </div>
+      </div>
     </div>
     <div style="width:50%;aspect-ratio : 1 / 1;position:relative;background-color:gray;">
       <canvas id="image_output" ></canvas>
@@ -324,6 +333,8 @@ const ctx_in = image_input.getContext('2d', { willReadFrequently: true });
 const image_output = document.getElementById('image_output');
 const ctx_out = image_output.getContext('2d', { willReadFrequently: true });
 
+const outliner = document.getElementById("outliner");
+
 image_input.width = 260;
 image_input.height = 260;
 image_input.style.width = "90%";
@@ -331,6 +342,8 @@ image_input.style.width = "90%";
 image_output.width = 260;
 image_output.height = 260;
 image_output.style.width = "90%";
+
+initCrop();
 
 fileElem = document.getElementById("image_upload");
 fileElem.addEventListener("change", handleFiles);
@@ -403,6 +416,26 @@ const colors = [
   ["a50","5a0","0a5","05a","50a","a05"]
 ];
 
+var cropX, cropY, cropW, cropH;
+
+
+
+function initCrop(){
+  cropX = 0;
+  cropY = 0;
+  cropW = image_input.width;
+  cropH = image_input.height;
+  updateOutlinerPosition();
+}
+
+function updateOutlinerPosition(){
+  outliner.style.top = (image_input.offsetTop+image_input.offsetHeight*cropY/image_input.height).toString()+'px';
+  outliner.style.left = (image_input.offsetLeft+image_input.offsetWidth*cropX/image_input.width).toString()+'px';
+  outliner.style.width = (image_input.offsetWidth*cropW/image_input.width).toString()+'px';
+  outliner.style.height = (image_input.offsetHeight*cropH/image_input.height).toString()+'px';
+
+}
+
 function handleFiles() {
     if ( this.files && this.files[0] ) {
         var FR= new FileReader();
@@ -425,8 +458,16 @@ function handleFiles() {
             document.getElementById("rangeBrightness").value = 0;
             document.getElementById("rangeContrast").value = 0;
             document.getElementById("rangeSaturation").value = 0;
-            updateSliders();
+
+            image_input.width = img.naturalWidth;//Math.max(input_width.value, input_height.value);
+            image_input.height = img.naturalHeight;
+            image_input.style.width = Math.floor(90/Math.max(1,img.naturalHeight/img.naturalWidth))+"%";
+            
+
+            ctx_in.drawImage(img, 0, 0);
+            //updateSliders();
             findColors();
+            initCrop();
             update();
 
            };
@@ -474,11 +515,12 @@ function isLight(color) {
 }
 
 createColorChecks();
+let count = 0;
 
 function countChecks() {
   const output = document.getElementById("colors_used");
   let max_colors = document.getElementById("max_colors").value;
-  let count = 0;
+  count = 0;
   for (let i = 0; i < colors.length; i++) {
     for (let j = 0; j < colors[i].length; j++) {
       let box = document.getElementById(colors[i][j]);
@@ -530,7 +572,7 @@ function findColors(e) {
   let height = input_height.value;
   //image_output.width = Math.max(width,height);
   //image_output.height = Math.max(width,height);
-  let inputData = ctx_in.getImageData(0, 0, width, height);
+  let inputData = ctx_in.getImageData(0, 0, image_input.width, image_input.height);
   const data = inputData.data;
   let max_colors = parseInt(document.getElementById("max_colors").value);
 
@@ -549,7 +591,7 @@ function findColors(e) {
 
     let dr, dg, db = 0;
 
-    for (let i = 0; i < data.length; i+=4) {
+    for (let i = 0; i < data.length; i+=(4*Math.floor(data.length/4000))) {
       let r, g, b, a;
       let noise = 30;
       r = data[i] + (2*noise*Math.random() - noise);
@@ -607,13 +649,14 @@ function update(delay=500) {
   let brightness = parseInt(document.getElementById("rangeBrightness").value);
   let contrast = parseInt(document.getElementById("rangeContrast").value)/255;
   let saturation = parseInt(document.getElementById("rangeSaturation").value);
+  dither = document.getElementById("dithering").value[0]+document.getElementById("color_space").value[0];
   let sat_max = (saturation < 0) ? 255 : 128;
-  image_input.width = width;//Math.max(input_width.value, input_height.value);
-  image_input.height = height;
-  image_input.style.width = Math.floor(90/Math.max(1,height/width))+"%";
-  ctx_in.drawImage(img, 0, 0, input_width.value, input_height.value);
+  ctx_in.drawImage(img, 0, 0);
+  image_output.width = width;
+  image_output.height = height;
   
-  let inputData = ctx_in.getImageData(0, 0, width, height);
+  
+  let inputData = ctx_in.getImageData(0, 0, img.naturalWidth, img.naturalHeight);
 
   const data = inputData.data;
   
@@ -659,10 +702,13 @@ function update(delay=500) {
       data[i+2] = b;
   }
   ctx_in.putImageData(inputData, 0, 0);
-  if (render_timer){
-    clearTimeout(render_timer);
-  }
-  render_timer = setTimeout(render, delay);
+  createImageBitmap(image_input).then(bitmap => {
+    ctx_out.drawImage(bitmap, cropX, cropY, cropW,cropH, 0, 0, input_width.value, input_height.value);
+    if (render_timer){
+      clearTimeout(render_timer);
+    }
+    render_timer = setTimeout(render, delay);
+  });
 }
 
 var dither;
@@ -671,14 +717,13 @@ function render(){
   clearTimeout(render_timer);
   let width = input_width.value;
   let height = input_height.value;
-  image_output.width = width;
-  image_output.height = height;//Math.max(width,height);
+  //image_output.width = width;
+  //image_output.height = height;//Math.max(width,height);
   image_output.style.width = Math.floor(90/Math.max(1,height/width))+"%";
-  let inputData = ctx_in.getImageData(0, 0, width, height);
-  let outputData = ctx_in.getImageData(0, 0, width, height);
+  let inputData = ctx_out.getImageData(0, 0, width, height);
+  let outputData = ctx_out.getImageData(0, 0, width, height);
   const data = inputData.data;
   const out = outputData.data;
-  dither = document.getElementById("dithering").value[0]+document.getElementById("color_space").value[0];
 
   for (let i = 0; i < data.length; i+=4) {
     let r, g, b;
@@ -694,66 +739,70 @@ function render(){
       out[i+3] = 0;
     } else {
       chosen_color = closestColor([r,g,b]);
-
       if (dither[0] != 'b'){
 
         out[i] = chosen_color[0];
         out[i+1] = chosen_color[1];
         out[i+2] = chosen_color[2];
         out[i+3] = 255;
+        
+        if (!(transparent_used && count==2)){
 
-    //TODO Diffuse in Linear space, not RGB. This currently looks kinda bad.
-        if (dither[0] == 'f'){
+        //TODO Diffuse in Linear space, not RGB. This currently looks kinda bad.
+          if (dither[0] == 'f'){
+            let dr = r - chosen_color[0];
+            let dg = g - chosen_color[1];
+            let db = b - chosen_color[2];
+            data[i+4] += 7*dr/16;
+            data[i+5] += 7*dg/16;
+            data[i+6] += 7*db/16;
+
+            data[4*width+i-4] += 1*dr/16;
+            data[4*width+i-3] += 1*dg/16;
+            data[4*width+i-2] += 1*db/16;
+
+            data[4*width+i+0] += 5*dr/16;
+            data[4*width+i+1] += 5*dg/16;
+            data[4*width+i+2] += 5*db/16;
+
+            data[4*width+i+4] += 3*dr/16;
+            data[4*width+i+5] += 3*dg/16;
+            data[4*width+i+6] += 3*db/16;
+          }
+        }
+      } else {
+        if (!(transparent_used && count==2)){
+          let bayer = [
+            [ 0, 32, 8,  40, 2,  34, 10, 42],
+            [48, 16, 56, 24, 50, 18, 58, 26],
+            [12, 44, 4,  36, 14, 46, 6,  38],
+            [60, 28, 52, 20, 62, 30, 54, 22],
+            [ 3, 35, 11, 43, 1,  33, 9,  41],
+            [51, 19, 59, 27, 49, 17, 57, 25],
+            [15, 47, 7,  39, 13, 45, 5,  37],
+            [63, 31, 55, 23, 61, 29, 53, 21]];
+          let box = chosen_color[4];
+          let d1 = chosen_color[3];
+          box.checked = false;
           let dr = r - chosen_color[0];
           let dg = g - chosen_color[1];
           let db = b - chosen_color[2];
-          data[i+4] += 7*dr/16;
-          data[i+5] += 7*dg/16;
-          data[i+6] += 7*db/16;
-
-          data[4*width+i-4] += 1*dr/16;
-          data[4*width+i-3] += 1*dg/16;
-          data[4*width+i-2] += 1*db/16;
-
-          data[4*width+i+0] += 5*dr/16;
-          data[4*width+i+1] += 5*dg/16;
-          data[4*width+i+2] += 5*db/16;
-
-          data[4*width+i+4] += 3*dr/16;
-          data[4*width+i+5] += 3*dg/16;
-          data[4*width+i+6] += 3*db/16;
-        }
-      } else {
-        let bayer = [
-          [ 0, 32, 8,  40, 2,  34, 10, 42],
-          [48, 16, 56, 24, 50, 18, 58, 26],
-          [12, 44, 4,  36, 14, 46, 6,  38],
-          [60, 28, 52, 20, 62, 30, 54, 22],
-          [ 3, 35, 11, 43, 1,  33, 9,  41],
-          [51, 19, 59, 27, 49, 17, 57, 25],
-          [15, 47, 7,  39, 13, 45, 5,  37],
-          [63, 31, 55, 23, 61, 29, 53, 21]];
-        let box = chosen_color[4];
-        let d1 = chosen_color[3];
-        box.checked = false;
-        let dr = r - chosen_color[0];
-        let dg = g - chosen_color[1];
-        let db = b - chosen_color[2];
-        let opposite_color = closestColor([r + dr, g + dg, b + db]);
-        box.checked = true;
-        let d2 = 0;
-        if (dither[1] == 'l'){
-        d2 = deltaE([r,g,b],opposite_color);
-        } else {
-        d2 = Math.abs(r-opposite_color[0])+Math.abs(g-opposite_color[1])+Math.abs(b-opposite_color[2]);
-        }
-        let threshhold = d2/(d1+d2) * 64;
-        let y = Math.floor((i/4)/width)%8;
-        let x = ((i/4)%width)%8;
-        if (threshhold > bayer[x][y]){
-          chosen_color = chosen_color;
-        } else {
-          chosen_color = opposite_color;
+          let opposite_color = closestColor([r + dr, g + dg, b + db]);
+          box.checked = true;
+          let d2 = 0;
+          if (dither[1] == 'l'){
+          d2 = deltaE([r,g,b],opposite_color);
+          } else {
+          d2 = Math.abs(r-opposite_color[0])+Math.abs(g-opposite_color[1])+Math.abs(b-opposite_color[2]);
+          }
+          let threshhold = d2/(d1+d2) * 64;
+          let y = Math.floor((i/4)/width)%8;
+          let x = ((i/4)%width)%8;
+          if (threshhold > bayer[x][y]){
+            chosen_color = chosen_color;
+          } else {
+            chosen_color = opposite_color;
+          }
         }
         out[i] = chosen_color[0];
         out[i+1] = chosen_color[1];
