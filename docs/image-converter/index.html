@@ -128,6 +128,8 @@ select {
 }
 
 .crop-grab {
+  touch-action: manipulation;
+  overscroll-behavior: none; /* or contain */
   width:min(5vh, 8vw);
   height:min(5vh, 8vw);
   position:absolute;
