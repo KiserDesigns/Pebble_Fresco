@@ -991,20 +991,24 @@ function render(){
             [63, 31, 55, 23, 61, 29, 53, 21]];
           let box = chosen_color[4];
           let d1 = chosen_color[3];
+          box[1]=false;
+          /*
           for (let j = 0; j < colors.length; j++) {
             for (let k = 0; k < colors[j].length; k++) {
               if (colors[j][k][0] == box){ colors[j][k][1] = false };
             }
-          }
+          }*/
           let dr = r - chosen_color[0];
           let dg = g - chosen_color[1];
           let db = b - chosen_color[2];
           let opposite_color = closestColor([r + dr, g + dg, b + db]);
+          box[1]=true;
+          /*
           for (let j = 0; j < colors.length; j++) {
             for (let k = 0; k < colors[j].length; k++) {
               if (colors[j][k][0] == box){ colors[j][k][1] = true };
             }
-          }
+          }*/
           let d2 = 0;
           if (dither[1] == 'l'){
           d2 = deltaE([r,g,b],opposite_color);
@@ -1052,7 +1056,7 @@ function closestColor(color, all=false){
         if (error < min_error){
           min_error = error;
           //closest = [r,g,b];
-          closest = [r,g,b,error,colors[i][j][0]];
+          closest = [r,g,b,error,colors[i][j]];
         }
       }
     }
