@@ -388,12 +388,12 @@ const input_width = document.getElementById("input_width");
 const input_height = document.getElementById("input_height");
 
 input_width.addEventListener("input", function(e) {
-  input_height.value = Math.max(1,Math.round(input_width.value*Math.round(cropH)/Math.round(cropW)));
+  input_height.value = Math.max(1,Math.round(input_width.value*cropH/cropW));
   update();
 } );
 
 input_height.addEventListener("input", function(e) {
-  input_width.value = Math.max(1,Math.round(input_height.value*Math.round(cropW)/Math.round(cropH)));
+  input_width.value = Math.max(1,Math.round(input_height.value*cropW/cropH));
   update();
 } );
 
@@ -556,11 +556,11 @@ function dragCropHandle(elmnt) {
 
     updateOutlinerPosition();
 
-    let new_w = Math.max(1,Math.round(cropW * old_width/old_cropW));
+    let new_w = Math.max(1,cropW * old_width/old_cropW);
     //let new_h = Math.max(1,Math.round(cropH * old_height/old_cropH));
 
     
-    input_width.value = new_w;
+    input_width.value = Math.round(new_w);
     input_height.value = Math.max(1,Math.round(new_w*cropH/cropW));
     //input_height.value = new_h;
     
