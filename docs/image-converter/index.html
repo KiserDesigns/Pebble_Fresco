@@ -847,7 +847,7 @@ function getDither(){
 
 getDither();
 
-function update(delay=500) {
+function update() {
   if (!loaded){
     return;
   }
@@ -915,7 +915,7 @@ function update(delay=500) {
   ctx_in.putImageData(inputData, 0, 0);
   createImageBitmap(image_input).then(bitmap => {
     ctx_out.drawImage(bitmap, Math.round(cropX), Math.round(cropY), Math.round(cropW),Math.round(cropH), 0, 0, input_width.value, input_height.value);
-    render_timer = setTimeout(render, delay);
+    render_timer = setTimeout(render, 500);
   });
 }
 
