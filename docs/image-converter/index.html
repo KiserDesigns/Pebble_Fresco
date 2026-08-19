@@ -567,6 +567,9 @@ function dragCropHandle(elmnt) {
     if (crop_timer){
       clearTimeout(crop_timer);
     }
+    if (render_timer){
+      clearTimeout(render_timer);
+    }
     crop_timer = setTimeout(crop_change, 500);
 
     //updateCropValues();
@@ -848,6 +851,9 @@ function update(delay=500) {
   if (!loaded){
     return;
   }
+  if (render_timer){
+    clearTimeout(render_timer);
+  }
   let width = input_width.value;
   let height = input_height.value;
   let brightness = parseInt(brightness_element.value);
@@ -909,9 +915,6 @@ function update(delay=500) {
   ctx_in.putImageData(inputData, 0, 0);
   createImageBitmap(image_input).then(bitmap => {
     ctx_out.drawImage(bitmap, Math.round(cropX), Math.round(cropY), Math.round(cropW),Math.round(cropH), 0, 0, input_width.value, input_height.value);
-    if (render_timer){
-      clearTimeout(render_timer);
-    }
     render_timer = setTimeout(render, delay);
   });
 }
