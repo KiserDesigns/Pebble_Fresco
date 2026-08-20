@@ -647,8 +647,8 @@ function handleFiles() {
                 ctx_in.drawImage(img, 0, 0);
                 inputData = ctx_in.getImageData(0, 0, image_input.width, image_input.height);
                 getDither();
-                findColors();
                 initCrop();
+                findColors();
             }; 
 
             loaded = true;
@@ -865,18 +865,19 @@ function update() {
   let saturation = parseInt(saturation_element.value);
   let sat_max = (saturation < 0) ? 255 : 128;
   getDither();
+
   
-  let new_width = input_width.value;
-  let new_height = input_height.value;
-  if ((new_width != image_output.width) || (new_height != image_output.height)) {
+  if ((width != image_output.width) || (height != image_output.height)) {
     image_output.width = width;
     image_output.height = height;
     image_output.style.width = Math.floor(90/Math.max(1,height/width))+"%";
   }
-  
-  //let inputData = ctx_in.getImageData(0, 0, img.naturalWidth, img.naturalHeight);
 
-  const data = inputData.data;
+  ctx_out.drawImage(img, Math.round(cropX), Math.round(cropY), Math.round(cropW),Math.round(cropH), 0, 0, width, height);
+  
+  let inputData = ctx_out.getImageData(0, 0,width,height);
+
+  var data = inputData.data;
   
   for(let i=0; i<data.length; i+=4){
     data[i] = Math.max(0,Math.min(255,data[i]+brightness)); // red
@@ -919,11 +920,11 @@ function update() {
       data[i+1] = g;
       data[i+2] = b;
   }
-  ctx_in.putImageData(inputData, 0, 0);
-  createImageBitmap(image_input).then(bitmap => {
-    ctx_out.drawImage(bitmap, Math.round(cropX), Math.round(cropY), Math.round(cropW),Math.round(cropH), 0, 0, input_width.value, input_height.value);
+  ctx_out.putImageData(inputData, 0, 0);
+  //createImageBitmap(image_input).then(bitmap => {
+  //  ctx_out.drawImage(bitmap, Math.round(cropX), Math.round(cropY), Math.round(cropW),Math.round(cropH), 0, 0, input_width.value, input_height.value);
     render_timer = setTimeout(render, 500);
-  });
+  //});
 }
 
 var dither;
@@ -936,7 +937,7 @@ function render(){
   //image_output.height = height;//Math.max(width,height);
   //image_output.style.width = Math.floor(90/Math.max(1,height/width))+"%";
   let inputData = ctx_out.getImageData(0, 0, width, height);
-  let outputData = ctx_out.getImageData(0, 0, width, height);
+  let outputData = inputData;//ctx_out.getImageData(0, 0, width, height);
   const data = inputData.data;
   const out = outputData.data;
 
