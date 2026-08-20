@@ -482,6 +482,13 @@ function updateCropValues(){
 }
 
 
+  //Make the DIV element draggagle:
+  dragCropHandle(document.getElementById("crop-nw"),);
+  dragCropHandle(document.getElementById("crop-ne"));
+  dragCropHandle(document.getElementById("crop-sw"));
+  dragCropHandle(document.getElementById("crop-se"));
+
+
 
 function dragCropHandle(elmnt) {
   var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
@@ -595,6 +602,7 @@ function crop_change(){
 
 const max_image_dimension = 1080;
 
+var inputData = ctx_in.getImageData(0, 0, image_input.width, image_input.height);
 
 function handleFiles() {
     if ( this.files && this.files[0] ) {
@@ -636,18 +644,14 @@ function handleFiles() {
                 brightness_element.value = 0;
                 contrast_element.value = 0;
                 saturation_element.value = 0;
+                ctx_in.drawImage(img, 0, 0);
+                inputData = ctx_in.getImageData(0, 0, image_input.width, image_input.height);
                 getDither();
                 findColors();
                 initCrop();
-                update();
             }; 
 
             loaded = true;
-            //Make the DIV element draggagle:
-            dragCropHandle(document.getElementById("crop-nw"),);
-            dragCropHandle(document.getElementById("crop-ne"));
-            dragCropHandle(document.getElementById("crop-sw"));
-            dragCropHandle(document.getElementById("crop-se"));
 
            };
         };       
@@ -760,7 +764,7 @@ function findColors(e) {
   let height = input_height.value;
   //image_output.width = Math.max(width,height);
   //image_output.height = Math.max(width,height);
-  let inputData = ctx_in.getImageData(0, 0, image_input.width, image_input.height);
+  //let inputData = ctx_in.getImageData(0, 0, image_input.width, image_input.height);
   const data = inputData.data;
   let max_colors = parseInt(document.getElementById("max_colors").value);
 
@@ -861,13 +865,16 @@ function update() {
   let saturation = parseInt(saturation_element.value);
   let sat_max = (saturation < 0) ? 255 : 128;
   getDither();
-  ctx_in.drawImage(img, 0, 0);
-  image_output.width = width;
-  image_output.height = height;
-  image_output.style.width = Math.floor(90/Math.max(1,height/width))+"%";
   
+  let new_width = input_width.value;
+  let new_height = input_height.value;
+  if ((new_width != image_output.width) || (new_height != image_output.height)) {
+    image_output.width = width;
+    image_output.height = height;
+    image_output.style.width = Math.floor(90/Math.max(1,height/width))+"%";
+  }
   
-  let inputData = ctx_in.getImageData(0, 0, img.naturalWidth, img.naturalHeight);
+  //let inputData = ctx_in.getImageData(0, 0, img.naturalWidth, img.naturalHeight);
 
   const data = inputData.data;
   
