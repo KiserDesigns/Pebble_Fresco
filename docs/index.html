@@ -353,11 +353,11 @@ button.action {
           </select>
           <br>
           Spoof Date/Time:
-          <br><input  type="datetime-local" id="datetime">
-          <br>Battery&nbsp;%:&nbsp;<input class="half-wide" type="number" id="battery" value="80">
-          <br>Step&nbsp;Count:&nbsp;<input class="half-wide" type="number" id="steps" value="4600">
-          <br>Heartrate:&nbsp;<input class="half-wide" type="number" id="heartrate" value="75">
-          <br>24-Hour&nbsp;Mode:&nbsp;<select class="half-wide" id ="time_mode">
+          <br><input  type="datetime-local" id="datetime" onchange="drawLayers(fast);">
+          <br>Battery&nbsp;%:&nbsp;<input class="half-wide" type="number" id="battery" value="80" onchange="drawLayers(fast);">
+          <br>Step&nbsp;Count:&nbsp;<input class="half-wide" type="number" id="steps" value="4600" onchange="drawLayers(fast);">
+          <br>Heartrate:&nbsp;<input class="half-wide" type="number" id="heartrate" value="75" onchange="drawLayers(fast);">
+          <br>24-Hour&nbsp;Mode:&nbsp;<select class="half-wide" id ="time_mode" onchange="drawLayers(fast);">
           <option value="24" selected>24</option>
           <option value="12">12</option></select>
         </div>
@@ -697,7 +697,6 @@ function addLayer(){
       addLayerToList(layers, i);
       reorderListData();
       populateList();
-      drawLayers(fast);
       openLayer(i);
       document.getElementById(selected_layer).scrollIntoView();
       return true;
@@ -711,7 +710,6 @@ function disableLayer(i){
   openLayer(-1);
   reorderListData();
   populateList();
-  drawLayers(fast);
 }
 
 function duplicateLayer(i){
@@ -738,6 +736,7 @@ function reorderListData(){
     new_layers.push(new Layer());
   }
   layers.splice(0, new_layers.length, ...new_layers);
+  drawLayers(fast);
 }
 
 const xyTrack = document.getElementById('xyTrack');
@@ -996,6 +995,7 @@ function populateList() {
   if (selected_layer >= 0){
     document.getElementById(selected_layer).scrollIntoView();
   }
+  drawLayers(fast);
 }
 
 function addLayerToList(layers, i){
