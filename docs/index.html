@@ -1071,6 +1071,7 @@ function loadLocal(key){
     for(i=parseObject.length-1;i<numLayers;i++){
       layers[i].setLayerSetting("enabled", "false");
     }
+    openLayer(-1);
     populateList();
     drawLayers(fast);
   }
@@ -1384,6 +1385,7 @@ importButton.addEventListener("click", function () {
         for(i=parseObject.length-offset;i<numLayers;i++){
           layers[i].setLayerSetting("enabled", "false");
         }
+        openLayer(-1);
         populateList();
         drawLayers(fast);
     }
