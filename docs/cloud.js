@@ -326,6 +326,7 @@ async function loadOnline(ident){
             dataURI = dataURI + imgdata[i];
         }
         layers[layer].setImageData(dataURI);
+        drawLayers(fast);
     }
 
     //debugger;
@@ -353,9 +354,9 @@ async function loadOnline(ident){
                         layers[i].setLayerSetting("enabled", "false");
                     }
                     document.getElementById('browse-overlay').style.display = "none";
+                    openLayer(-1);
                     populateList();
                     drawLayers(fast);
-                    openLayer(-1);
                 }
             );
         }
