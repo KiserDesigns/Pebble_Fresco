@@ -481,7 +481,7 @@ button.action {
                 +</button>
             </div>
             <div class="flex center pad">
-              <button onclick="image_converter.style.display='block';document.getElementById('iframeid').src = document.getElementById('iframeid').src">
+              <button onclick="showImageConverter();">
                 Upload New</button>
             </div>
           </td>
@@ -534,11 +534,19 @@ const image_scale = document.getElementById("image_scale");
 //  drawLayers();
 //})
 
+const image_converter = document.getElementById("image-converter");
+
 document.getElementById('text_settings').style.display = 'none';
 document.getElementById('layer_info').style.display = 'none';
-document.getElementById('image-converter').style.display = 'none';
+image_converter.style.display = 'none';
 document.getElementById('image_settings').style.display = 'none';
 outline.style.display = 'none';
+
+function showImageConverter(){
+  image_converter.style.display='block';
+  //document.getElementById('iframeid').src = document.getElementById('iframeid').src
+}
+
 
 let background_color = '#000000';
 
@@ -555,6 +563,10 @@ var plat_w;
 var plat_h;
 
 var inApp = false; //getPlatform will determine if we are in the Pebble app 
+
+
+var draw_layer_timer = setTimeout(drawLayers, 2000);
+
 //init. May need to guard this until page/js completely loaded
 getPlatform();
 defaultLayers();
@@ -564,7 +576,6 @@ populateList();
 
 var selected_layer = -1;
 
-const image_converter = document.getElementById("image-converter");
 
 window.addEventListener("message", e => {
   const key = e.message ? 'message' : 'data';
@@ -1066,9 +1077,13 @@ function loadLocal(key){
   document.getElementById('load_menu').style.visibility ='hidden';
 }
 
-setInterval(drawLayers, 1000);
-
 function drawLayers(drawFast=false) {
+  if (drawFast){
+    if (draw_layer_timer) {
+      clearTimeout(draw_layer_timer);
+    }
+    draw_layer_timer = setTimeout(drawLayers, 2000);
+  }
   ctx.fillStyle = background_color;
   ctx.fillRect(0, 0, plat_w, plat_h);
   for(var child=layer_container.firstChild; child!==null; child=child.nextSibling) {
